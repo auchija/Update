@@ -1,0 +1,143 @@
+/*
+ * Estilos compartidos por los campos de formulario: Input, PasswordInput,
+ * Select, Checkbox y FieldError. Así todos se ven y se comportan igual.
+ */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.required {
+  color: var(--danger);
+}
+
+.controlWrap {
+  position: relative;
+}
+
+.control {
+  width: 100%;
+  height: 2.75rem;
+  padding-inline: 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: var(--text-base); /* 16 px: evita que iOS haga zoom al enfocar */
+  transition: border-color var(--duration-fast) var(--ease-natural);
+}
+
+.control::placeholder {
+  color: var(--foreground-muted);
+}
+
+.control:focus {
+  border-color: var(--primary);
+}
+
+.control[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.control:disabled {
+  cursor: not-allowed;
+  background: var(--surface-sunken);
+  opacity: 0.7;
+}
+
+.withEnd {
+  padding-right: 3rem;
+}
+
+.select {
+  appearance: none;
+  padding-right: 2.5rem;
+}
+
+/* Contenido a la derecha del campo (botón de mostrar contraseña) */
+.end {
+  position: absolute;
+  inset-block: 0;
+  right: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.chevron {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  translate: 0 -50%;
+  pointer-events: none;
+  color: var(--foreground-muted);
+}
+
+.hint {
+  font-size: var(--text-sm);
+  color: var(--foreground-muted);
+}
+
+/* El error lleva icono además del color, para no depender solo del rojo */
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  font-size: var(--text-sm);
+  color: var(--danger);
+}
+
+.errorIcon {
+  margin-top: 0.125rem;
+}
+
+/* Checkbox */
+.checkRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.checkbox {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.checkLabel {
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+/* Grupo de casillas (CheckboxGroup) */
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Móvil: una columna. Desde 640 px: dos columnas (grid) */
+.options {
+  display: grid;
+  gap: 0.625rem;
+  padding-top: 0.25rem;
+}
+
+@media (min-width: 40rem) {
+  .options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

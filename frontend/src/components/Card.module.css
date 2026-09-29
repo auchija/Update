@@ -1,0 +1,22 @@
+.card {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 40rem) {
+  .card {
+    padding: 1.5rem;
+  }
+}
+
+/* Va después del @media para ganarle al padding de .card en cualquier ancho */
+.compact {
+  padding: 1rem;
+}
+
+.elevated {
+  box-shadow: var(--shadow-md);
+}

@@ -1,0 +1,64 @@
+/* Estilos compartidos por las páginas de Login y Registro */
+
+.page {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
+
+/* Centra la tarjeta del formulario en el espacio disponible */
+.main {
+  display: grid;
+  place-items: center;
+  padding-block: 3rem;
+}
+
+.card {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 28rem;
+}
+
+/* Título y subtítulo de la tarjeta */
+.heading {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+/* Los campos del formulario, uno debajo del otro (grid) */
+.form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+/* "¿Ya tienes cuenta? Inicia sesión" */
+.switch {
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* Cuenta de prueba (solo con usuarios de prueba) */
+.testAccount {
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--foreground-muted);
+}
+
+.testAccount code {
+  color: var(--foreground);
+}
+
+/* Botones apilados tras iniciar sesión o registrarse */
+.actions {
+  display: grid;
+  gap: 0.5rem;
+}

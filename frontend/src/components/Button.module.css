@@ -1,0 +1,97 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-natural),
+    box-shadow var(--duration-fast) var(--ease-natural),
+    translate var(--duration-fast) var(--ease-natural),
+    opacity var(--duration-fast) var(--ease-natural);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Al hacer clic vuelve a su sitio, como si se presionara */
+.button:not(:disabled):active {
+  translate: 0 0;
+  box-shadow: none;
+}
+
+/* Tamaños. md y lg miden 44 px o más: mínimo recomendado para tocar en móvil */
+.sm {
+  height: 2.25rem;
+  padding-inline: 0.75rem;
+  font-size: var(--text-sm);
+}
+
+.md {
+  height: 2.75rem;
+  padding-inline: 1.25rem;
+  font-size: var(--text-sm);
+}
+
+.lg {
+  height: 3rem;
+  padding-inline: 1.5rem;
+  font-size: var(--text-base);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* Variantes */
+.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.secondary {
+  border-color: var(--primary);
+  background: var(--surface);
+  color: var(--primary);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--primary);
+}
+
+.danger {
+  background: var(--danger);
+  color: var(--background);
+}
+
+/* Hover solo en dispositivos con cursor (en móvil no hay hover real) */
+@media (hover: hover) {
+  .primary:not(:disabled):hover {
+    background: var(--primary-hover);
+  }
+
+  .secondary:not(:disabled):hover,
+  .ghost:not(:disabled):hover {
+    background: var(--primary-soft);
+  }
+
+  .danger:not(:disabled):hover {
+    opacity: 0.9;
+  }
+
+  /* Sube 1 px y aparece una sombra tenue. ghost no: es un botón de texto */
+  .primary:not(:disabled):hover,
+  .secondary:not(:disabled):hover,
+  .danger:not(:disabled):hover {
+    translate: 0 -1px;
+    box-shadow: var(--shadow-button);
+  }
+}

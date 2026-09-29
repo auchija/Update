@@ -1,0 +1,37 @@
+.badge {
+  display: inline-flex;
+  justify-self: start; /* dentro de un grid no se estira a todo el ancho */
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.neutral {
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+  color: var(--foreground-muted);
+}
+
+.primary {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* Mostaza: se reserva para lo que debe destacar, como la etapa del proyecto */
+.accent {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}

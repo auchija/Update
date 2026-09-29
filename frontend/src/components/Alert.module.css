@@ -1,0 +1,46 @@
+.alert {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+}
+
+.icon {
+  margin-top: 0.125rem;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-size: var(--text-sm);
+}
+
+.title {
+  font-weight: 600;
+}
+
+.info {
+  background: var(--primary-soft);
+}
+
+.info .icon {
+  color: var(--primary);
+}
+
+.success {
+  background: var(--success-soft);
+}
+
+.success .icon {
+  color: var(--success);
+}
+
+.danger {
+  background: var(--danger-soft);
+}
+
+.danger .icon {
+  color: var(--danger);
+}

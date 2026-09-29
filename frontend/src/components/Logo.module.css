@@ -1,0 +1,37 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--heading);
+  text-decoration: none;
+}
+
+@media (min-width: 40rem) {
+  .logo {
+    font-size: var(--text-xl);
+  }
+}
+
+.mark {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.node {
+  fill: var(--primary);
+}
+
+.ring {
+  fill: none;
+  stroke: var(--primary);
+}
+
+.link {
+  stroke: var(--accent);
+}
