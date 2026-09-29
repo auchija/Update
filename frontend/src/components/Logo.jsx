@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { SITE_NAME } from "../config.js";
 import styles from "./Logo.module.css";
 
-/** Marca de la app: dos nodos unidos por un trazo mostaza, más el nombre. Lleva a la portada. */
 export default function Logo() {
   return (
     <Link to="/" className={styles.logo} aria-label={`${SITE_NAME}, ir al inicio`}>

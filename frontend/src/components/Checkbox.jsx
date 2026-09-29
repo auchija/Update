@@ -1,11 +1,9 @@
-import { useId } from "react";
-import { CircleAlert } from "lucide-react";
+import { useFieldIds } from "../hooks/useFieldIds.js";
 import styles from "./Field.module.css";
+import { FieldError } from "./FieldParts.jsx";
 
-/** Casilla de verificación con su texto al lado (todo el texto es clicable). */
 export default function Checkbox({ label, error, ...props }) {
-  const id = useId();
-  const errorId = `${id}-error`;
+  const { id, errorId, describedBy } = useFieldIds({ error });
 
   return (
     <div className={styles.field}>
@@ -14,7 +12,7 @@ export default function Checkbox({ label, error, ...props }) {
           id={id}
           type="checkbox"
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
+          aria-describedby={describedBy}
           className={styles.checkbox}
           {...props}
         />
@@ -22,12 +20,8 @@ export default function Checkbox({ label, error, ...props }) {
           {label}
         </label>
       </div>
-      {error && (
-        <p id={errorId} className={styles.error}>
-          <CircleAlert aria-hidden="true" className={`icon icon--sm ${styles.errorIcon}`} />
-          <span>{error}</span>
-        </p>
-      )}
+
+      <FieldError id={errorId}>{error}</FieldError>
     </div>
   );
 }

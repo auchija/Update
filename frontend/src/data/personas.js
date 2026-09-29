@@ -1,13 +1,3 @@
-// "Personas": las formas de participar en la comunidad. Un usuario puede elegir varias al
-// registrarse (tabla user_personas del backend). Esta es la ÚNICA lista de la app:
-// la usan el formulario de registro y la sección "Para quién es" de la landing.
-//
-// - value:    código que se envía al backend (catálogo persona_types; ver docs/contrato-api.md)
-// - label:    texto de la casilla en el registro (singular)
-// - title:    título de la tarjeta en la landing (plural)
-// - text:     a quién va dirigida
-// - benefits: qué obtiene en la plataforma
-
 export const PERSONAS = [
   {
     value: "entrepreneur",

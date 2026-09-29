@@ -1,6 +1,6 @@
 .badge {
   display: inline-flex;
-  justify-self: start; /* dentro de un grid no se estira a todo el ancho */
+  justify-self: start;
   align-items: center;
   gap: 0.25rem;
   padding: 0.125rem 0.5rem;
@@ -20,7 +20,6 @@
   color: var(--primary);
 }
 
-/* Mostaza: se reserva para lo que debe destacar, como la etapa del proyecto */
 .accent {
   background: var(--accent);
   color: var(--on-accent);

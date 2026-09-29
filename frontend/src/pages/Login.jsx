@@ -1,155 +1,100 @@
-// Página de inicio de sesión ("/login"). Se entra con el correo o con el @usuario.
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Alert from "../components/Alert.jsx";
 import Button from "../components/Button.jsx";
-import Card from "../components/Card.jsx";
-import Footer from "../components/Footer.jsx";
-import Header from "../components/Header.jsx";
 import Input from "../components/Input.jsx";
 import PasswordInput from "../components/PasswordInput.jsx";
-import { SITE_NAME, USE_MOCKS } from "../config.js";
+import { USE_MOCKS } from "../config.js";
+import { useForm } from "../hooks/useForm.js";
 import { login, logout } from "../services/authService.js";
-import styles from "./Auth.module.css";
+import { validateLogin } from "../utils/authValidation.js";
+import styles from "./auth/Auth.module.css";
+import AuthHeading from "./auth/AuthHeading.jsx";
+import AuthLayout from "./auth/AuthLayout.jsx";
+import AuthSuccess from "./auth/AuthSuccess.jsx";
 
-// Revisa los datos y devuelve un objeto con los errores. Si está vacío, todo está bien.
-function validate(values) {
-  const errors = {};
-
-  if (!values.identifier.trim()) {
-    errors.identifier = "Escribe tu correo o tu nombre de usuario.";
-  }
-  if (!values.password) {
-    errors.password = "Escribe tu contraseña.";
-  }
-
-  return errors;
-}
+const EMPTY_LOGIN_FORM = { identifier: "", password: "" };
 
 export default function Login() {
-  const [values, setValues] = useState({ identifier: "", password: "" });
-  const [errors, setErrors] = useState({}); // errores de cada campo
-  const [formError, setFormError] = useState(""); // error general (arriba del formulario)
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [user, setUser] = useState(null); // usuario que inició sesión
+  const [user, setUser] = useState(null);
+  const form = useForm({
+    initialValues: EMPTY_LOGIN_FORM,
+    validate: validateLogin,
+    onSubmit: signIn,
+  });
 
-  // Se ejecuta cada vez que el usuario escribe en un campo.
-  function handleChange(event) {
-    const { name, value } = event.target;
-    setValues({ ...values, [name]: value });
-    // Si ese campo tenía un error, lo quitamos mientras lo corrige.
-    if (errors[name]) setErrors({ ...errors, [name]: undefined });
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault(); // evita que el navegador recargue la página
-    setFormError("");
-
-    const newErrors = validate(values);
-    setErrors(newErrors);
-
-    // Si hay errores, llevamos el cursor al primer campo con error y no enviamos.
-    const firstError = Object.keys(newErrors)[0];
-    if (firstError) {
-      event.target.elements[firstError].focus();
-      return;
-    }
-
-    setIsSubmitting(true);
+  async function signIn({ identifier, password }) {
     try {
-      const loggedUser = await login(values.identifier.trim(), values.password);
-      setUser(loggedUser);
+      setUser(await login(identifier.trim(), password));
     } catch (error) {
-      setErrors(error.fieldErrors || {});
-      setFormError(error.message);
-      // Por seguridad, tras un intento fallido se vacía la contraseña.
-      setValues({ ...values, password: "" });
-    } finally {
-      setIsSubmitting(false);
+      form.setFieldValue("password", "");
+      throw error;
     }
   }
 
   async function handleLogout() {
     await logout();
     setUser(null);
-    setValues({ identifier: "", password: "" });
+    form.reset();
   }
 
   return (
-    <div className={styles.page}>
-      <title>{`Iniciar sesión | ${SITE_NAME}`}</title>
-      <Header />
+    <AuthLayout pageTitle="Iniciar sesión">
+      {user ? (
+        <AuthSuccess title={`¡Hola, ${user.displayName}!`} onLogout={handleLogout}>
+          Iniciaste sesión como @{user.handle}.
+        </AuthSuccess>
+      ) : (
+        <>
+          <AuthHeading
+            title="Iniciar sesión"
+            subtitle="Entra para seguir construyendo tu proyecto."
+          />
 
-      <main id="contenido" className={`container ${styles.main}`}>
-        <Card className={styles.card}>
-          {user ? (
-            // ===== Sesión iniciada =====
-            <>
-              <Alert variant="success" title={`¡Hola, ${user.displayName}!`}>
-                Iniciaste sesión como @{user.handle}.
-              </Alert>
-              <div className={styles.actions}>
-                <Button to="/" fullWidth>
-                  Ir al inicio
-                </Button>
-                <Button variant="ghost" fullWidth onClick={handleLogout}>
-                  Cerrar sesión
-                </Button>
-              </div>
-            </>
-          ) : (
-            // ===== Formulario =====
-            <>
-              <div className={styles.heading}>
-                <h1 className={styles.title}>Iniciar sesión</h1>
-                <p className="text-muted">Entra para seguir construyendo tu proyecto.</p>
-              </div>
+          {form.formError && <Alert variant="danger">{form.formError}</Alert>}
 
-              {formError && <Alert variant="danger">{formError}</Alert>}
+          <form onSubmit={form.handleSubmit} noValidate className={styles.form}>
+            <Input
+              label="Correo o usuario"
+              name="identifier"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              required
+              value={form.values.identifier}
+              onChange={form.handleChange}
+              error={form.errors.identifier}
+            />
+            <PasswordInput
+              label="Contraseña"
+              name="password"
+              autoComplete="current-password"
+              required
+              value={form.values.password}
+              onChange={form.handleChange}
+              error={form.errors.password}
+            />
+            <Button type="submit" size="lg" fullWidth isLoading={form.isSubmitting}>
+              {form.isSubmitting ? "Iniciando sesión" : "Iniciar sesión"}
+            </Button>
+          </form>
 
-              {/* noValidate: la validación la hacemos nosotros con validate() */}
-              <form onSubmit={handleSubmit} noValidate className={styles.form}>
-                <Input
-                  label="Correo o usuario"
-                  name="identifier"
-                  autoComplete="username"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                  required
-                  value={values.identifier}
-                  onChange={handleChange}
-                  error={errors.identifier}
-                />
-                <PasswordInput
-                  label="Contraseña"
-                  name="password"
-                  autoComplete="current-password"
-                  required
-                  value={values.password}
-                  onChange={handleChange}
-                  error={errors.password}
-                />
-                <Button type="submit" size="lg" fullWidth isLoading={isSubmitting}>
-                  {isSubmitting ? "Iniciando sesión" : "Iniciar sesión"}
-                </Button>
-              </form>
+          {USE_MOCKS && <TestAccountHint />}
 
-              {USE_MOCKS && (
-                <p className={styles.testAccount}>
-                  Cuenta de prueba: <code>demo@correo.com</code> o <code>@valentina</code>, con
-                  contraseña <code>Demo1234</code>
-                </p>
-              )}
+          <p className={styles.switch}>
+            ¿Aún no tienes cuenta? <Link to="/registro">Crea tu perfil</Link>
+          </p>
+        </>
+      )}
+    </AuthLayout>
+  );
+}
 
-              <p className={styles.switch}>
-                ¿Aún no tienes cuenta? <Link to="/registro">Crea tu perfil</Link>
-              </p>
-            </>
-          )}
-        </Card>
-      </main>
-
-      <Footer />
-    </div>
+function TestAccountHint() {
+  return (
+    <p className={styles.testAccount}>
+      Cuenta de prueba: <code>demo@correo.com</code> o <code>@valentina</code>, con contraseña{" "}
+      <code>Demo1234</code>
+    </p>
   );
 }

@@ -1,32 +1,16 @@
-import { useId } from "react";
-import { CircleAlert } from "lucide-react";
+import { useFieldIds } from "../hooks/useFieldIds.js";
+import { classNames } from "../utils/classNames.js";
 import styles from "./Field.module.css";
+import { FieldError, FieldHint, RequiredMark } from "./FieldParts.jsx";
 
-/**
- * Campo de texto con su label, un texto de ayuda opcional y el mensaje de error.
- * Conecta la accesibilidad por sí solo:
- * - htmlFor / id: al hacer clic en el label se enfoca el campo
- * - aria-invalid: avisa a los lectores de pantalla que el campo tiene un error
- * - aria-describedby: hace que lean también la ayuda y el error
- *
- * `endSlot` permite poner algo a la derecha dentro del campo (el ojo de la contraseña).
- */
 export default function Input({ label, hint, error, endSlot, required, ...props }) {
-  const id = useId();
-  const hintId = `${id}-hint`;
-  const errorId = `${id}-error`;
-  const describedBy = [error && errorId, hint && hintId].filter(Boolean).join(" ") || undefined;
+  const { id, hintId, errorId, describedBy } = useFieldIds({ hint, error });
 
   return (
     <div className={styles.field}>
       <label htmlFor={id} className={styles.label}>
         {label}
-        {required && (
-          <span aria-hidden="true" className={styles.required}>
-            {" "}
-            *
-          </span>
-        )}
+        {required && <RequiredMark />}
       </label>
 
       <div className={styles.controlWrap}>
@@ -35,23 +19,14 @@ export default function Input({ label, hint, error, endSlot, required, ...props 
           required={required}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
-          className={endSlot ? `${styles.control} ${styles.withEnd}` : styles.control}
+          className={classNames(styles.control, endSlot && styles.withEnd)}
           {...props}
         />
         {endSlot && <div className={styles.end}>{endSlot}</div>}
       </div>
 
-      {hint && (
-        <p id={hintId} className={styles.hint}>
-          {hint}
-        </p>
-      )}
-      {error && (
-        <p id={errorId} className={styles.error}>
-          <CircleAlert aria-hidden="true" className={`icon icon--sm ${styles.errorIcon}`} />
-          <span>{error}</span>
-        </p>
-      )}
+      <FieldHint id={hintId}>{hint}</FieldHint>
+      <FieldError id={errorId}>{error}</FieldError>
     </div>
   );
 }

@@ -1,0 +1,36 @@
+.section {
+  padding-block: 4rem;
+  scroll-margin-top: 4rem;
+}
+
+.sunken {
+  border-block: 1px solid var(--border);
+  background: var(--surface-sunken);
+}
+
+.inner {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.header {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 42rem;
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 40rem) {
+  .section {
+    padding-block: 5rem;
+  }
+
+  .title {
+    font-size: var(--text-3xl);
+  }
+}

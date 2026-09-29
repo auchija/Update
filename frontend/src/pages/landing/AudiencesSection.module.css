@@ -1,0 +1,55 @@
+.audiences {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.audience {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.iconSquare {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.audienceTitle {
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.benefits {
+  display: grid;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+}
+
+.benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.check {
+  margin-top: 0.2rem;
+  color: var(--primary);
+}
+
+@media (min-width: 48rem) {
+  .audiences {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .audiences {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

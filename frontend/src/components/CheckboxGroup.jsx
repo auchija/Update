@@ -1,83 +1,59 @@
-import { useId } from "react";
-import { CircleAlert } from "lucide-react";
+import { useFieldIds } from "../hooks/useFieldIds.js";
 import styles from "./Field.module.css";
+import { FieldError, FieldHint, RequiredMark } from "./FieldParts.jsx";
 
-/**
- * Grupo de casillas para elegir VARIAS opciones (p. ej. las "personas" del registro).
- * Usa <fieldset> y <legend>: así los lectores de pantalla leen la pregunta del grupo.
- *
- * - options: lista de { value, label }
- * - value: lista con los valores marcados, p. ej. ["entrepreneur", "mentor"]
- * - onChange(nuevaLista): se llama con la lista actualizada
- */
 export default function CheckboxGroup({
   legend,
   hint,
   name,
   options,
-  value,
+  value: selectedValues,
   onChange,
   error,
   required,
 }) {
-  const id = useId();
-  const hintId = `${id}-hint`;
-  const errorId = `${id}-error`;
-  const describedBy = [error && errorId, hint && hintId].filter(Boolean).join(" ") || undefined;
+  const { id, hintId, errorId, describedBy } = useFieldIds({ hint, error });
 
-  // Marca o desmarca una opción y devuelve la lista nueva.
-  function toggle(optionValue) {
-    if (value.includes(optionValue)) {
-      onChange(value.filter((v) => v !== optionValue));
-    } else {
-      onChange([...value, optionValue]);
-    }
+  function toggleOption(optionValue) {
+    const nextValues = selectedValues.includes(optionValue)
+      ? selectedValues.filter((selected) => selected !== optionValue)
+      : [...selectedValues, optionValue];
+    onChange(nextValues);
   }
 
   return (
     <fieldset className={styles.fieldset} aria-describedby={describedBy}>
       <legend className={styles.label}>
         {legend}
-        {required && (
-          <span aria-hidden="true" className={styles.required}>
-            {" "}
-            *
-          </span>
-        )}
+        {required && <RequiredMark />}
       </legend>
 
-      {hint && (
-        <p id={hintId} className={styles.hint}>
-          {hint}
-        </p>
-      )}
+      <FieldHint id={hintId}>{hint}</FieldHint>
 
       <div className={styles.options}>
-        {options.map((option) => (
-          <div key={option.value} className={styles.checkRow}>
-            <input
-              id={`${id}-${option.value}`}
-              type="checkbox"
-              name={name}
-              value={option.value}
-              checked={value.includes(option.value)}
-              onChange={() => toggle(option.value)}
-              aria-invalid={error ? true : undefined}
-              className={styles.checkbox}
-            />
-            <label htmlFor={`${id}-${option.value}`} className={styles.checkLabel}>
-              {option.label}
-            </label>
-          </div>
-        ))}
+        {options.map((option) => {
+          const optionId = `${id}-${option.value}`;
+          return (
+            <div key={option.value} className={styles.checkRow}>
+              <input
+                id={optionId}
+                type="checkbox"
+                name={name}
+                value={option.value}
+                checked={selectedValues.includes(option.value)}
+                onChange={() => toggleOption(option.value)}
+                aria-invalid={error ? true : undefined}
+                className={styles.checkbox}
+              />
+              <label htmlFor={optionId} className={styles.checkLabel}>
+                {option.label}
+              </label>
+            </div>
+          );
+        })}
       </div>
 
-      {error && (
-        <p id={errorId} className={styles.error}>
-          <CircleAlert aria-hidden="true" className={`icon icon--sm ${styles.errorIcon}`} />
-          <span>{error}</span>
-        </p>
-      )}
+      <FieldError id={errorId}>{error}</FieldError>
     </fieldset>
   );
 }

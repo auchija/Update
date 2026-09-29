@@ -7,7 +7,6 @@
   backdrop-filter: blur(8px);
 }
 
-/* Tres columnas: logo | enlaces (centro) | acciones */
 .inner {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -23,7 +22,6 @@
   gap: 0.5rem;
 }
 
-/* Enlaces a secciones: ocultos hasta 1024 px (en tablet no caben junto a los botones) */
 .nav {
   display: none;
 }
@@ -46,7 +44,6 @@
   transition: color var(--duration-fast) var(--ease-natural);
 }
 
-/* Línea morada clara que se dibuja de izquierda a derecha al pasar el cursor */
 .navLink::after {
   content: "";
   position: absolute;
@@ -83,7 +80,6 @@
   }
 }
 
-/* "Saltar al contenido": oculto fuera de la pantalla hasta que recibe el foco con Tab */
 .skipLink {
   position: absolute;
   top: 0.5rem;

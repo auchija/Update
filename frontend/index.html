@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!-- Fuentes: Bricolage Grotesque (títulos) y Figtree (texto) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,20 +12,16 @@
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400..700&display=swap"
     />
 
-    <!--
-      Aplica el tema (claro u oscuro) ANTES de que se vea la página, para que no
-      parpadee en blanco al cargar en modo oscuro. Usa la misma clave que ThemeToggle.jsx.
-    -->
     <script>
-      (function () {
+      (function applySavedThemeBeforeFirstPaint() {
         var theme = "system";
         try {
           theme = localStorage.getItem("theme") || "system";
-        } catch (error) {
-          // localStorage bloqueado: se usa el tema del sistema.
+        } catch (storageBlocked) {
+          theme = "system";
         }
-        var systemIsDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        if (theme === "dark" || (theme === "system" && systemIsDark)) {
+        var systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (theme === "dark" || (theme === "system" && systemPrefersDark)) {
           document.documentElement.classList.add("dark");
         }
       })();

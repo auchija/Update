@@ -1,0 +1,40 @@
+.hero {
+  padding-block: 3rem;
+}
+
+.inner {
+  display: grid;
+  align-items: center;
+  gap: 4rem;
+}
+
+.content {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: var(--text-display);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+.lead {
+  max-width: 36rem;
+  font-size: var(--text-lg);
+  color: var(--foreground-muted);
+}
+
+@media (min-width: 40rem) {
+  .hero {
+    padding-block: 5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .inner {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 3rem;
+  }
+}

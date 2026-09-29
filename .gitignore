@@ -1,29 +1,23 @@
-# Sistema operativo
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Editores
 .idea/
 .vscode/
 
-# Archivos locales que no forman parte del proyecto
 .claude/
 CLAUDE.md
 AGENTS.md
 docs/
 
-# Dependencias y builds (cada subproyecto tiene además su propio .gitignore)
 node_modules/
 .next/
 dist/
 build/
 coverage/
 
-# Variables de entorno: nunca subir secretos. Solo se versionan los .env.example
 .env
 .env.*
 !.env.example
 
-# Logs
 *.log

@@ -12,7 +12,6 @@
   }
 }
 
-/* Va después del @media para ganarle al padding de .card en cualquier ancho */
 .compact {
   padding: 1rem;
 }

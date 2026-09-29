@@ -21,13 +21,11 @@
   opacity: 0.6;
 }
 
-/* Al hacer clic vuelve a su sitio, como si se presionara */
 .button:not(:disabled):active {
   translate: 0 0;
   box-shadow: none;
 }
 
-/* Tamaños. md y lg miden 44 px o más: mínimo recomendado para tocar en móvil */
 .sm {
   height: 2.25rem;
   padding-inline: 0.75rem;
@@ -50,7 +48,6 @@
   width: 100%;
 }
 
-/* Variantes */
 .primary {
   background: var(--primary);
   color: var(--on-primary);
@@ -72,7 +69,6 @@
   color: var(--background);
 }
 
-/* Hover solo en dispositivos con cursor (en móvil no hay hover real) */
 @media (hover: hover) {
   .primary:not(:disabled):hover {
     background: var(--primary-hover);
@@ -87,7 +83,6 @@
     opacity: 0.9;
   }
 
-  /* Sube 1 px y aparece una sombra tenue. ghost no: es un botón de texto */
   .primary:not(:disabled):hover,
   .secondary:not(:disabled):hover,
   .danger:not(:disabled):hover {

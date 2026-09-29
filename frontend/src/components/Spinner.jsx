@@ -1,12 +1,11 @@
 import { LoaderCircle } from "lucide-react";
+import { classNames } from "../utils/classNames.js";
 import styles from "./Spinner.module.css";
 
-/**
- * Indicador de carga. Con `label`, los lectores de pantalla lo anuncian;
- * sin él es decorativo (por ejemplo, dentro de un botón).
- */
 export default function Spinner({ size = "md", label }) {
-  const icon = <LoaderCircle aria-hidden="true" className={`${styles.spinner} ${styles[size]}`} />;
+  const icon = (
+    <LoaderCircle aria-hidden="true" className={classNames(styles.spinner, styles[size])} />
+  );
 
   if (!label) return icon;
 

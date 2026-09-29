@@ -1,6 +1,24 @@
+import { classNames } from "../utils/classNames.js";
 import styles from "./Avatar.module.css";
 
-// "Valentina Ospina" → "VO"
+export default function Avatar({ name, src, size = "md", decorative = false }) {
+  const className = classNames(styles.avatar, styles[size]);
+
+  if (src) {
+    return <img src={src} alt={decorative ? "" : name} className={className} />;
+  }
+
+  const accessibilityProps = decorative
+    ? { "aria-hidden": true }
+    : { role: "img", "aria-label": name };
+
+  return (
+    <span className={className} {...accessibilityProps}>
+      {getInitials(name)}
+    </span>
+  );
+}
+
 function getInitials(name) {
   return name
     .trim()
@@ -8,31 +26,4 @@ function getInitials(name) {
     .slice(0, 2)
     .map((word) => word[0].toUpperCase())
     .join("");
-}
-
-/**
- * Foto de perfil circular. Sin `src` muestra las iniciales del nombre.
- * Usa `decorative` cuando el nombre ya aparece escrito al lado, para que
- * los lectores de pantalla no lo lean dos veces.
- */
-export default function Avatar({ name, src, size = "md", decorative = false }) {
-  const classes = `${styles.avatar} ${styles[size]}`;
-
-  if (src) {
-    return <img src={src} alt={decorative ? "" : name} className={classes} />;
-  }
-
-  if (decorative) {
-    return (
-      <span aria-hidden="true" className={classes}>
-        {getInitials(name)}
-      </span>
-    );
-  }
-
-  return (
-    <span role="img" aria-label={name} className={classes}>
-      {getInitials(name)}
-    </span>
-  );
 }

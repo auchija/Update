@@ -1,15 +1,8 @@
 import { Link } from "react-router-dom";
+import { classNames } from "../utils/classNames.js";
 import styles from "./Button.module.css";
 import Spinner from "./Spinner.jsx";
 
-/**
- * Botón reutilizable.
- * - variant: "primary" | "secondary" | "ghost" | "danger"
- * - size: "sm" | "md" | "lg"
- * - to: enlace a otra página de la app (p. ej. "/registro"), con React Router
- * - href: enlace normal, p. ej. a una sección de la misma página ("#como-funciona")
- * - isLoading: muestra un spinner y desactiva el botón
- */
 export default function Button({
   variant = "primary",
   size = "md",
@@ -22,13 +15,16 @@ export default function Button({
   children,
   ...props
 }) {
-  const classes = [styles.button, styles[variant], styles[size], fullWidth && styles.fullWidth]
-    .filter(Boolean)
-    .join(" ");
+  const className = classNames(
+    styles.button,
+    styles[variant],
+    styles[size],
+    fullWidth && styles.fullWidth,
+  );
 
   if (to) {
     return (
-      <Link to={to} className={classes}>
+      <Link to={to} className={className}>
         {children}
       </Link>
     );
@@ -36,7 +32,7 @@ export default function Button({
 
   if (href) {
     return (
-      <a href={href} className={classes}>
+      <a href={href} className={className}>
         {children}
       </a>
     );
@@ -45,7 +41,7 @@ export default function Button({
   return (
     <button
       type={type}
-      className={classes}
+      className={className}
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       {...props}
