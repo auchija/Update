@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="update.API/update.API.csproj" />
+  <Project Path="update.Application/update.Application.csproj" />
+  <Project Path="update.Domain/update.Domain.csproj" />
+  <Project Path="update.Infrastructure/update.Infrastructure.csproj" />
+</Solution>
