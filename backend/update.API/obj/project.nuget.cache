@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "53g+U3gLNP4=",
+  "dgSpecHash": "xzSdnxVebyA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.API\\update.API.csproj",
+  "projectFilePath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.API\\update.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\dierm\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\dierm\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.12\\microsoft.aspnetcore.openapi.10.0.12.nupkg.sha512",

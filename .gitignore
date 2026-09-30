@@ -3,7 +3,6 @@ Thumbs.db
 desktop.ini
 
 .idea/
-.vscode/
 
 .claude/
 CLAUDE.md
@@ -21,3 +20,53 @@ coverage/
 !.env.example
 
 *.log
+
+# Archivos generados por .NET
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+*.DotSettings.user
+
+# Visual Studio
+.vscode/
+.vscodium/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.log
+*.cache
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de publicación
+publish/
+*.publishsettings
+*.pubxml.user
+
+# Cobertura y pruebas
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Archivos de secretos locales
+appsettings.Local.json
+appsettings.Development.json
+secrets.json
