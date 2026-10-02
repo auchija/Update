@@ -11,15 +11,14 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 3rem;
+  gap: 2rem;
   height: 4rem;
   padding: 0 8rem;
   border-radius: 50px;
-  background: rgba(255, 255, 255, 0.7);
+  background: color-mix(in srgb, var(--background) 70%, transparent);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border);
 }
-
 
 .actions {
   grid-column: 3;
