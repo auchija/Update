@@ -1,60 +1,55 @@
 using update.Domain.Common;
+using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using update.Domain.Enums;
-
+using update.Domain.Interfaces;
 namespace update.Domain.Entities;
 
-public class Usuario : BaseEntity
+/// <summary>Representa un registro de la tabla usuarios.</summary>
+public sealed class Usuario : BaseEntity, IEntidadValidable
 {
-    /// <summary>
-    /// Tipo de perfil (Persona, Empresa, Gobierno)
-    /// </summary>
+    /// <summary>Columna tipo_perfil (tipo_perfil); obligatoria.</summary>
     public TipoPerfil TipoPerfil { get; set; } = TipoPerfil.Persona;
-
-    /// <summary>
-    /// Correo electrónico único del usuario
-    /// </summary>
+    /// <summary>Columna correo (text); obligatoria.</summary>
     public string Correo { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Hash de la contraseña (nunca almacenar en texto plano)
-    /// </summary>
+    /// <summary>Columna hash_contrasena (text); opcional.</summary>
     public string? HashContrasena { get; set; }
-
-    /// <summary>
-    /// Rol en la plataforma
-    /// </summary>
+    /// <summary>Columna rol_plataforma (rol_plataforma); obligatoria.</summary>
     public RolPlataforma RolPlataforma { get; set; } = RolPlataforma.Usuario;
-
-    /// <summary>
-    /// Fecha cuando el correo fue verificado
-    /// </summary>
+    /// <summary>Columna correo_verificado_en (timestamptz); opcional.</summary>
     public DateTime? CorreoVerificadoEn { get; set; }
-
-    /// <summary>
-    /// Fecha cuando aceptó los términos y condiciones
-    /// </summary>
+    /// <summary>Columna terminos_aceptados_en (timestamptz); obligatoria.</summary>
     public DateTime TerminosAceptadosEn { get; set; }
-
-    /// <summary>
-    /// Último ingreso a la plataforma
-    /// </summary>
+    /// <summary>Columna ultimo_ingreso_en (timestamptz); opcional.</summary>
     public DateTime? UltimoIngresoEn { get; set; }
-
-    /// <summary>
-    /// Contador de intentos fallidos de login
-    /// </summary>
-    public short IntentosFallidos { get; set; } = 0;
-
-    /// <summary>
-    /// Fecha hasta cuando la cuenta está bloqueada (para prevenir fuerza bruta)
-    /// </summary>
+    /// <summary>Columna intentos_fallidos (smallint); obligatoria.</summary>
+    public short IntentosFallidos { get; set; } = (short)0;
+    /// <summary>Columna bloqueado_hasta (timestamptz); opcional.</summary>
     public DateTime? BloqueadoHasta { get; set; }
-
-    /// <summary>
-    /// Fecha del último cambio de contraseña
-    /// </summary>
+    /// <summary>Columna contrasena_cambiada_en (timestamptz); opcional.</summary>
     public DateTime? ContrasenaCambiadaEn { get; set; }
+    /// <summary>Relación hacia perfiles mediante id, tipo_perfil.</summary>
+    [JsonIgnore]
+    public Perfil Perfil { get; set; } = null!;
 
+    /// <summary>Comprueba las reglas de entrada antes de guardar.</summary>
+    public void Validar()
+    {
+        Reglas.Exigir(Id != Guid.Empty, "Id es obligatorio.");
+        Reglas.Exigir(Enum.IsDefined(TipoPerfil), "TipoPerfil contiene un valor no permitido.");
+        Reglas.Texto(Correo, nameof(Correo), 254, true, false);
+        Reglas.Texto(HashContrasena, nameof(HashContrasena), 512, false, false);
+        Reglas.Exigir(Enum.IsDefined(RolPlataforma), "RolPlataforma contiene un valor no permitido.");
+        Reglas.FechaUtc(CorreoVerificadoEn, nameof(CorreoVerificadoEn));
+        Reglas.FechaUtc(TerminosAceptadosEn, nameof(TerminosAceptadosEn));
+        Reglas.FechaUtc(UltimoIngresoEn, nameof(UltimoIngresoEn));
+        Reglas.FechaUtc(BloqueadoHasta, nameof(BloqueadoHasta));
+        Reglas.FechaUtc(ContrasenaCambiadaEn, nameof(ContrasenaCambiadaEn));
+        Reglas.FechaUtc(CreadoEn, nameof(CreadoEn));
+        Reglas.FechaUtc(ActualizadoEn, nameof(ActualizadoEn));
+        Reglas.Exigir(TipoPerfil == TipoPerfil.Persona, "Un usuario debe tener un perfil de persona.");
+    }
     /// <summary>
     /// Verifica si la cuenta está bloqueada actualmente
     /// </summary>
@@ -72,6 +67,7 @@ public class Usuario : BaseEntity
     /// </summary>
     public void IncrementarIntentosFallidos()
     {
+        Reglas.Exigir(IntentosFallidos < short.MaxValue, "El contador de intentos alcanzó su límite.");
         IntentosFallidos++;
         ActualizadoEn = DateTime.UtcNow;
     }
@@ -81,6 +77,7 @@ public class Usuario : BaseEntity
     /// </summary>
     public void BloquearTempo(TimeSpan duracion)
     {
+        Reglas.Exigir(duracion > TimeSpan.Zero, "La duración del bloqueo debe ser positiva.");
         BloqueadoHasta = DateTime.UtcNow.Add(duracion);
         ActualizadoEn = DateTime.UtcNow;
     }

@@ -1,0 +1,13 @@
+{
+  "name": "update-verificacion-postgres",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node integracion.mjs",
+    "test:migracion": "node migracion.mjs"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@electric-sql/pglite-socket": "0.2.11"
+  }
+}

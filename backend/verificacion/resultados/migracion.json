@@ -1,0 +1,20 @@
+{
+  "estado": "correcto",
+  "tablas": 56,
+  "columnas": 451,
+  "relaciones": 123,
+  "migracionesAplicadas": 2,
+  "usuariosAnterioresProbados": 2,
+  "verificaciones": [
+    "Base vacía: 56 tablas, 451 columnas, 123 FK y 2 migraciones; SQL idempotente",
+    "Las seis identidades ALWAYS coinciden con el SQL del proyecto",
+    "Transición de Usuarios original: modelo completo e historial sin duplicar",
+    "Se conservan UUID, correo, hash, rol administrador y contador de intentos",
+    "Rol cero se convierte a usuario y se conserva la fecha de actualización existente",
+    "Fecha de actualización antes nula se completa con la fecha de creación",
+    "Se crean perfiles de persona con los UUID originales y nombres únicos",
+    "La reversión conserva usuarios y recupera los enums numéricos",
+    "La transición se puede aplicar después de revertirla",
+    "Datos incompatibles detienen la migración y conservan la fila original"
+  ]
+}

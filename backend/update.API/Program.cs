@@ -1,60 +1,86 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Net.Mime;
-using System.Text.Json;
+using Microsoft.OpenApi;
 using update.API.Extensions;
-using update.Domain.Interfaces;
-using update.Infrastructure.Data;
-using update.Infrastructure.Repositories;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using update.API.Converters;
+using update.API.Errors;
+using update.Application.Services;
+using update.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+var cadena = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Configura ConnectionStrings:DefaultConnection.");
+var claveJwt = builder.Configuration["Jwt:Clave"];
+if (string.IsNullOrWhiteSpace(claveJwt) || Encoding.UTF8.GetByteCount(claveJwt) < 32)
+    throw new InvalidOperationException("Configura Jwt:Clave con al menos 32 bytes mediante user-secrets o una variable de entorno.");
 
-// Agregar servicios
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Configurar DbContext
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
-
-// Registrar repositorios y servicios
-builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-builder.Services.AddApplicationHealthChecks(
-    builder.Configuration);
-
-// API
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-builder.Services.AddHttpContextAccessor();
-
-// CORS para conectar con frontend
-builder.Services.AddCors(options =>
+builder.Services.AgregarInfraestructura(cadena);
+builder.Services.AddScoped(typeof(ServicioCrud<>));
+builder.Services.AddControllers().AddJsonOptions(opciones =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    opciones.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    opciones.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false));
+    opciones.JsonSerializerOptions.Converters.Add(new DireccionIpConverter());
+});
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ManejadorExcepciones>();
+builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(opciones =>
+{
+    opciones.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
     {
-        policy.WithOrigins("http://localhost:3000") // Ajusta según tu frontend
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT",
+        Description = "JWT administrativo. Pega únicamente el token en Authorize."
+    });
+    opciones.AddSecurityRequirement(documento => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("bearer", documento)] = []
     });
 });
+builder.Services.AddApplicationHealthChecks(builder.Configuration);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opciones =>
+{
+    opciones.MapInboundClaims = false;
+    opciones.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Jwt:Emisor"] ?? "UpDate",
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["Jwt:Audiencia"] ?? "UpDate.API",
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(claveJwt)),
+        RoleClaimType = "rol",
+        ClockSkew = TimeSpan.FromSeconds(30)
+    };
+});
+// Este CRUD es administrativo. Los casos de uso de usuario final necesitan reglas de propiedad.
+builder.Services.AddAuthorization(opciones => opciones.AddPolicy("Administracion",
+    politica => politica.RequireAuthenticatedUser().RequireRole("administrador")));
+var origenes = builder.Configuration.GetSection("Cors:Origenes").Get<string[]>() ?? ["http://localhost:5173"];
+builder.Services.AddCors(opciones => opciones.AddPolicy("Frontend",
+    politica => politica.WithOrigins(origenes).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
 
 var app = builder.Build();
-
-// Configurar middleware
+app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseCors("AllowFrontend");
-app.UseHttpsRedirection();
+else app.UseHttpsRedirection();
+app.UseCors("Frontend");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapApplicationHealthChecks();
-
+app.MapOpenApi().RequireAuthorization("Administracion");
+app.MapGet("/estado", () => Results.Ok(new { servicio = "UpDate.API", estado = "disponible" }));
+// Las migraciones se ejecutan mediante dotnet ef; no se modifica la base al iniciar la API.
 app.Run();
+
+public partial class Program;

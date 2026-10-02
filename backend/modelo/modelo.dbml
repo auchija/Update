@@ -1,0 +1,932 @@
+// UpDate · Modelo de datos leído del diagrama base-update el 2026-10-01.
+// Fuente: https://dbdiagram.io/d/base-update-6abf08fdabcc87fb7acd7d12
+
+Enum tipo_perfil {
+  persona
+  emprendimiento
+}
+Enum estado_cuenta {
+  activo
+  suspendido
+  eliminado
+}
+Enum rol_plataforma {
+  usuario
+  moderador
+  administrador
+}
+Enum rol_emprendimiento {
+  propietario
+  administrador
+  editor
+  soporte
+  miembro
+}
+Enum estado_miembro {
+  invitado
+  activo
+  retirado
+  expulsado
+}
+Enum etapa_emprendimiento {
+  idea
+  validacion
+  lanzamiento
+  crecimiento
+  consolidado
+}
+Enum estado_verificacion {
+  sin_verificar
+  pendiente
+  aprobado
+  rechazado
+}
+Enum estado_seguimiento {
+  pendiente
+  activo
+}
+Enum tipo_producto {
+  producto
+  servicio
+}
+Enum estado_producto {
+  borrador
+  activo
+  pausado
+  archivado
+}
+Enum tipo_precio {
+  fijo
+  desde
+  a_convenir
+  gratis
+}
+Enum estado_inventario {
+  disponible
+  agotado
+  bajo_pedido
+  no_aplica
+}
+Enum visibilidad_publicacion {
+  publico
+  seguidores
+}
+Enum tipo_archivo {
+  imagen
+  video
+  documento
+}
+Enum proposito_archivo {
+  foto_perfil
+  portada
+  publicacion
+  producto
+  mensaje
+  resena
+  verificacion
+  otro
+}
+Enum estado_archivo {
+  pendiente
+  listo
+  fallido
+  eliminado
+}
+Enum visibilidad_archivo {
+  publico
+  privado
+}
+Enum tipo_conversacion {
+  directa
+  grupo
+}
+Enum rol_participante {
+  miembro
+  administrador
+}
+Enum tipo_mensaje {
+  texto
+  archivo
+  producto
+  cotizacion
+  sistema
+}
+Enum estado_solicitud {
+  pendiente
+  cotizado
+  aceptado
+  rechazado
+  cancelado
+  vencido
+  completado
+}
+Enum estado_cotizacion {
+  enviado
+  reemplazado
+  aceptado
+  rechazado
+  vencido
+}
+Enum estado_oportunidad {
+  abierto
+  cerrado
+  cubierto
+}
+Enum estado_postulacion {
+  pendiente
+  aceptado
+  rechazado
+  retirado
+}
+Enum estado_mentoria {
+  solicitado
+  aceptado
+  rechazado
+  agendado
+  completado
+  cancelado
+}
+Enum modalidad_mentoria {
+  virtual
+  presencial
+  ambas
+}
+Enum estado_resena {
+  publicado
+  oculto
+}
+Enum objetivo_reporte {
+  perfil
+  publicacion
+  comentario
+  producto
+  mensaje
+  resena
+  oportunidad
+}
+Enum estado_reporte {
+  abierto
+  en_revision
+  resuelto
+  descartado
+}
+Enum tipo_notificacion {
+  seguimiento
+  solicitud_seguimiento
+  seguimiento_aceptado
+  reaccion
+  comentario
+  respuesta
+  mencion
+  compartido
+  mensaje
+  cotizacion_actualizada
+  postulacion_actualizada
+  mentoria_actualizada
+  resena
+  invitacion_emprendimiento
+  respuesta_aceptada
+  sistema
+}
+
+Table archivos {
+  id uuid [pk, default: `gen_random_uuid()`]
+  subido_por_usuario_id uuid [not null]
+  tipo tipo_archivo [not null]
+  proposito proposito_archivo [not null]
+  proveedor_almacenamiento text [not null, default: `r2`]
+  bucket text [not null]
+  clave_objeto text [not null, unique]
+  nombre_original text
+  tipo_mime text [not null]
+  extension text [not null]
+  tamano_bytes bigint [not null]
+  checksum_sha256 char(64)
+  ancho integer
+  alto integer
+  duracion_segundos numeric(8,2)
+  visibilidad visibilidad_archivo [not null, default: `publico`]
+  estado estado_archivo [not null, default: `pendiente`]
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+  eliminado_en timestamptz
+}
+Table bloqueos {
+  usuario_bloqueador_id uuid [not null]
+  perfil_bloqueado_id uuid [not null]
+  creado_en timestamptz [not null, default: `now()`]
+  indexes {
+    (usuario_bloqueador_id, perfil_bloqueado_id) [pk]
+  }
+}
+Table categorias {
+  id integer [pk, note: 'generada']
+  padre_id integer
+  slug text [not null, unique]
+  nombre text [not null]
+  icono text
+  orden smallint [not null, default: `0`]
+  activo boolean [not null, default: `true`]
+}
+Table ciudades {
+  id integer [pk, note: 'generada']
+  departamento_id integer [not null]
+  nombre text [not null]
+  codigo text
+  latitud numeric(9,6) [not null]
+  longitud numeric(9,6) [not null]
+}
+Table comentarios {
+  id uuid [pk, default: `gen_random_uuid()`]
+  publicacion_id uuid [not null]
+  comentario_padre_id uuid
+  perfil_autor_id uuid [not null]
+  creado_por_usuario_id uuid [not null]
+  responde_a_perfil_id uuid
+  contenido text [not null]
+  total_reacciones integer [not null, default: `0`]
+  total_respuestas integer [not null, default: `0`]
+  editado_en timestamptz
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+  eliminado_en timestamptz
+}
+Table conversaciones {
+  id uuid [pk, default: `gen_random_uuid()`]
+  tipo tipo_conversacion [not null, default: `directa`]
+  titulo text
+  clave_directa text [unique]
+  creado_por_usuario_id uuid [not null]
+  ultimo_mensaje_id uuid
+  ultimo_mensaje_en timestamptz
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+}
+Table cotizacion_items {
+  id uuid [pk, default: `gen_random_uuid()`]
+  cotizacion_id uuid [not null]
+  producto_id uuid
+  descripcion text [not null]
+  cantidad numeric(12,2) [not null]
+  precio_unitario numeric(14,2) [not null]
+  total_linea numeric(14,2) [note: 'generada']
+}
+Table cotizaciones {
+  id uuid [pk, default: `gen_random_uuid()`]
+  solicitud_cotizacion_id uuid [not null]
+  version smallint [not null]
+  creado_por_usuario_id uuid [not null]
+  moneda_codigo char(3) [not null, default: `COP`]
+  subtotal numeric(14,2) [not null, default: `0`]
+  descuento numeric(14,2) [not null, default: `0`]
+  impuesto numeric(14,2) [not null, default: `0`]
+  total numeric(14,2) [note: 'generada']
+  valido_hasta date
+  notas text
+  estado estado_cotizacion [not null, default: `enviado`]
+  creado_en timestamptz [not null, default: `now()`]
+}
+Table departamentos {
+  id integer [pk, note: 'generada']
+  pais_codigo char(2) [not null]
+  nombre text [not null]
+  codigo text
+}
+Table documentos_verificacion {
+  verificacion_id uuid [not null]
+  archivo_id uuid [not null]
+  tipo_documento text [not null]
+  indexes {
+    (verificacion_id, archivo_id) [pk]
+  }
+}
+Table emprendimientos {
+  id uuid [pk]
+  tipo_perfil tipo_perfil [not null, default: `emprendimiento`]
+  categoria_id integer [not null]
+  etapa etapa_emprendimiento [not null, default: `idea`]
+  fundado_en date
+  razon_social text
+  nit text
+  correo_contacto text
+  telefono_contacto text
+  whatsapp text
+  direccion text
+  envios_nacionales boolean [not null, default: `false`]
+  ofrece_remoto boolean [not null, default: `false`]
+  estado_verificacion estado_verificacion [not null, default: `sin_verificar`]
+  verificado_en timestamptz
+  calificacion_promedio numeric(3,2)
+  total_calificaciones integer [not null, default: `0`]
+  creado_por_usuario_id uuid [not null]
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+}
+Table enlaces_emprendimiento {
+  id uuid [pk, default: `gen_random_uuid()`]
+  emprendimiento_id uuid [not null]
+  plataforma text [not null]
+  url text [not null]
+  orden smallint [not null, default: `0`]
+}
+Table etiquetas {
+  id integer [pk, note: 'generada']
+  nombre text [not null, unique]
+  total_usos integer [not null, default: `0`]
+  creado_en timestamptz [not null, default: `now()`]
+}
+Table guardados {
+  id uuid [pk, default: `gen_random_uuid()`]
+  usuario_id uuid [not null]
+  publicacion_id uuid
+  producto_id uuid
+  creado_en timestamptz [not null, default: `now()`]
+}
+Table historial_solicitudes {
+  id bigint [pk, note: 'generada']
+  solicitud_cotizacion_id uuid [not null]
+  estado_anterior estado_solicitud
+  estado_nuevo estado_solicitud [not null]
+  usuario_actor_id uuid
+  nota text
+  creado_en timestamptz [not null, default: `now()`]
+}
+Table intereses_usuario {
+  usuario_id uuid [not null]
+  categoria_id integer [not null]
+  creado_en timestamptz [not null, default: `now()`]
+  indexes {
+    (usuario_id, categoria_id) [pk]
+  }
+}
+Table menciones {
+  publicacion_id uuid [not null]
+  perfil_id uuid [not null]
+  indexes {
+    (publicacion_id, perfil_id) [pk]
+  }
+}
+Table mensajes {
+  id uuid [pk, default: `gen_random_uuid()`]
+  conversacion_id uuid [not null]
+  perfil_remitente_id uuid [not null]
+  usuario_remitente_id uuid
+  tipo tipo_mensaje [not null, default: `texto`]
+  contenido text
+  producto_id uuid
+  solicitud_cotizacion_id uuid
+  responde_a_mensaje_id uuid
+  creado_en timestamptz [not null, default: `now()`]
+  editado_en timestamptz
+  eliminado_en timestamptz
+}
+Table mensajes_adjuntos {
+  mensaje_id uuid [not null]
+  archivo_id uuid [not null]
+  posicion smallint [not null]
+  indexes {
+    (mensaje_id, archivo_id) [pk]
+  }
+}
+Table miembros_emprendimiento {
+  emprendimiento_id uuid [not null]
+  usuario_id uuid [not null]
+  rol rol_emprendimiento [not null, default: `miembro`]
+  titulo text
+  estado estado_miembro [not null, default: `invitado`]
+  invitado_por_usuario_id uuid
+  creado_en timestamptz [not null, default: `now()`]
+  unido_en timestamptz
+  actualizado_en timestamptz [not null, default: `now()`]
+  indexes {
+    (emprendimiento_id, usuario_id) [pk]
+  }
+}
+Table monedas {
+  codigo char(3) [pk]
+  nombre text [not null]
+  simbolo text [not null]
+  decimales smallint [not null, default: `0`]
+  activo boolean [not null, default: `true`]
+}
+Table motivos_reporte {
+  codigo text [pk]
+  nombre text [not null]
+  orden smallint [not null, default: `0`]
+  activo boolean [not null, default: `true`]
+}
+Table notificaciones {
+  id uuid [pk, default: `gen_random_uuid()`]
+  usuario_destinatario_id uuid [not null]
+  tipo tipo_notificacion [not null]
+  perfil_actor_id uuid
+  entidad_tipo text
+  entidad_id uuid
+  clave_grupo text
+  datos jsonb [not null, default: `{}`]
+  leido_en timestamptz
+  creado_en timestamptz [not null, default: `now()`]
+}
+Table ofertas_mentoria {
+  id uuid [pk, default: `gen_random_uuid()`]
+  usuario_mentor_id uuid [not null]
+  titulo text [not null]
+  descripcion text [not null]
+  categoria_id integer
+  modalidad modalidad_mentoria [not null, default: `virtual`]
+  duracion_minutos smallint [not null, default: `60`]
+  es_gratis boolean [not null, default: `true`]
+  precio numeric(14,2)
+  moneda_codigo char(3) [not null, default: `COP`]
+  activo boolean [not null, default: `true`]
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+}
+Table oportunidades {
+  id uuid [pk, default: `gen_random_uuid()`]
+  perfil_autor_id uuid [not null]
+  creado_por_usuario_id uuid [not null]
+  tipo_codigo text [not null]
+  titulo text [not null]
+  descripcion text [not null]
+  categoria_id integer
+  ciudad_id integer
+  es_remoto boolean [not null, default: `false`]
+  estado estado_oportunidad [not null, default: `abierto`]
+  expira_en timestamptz
+  total_postulaciones integer [not null, default: `0`]
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+  eliminado_en timestamptz
+}
+Table paises {
+  codigo char(2) [pk]
+  nombre text [not null]
+  moneda_defecto_codigo char(3) [not null]
+  prefijo_telefono text [not null]
+}
+Table participantes {
+  conversacion_id uuid [not null]
+  perfil_id uuid [not null]
+  rol rol_participante [not null, default: `miembro`]
+  usuario_asignado_id uuid
+  unido_en timestamptz [not null, default: `now()`]
+  salio_en timestamptz
+  ultimo_mensaje_leido_id uuid
+  ultima_lectura_en timestamptz
+  silenciado_hasta timestamptz
+  archivado_en timestamptz
+  indexes {
+    (conversacion_id, perfil_id) [pk]
+  }
+}
+Table perfiles {
+  id uuid [pk, default: `gen_random_uuid()`]
+  tipo tipo_perfil [not null]
+  nombre_usuario text [not null]
+  nombre_visible text [not null]
+  titular text
+  biografia text
+  foto_archivo_id uuid
+  portada_archivo_id uuid
+  ciudad_id integer
+  sitio_web text
+  es_privado boolean [not null, default: `false`]
+  estado estado_cuenta [not null, default: `activo`]
+  total_seguidores integer [not null, default: `0`]
+  total_seguidos integer [not null, default: `0`]
+  total_publicaciones integer [not null, default: `0`]
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+  eliminado_en timestamptz
+}
+Table permisos_rol {
+  rol rol_emprendimiento [not null]
+  permiso text [not null]
+  indexes {
+    (rol, permiso) [pk]
+  }
+}
+Table postulaciones {
+  id uuid [pk, default: `gen_random_uuid()`]
+  oportunidad_id uuid [not null]
+  perfil_postulante_id uuid [not null]
+  creado_por_usuario_id uuid [not null]
+  mensaje text [not null]
+  estado estado_postulacion [not null, default: `pendiente`]
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+}
+Table productos {
+  id uuid [pk, default: `gen_random_uuid()`]
+  emprendimiento_id uuid [not null]
+  creado_por_usuario_id uuid [not null]
+  tipo tipo_producto [not null]
+  titulo text [not null]
+  slug text [not null]
+  descripcion text
+  categoria_id integer [not null]
+  tipo_precio tipo_precio [not null, default: `fijo`]
+  precio numeric(14,2)
+  moneda_codigo char(3) [not null, default: `COP`]
+  estado_inventario estado_inventario [not null, default: `disponible`]
+  cantidad_inventario integer
+  ciudad_id integer
+  estado estado_producto [not null, default: `borrador`]
+  calificacion_promedio numeric(3,2)
+  total_calificaciones integer [not null, default: `0`]
+  total_guardados integer [not null, default: `0`]
+  publicado_en timestamptz
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+  eliminado_en timestamptz
+}
+Table productos_archivos {
+  producto_id uuid [not null]
+  archivo_id uuid [not null]
+  posicion smallint [not null]
+  texto_alternativo text
+  indexes {
+    (producto_id, archivo_id) [pk]
+  }
+}
+Table productos_etiquetas {
+  producto_id uuid [not null]
+  etiqueta_id integer [not null]
+  indexes {
+    (producto_id, etiqueta_id) [pk]
+  }
+}
+Table publicaciones {
+  id uuid [pk, default: `gen_random_uuid()`]
+  perfil_autor_id uuid [not null]
+  creado_por_usuario_id uuid [not null]
+  tipo_publicacion_codigo text [not null, default: `general`]
+  contenido text [not null, default: ``]
+  visibilidad visibilidad_publicacion [not null, default: `publico`]
+  producto_id uuid
+  oportunidad_id uuid
+  publicacion_compartida_id uuid
+  comentario_aceptado_id uuid
+  comentarios_habilitados boolean [not null, default: `true`]
+  fijado boolean [not null, default: `false`]
+  total_reacciones integer [not null, default: `0`]
+  total_comentarios integer [not null, default: `0`]
+  total_compartidos integer [not null, default: `0`]
+  total_guardados integer [not null, default: `0`]
+  puntaje_descubrimiento float8 [not null, default: `0`]
+  puntaje_actualizado_en timestamptz
+  editado_en timestamptz
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+  eliminado_en timestamptz
+}
+Table publicaciones_archivos {
+  publicacion_id uuid [not null]
+  archivo_id uuid [not null]
+  posicion smallint [not null]
+  texto_alternativo text
+  indexes {
+    (publicacion_id, archivo_id) [pk]
+  }
+}
+Table publicaciones_etiquetas {
+  publicacion_id uuid [not null]
+  etiqueta_id integer [not null]
+  indexes {
+    (publicacion_id, etiqueta_id) [pk]
+  }
+}
+Table reacciones_comentario {
+  comentario_id uuid [not null]
+  perfil_id uuid [not null]
+  tipo_reaccion_codigo text [not null]
+  creado_en timestamptz [not null, default: `now()`]
+  indexes {
+    (comentario_id, perfil_id) [pk]
+  }
+}
+Table reacciones_publicacion {
+  publicacion_id uuid [not null]
+  perfil_id uuid [not null]
+  tipo_reaccion_codigo text [not null]
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+  indexes {
+    (publicacion_id, perfil_id) [pk]
+  }
+}
+Table reportes {
+  id uuid [pk, default: `gen_random_uuid()`]
+  usuario_reportante_id uuid [not null]
+  objetivo_tipo objetivo_reporte [not null]
+  objetivo_id uuid [not null]
+  motivo_codigo text [not null]
+  detalles text
+  estado estado_reporte [not null, default: `abierto`]
+  resuelto_por_usuario_id uuid
+  nota_resolucion text
+  creado_en timestamptz [not null, default: `now()`]
+  resuelto_en timestamptz
+}
+Table resenas {
+  id uuid [pk, default: `gen_random_uuid()`]
+  usuario_resenador_id uuid [not null]
+  emprendimiento_id uuid [not null]
+  producto_id uuid
+  solicitud_cotizacion_id uuid
+  calificacion smallint [not null]
+  titulo text
+  contenido text
+  estado estado_resena [not null, default: `publicado`]
+  respuesta_emprendimiento text
+  respondido_por_usuario_id uuid
+  respondido_en timestamptz
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+  eliminado_en timestamptz
+}
+Table resenas_archivos {
+  resena_id uuid [not null]
+  archivo_id uuid [not null]
+  posicion smallint [not null]
+  indexes {
+    (resena_id, archivo_id) [pk]
+  }
+}
+Table seguimientos {
+  usuario_seguidor_id uuid [not null]
+  perfil_seguido_id uuid [not null]
+  estado estado_seguimiento [not null, default: `activo`]
+  creado_en timestamptz [not null, default: `now()`]
+  aceptado_en timestamptz
+  indexes {
+    (usuario_seguidor_id, perfil_seguido_id) [pk]
+  }
+}
+Table sesiones {
+  id uuid [pk, default: `gen_random_uuid()`]
+  usuario_id uuid [not null]
+  hash_token_refresco text [not null, unique]
+  familia_id uuid [not null]
+  reemplazado_por_id uuid
+  agente_usuario text
+  direccion_ip inet
+  creado_en timestamptz [not null, default: `now()`]
+  ultimo_uso_en timestamptz [not null, default: `now()`]
+  expira_en timestamptz [not null]
+  revocado_en timestamptz
+  motivo_revocacion text
+}
+Table solicitud_items {
+  id uuid [pk, default: `gen_random_uuid()`]
+  solicitud_cotizacion_id uuid [not null]
+  producto_id uuid
+  descripcion text [not null]
+  cantidad numeric(12,2) [not null, default: `1`]
+  notas text
+}
+Table solicitudes_cotizacion {
+  id uuid [pk, default: `gen_random_uuid()`]
+  numero bigint [not null, unique, note: 'generada']
+  emprendimiento_id uuid [not null]
+  perfil_solicitante_id uuid [not null]
+  creado_por_usuario_id uuid [not null]
+  conversacion_id uuid
+  titulo text [not null]
+  mensaje text
+  fecha_deseada date
+  ciudad_entrega_id integer
+  estado estado_solicitud [not null, default: `pendiente`]
+  cotizacion_aceptada_id uuid
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+  cerrado_en timestamptz
+}
+Table solicitudes_mentoria {
+  id uuid [pk, default: `gen_random_uuid()`]
+  oferta_id uuid [not null]
+  perfil_mentoreado_id uuid [not null]
+  creado_por_usuario_id uuid [not null]
+  mensaje text [not null]
+  estado estado_mentoria [not null, default: `solicitado`]
+  agendado_en timestamptz
+  url_reunion text
+  calificacion_mentoreado smallint
+  comentario_mentoreado text
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+}
+Table tipos_oportunidad {
+  codigo text [pk]
+  nombre text [not null]
+  descripcion text
+  orden smallint [not null, default: `0`]
+  activo boolean [not null, default: `true`]
+}
+Table tipos_persona {
+  codigo text [pk]
+  nombre text [not null]
+  descripcion text
+  orden smallint [not null, default: `0`]
+  activo boolean [not null, default: `true`]
+}
+Table tipos_publicacion {
+  codigo text [pk]
+  nombre text [not null]
+  descripcion text
+  icono text
+  peso_descubrimiento numeric(4,2) [not null, default: `1.00`]
+  permite_respuesta_aceptada boolean [not null, default: `false`]
+  orden smallint [not null, default: `0`]
+  activo boolean [not null, default: `true`]
+}
+Table tipos_reaccion {
+  codigo text [pk]
+  nombre text [not null]
+  emoji text [not null]
+  orden smallint [not null, default: `0`]
+  activo boolean [not null, default: `true`]
+}
+Table tokens_recuperacion {
+  id uuid [pk, default: `gen_random_uuid()`]
+  usuario_id uuid [not null]
+  hash_token text [not null, unique]
+  ip_solicitud inet
+  creado_en timestamptz [not null, default: `now()`]
+  expira_en timestamptz [not null]
+  usado_en timestamptz
+}
+Table usuario_tipos_persona {
+  usuario_id uuid [not null]
+  tipo_persona_codigo text [not null]
+  creado_en timestamptz [not null, default: `now()`]
+  indexes {
+    (usuario_id, tipo_persona_codigo) [pk]
+  }
+}
+Table usuarios {
+  id uuid [pk]
+  tipo_perfil tipo_perfil [not null, default: `persona`]
+  correo text [not null]
+  hash_contrasena text
+  rol_plataforma rol_plataforma [not null, default: `usuario`]
+  correo_verificado_en timestamptz
+  terminos_aceptados_en timestamptz [not null]
+  ultimo_ingreso_en timestamptz
+  intentos_fallidos smallint [not null, default: `0`]
+  bloqueado_hasta timestamptz
+  contrasena_cambiada_en timestamptz
+  creado_en timestamptz [not null, default: `now()`]
+  actualizado_en timestamptz [not null, default: `now()`]
+}
+Table usuarios_reservados {
+  nombre_usuario text [pk]
+}
+Table variantes_archivo {
+  archivo_id uuid [not null]
+  variante text [not null]
+  clave_objeto text [not null, unique]
+  tipo_mime text [not null]
+  ancho integer
+  alto integer
+  tamano_bytes bigint [not null]
+  indexes {
+    (archivo_id, variante) [pk]
+  }
+}
+Table verificaciones {
+  id uuid [pk, default: `gen_random_uuid()`]
+  emprendimiento_id uuid [not null]
+  estado estado_verificacion [not null, default: `pendiente`]
+  metodo text [not null, default: `documentos`]
+  enviado_por_usuario_id uuid [not null]
+  revisado_por_usuario_id uuid
+  notas_revisor text
+  enviado_en timestamptz [not null, default: `now()`]
+  revisado_en timestamptz
+}
+
+Ref: paises.moneda_defecto_codigo > monedas.codigo
+Ref: departamentos.pais_codigo > paises.codigo
+Ref: verificaciones.revisado_por_usuario_id > usuarios.id
+Ref: ciudades.departamento_id > departamentos.id
+Ref: categorias.padre_id > categorias.id
+Ref: variantes_archivo.archivo_id > archivos.id
+Ref: perfiles.ciudad_id > ciudades.id
+Ref: usuarios.(id, tipo_perfil) > perfiles.(id, tipo)
+Ref: perfiles.foto_archivo_id > archivos.id
+Ref: sesiones.usuario_id > usuarios.id
+Ref: sesiones.reemplazado_por_id > sesiones.id
+Ref: tokens_recuperacion.usuario_id > usuarios.id
+Ref: usuario_tipos_persona.usuario_id > usuarios.id
+Ref: usuario_tipos_persona.tipo_persona_codigo > tipos_persona.codigo
+Ref: intereses_usuario.usuario_id > usuarios.id
+Ref: intereses_usuario.categoria_id > categorias.id
+Ref: perfiles.portada_archivo_id > archivos.id
+Ref: archivos.subido_por_usuario_id > usuarios.id
+Ref: emprendimientos.categoria_id > categorias.id
+Ref: emprendimientos.creado_por_usuario_id > usuarios.id
+Ref: emprendimientos.(id, tipo_perfil) > perfiles.(id, tipo)
+Ref: verificaciones.emprendimiento_id > emprendimientos.id
+Ref: verificaciones.enviado_por_usuario_id > usuarios.id
+Ref: miembros_emprendimiento.emprendimiento_id > emprendimientos.id
+Ref: miembros_emprendimiento.usuario_id > usuarios.id
+Ref: miembros_emprendimiento.invitado_por_usuario_id > usuarios.id
+Ref: enlaces_emprendimiento.emprendimiento_id > emprendimientos.id
+Ref: documentos_verificacion.verificacion_id > verificaciones.id
+Ref: documentos_verificacion.archivo_id > archivos.id
+Ref: seguimientos.usuario_seguidor_id > usuarios.id
+Ref: seguimientos.perfil_seguido_id > perfiles.id
+Ref: bloqueos.usuario_bloqueador_id > usuarios.id
+Ref: bloqueos.perfil_bloqueado_id > perfiles.id
+Ref: productos.emprendimiento_id > emprendimientos.id
+Ref: productos.creado_por_usuario_id > usuarios.id
+Ref: productos.categoria_id > categorias.id
+Ref: productos.moneda_codigo > monedas.codigo
+Ref: productos.ciudad_id > ciudades.id
+Ref: oportunidades.perfil_autor_id > perfiles.id
+Ref: oportunidades.creado_por_usuario_id > usuarios.id
+Ref: oportunidades.tipo_codigo > tipos_oportunidad.codigo
+Ref: productos_archivos.producto_id > productos.id
+Ref: productos_archivos.archivo_id > archivos.id
+Ref: productos_etiquetas.producto_id > productos.id
+Ref: productos_etiquetas.etiqueta_id > etiquetas.id
+Ref: oportunidades.categoria_id > categorias.id
+Ref: oportunidades.ciudad_id > ciudades.id
+Ref: postulaciones.oportunidad_id > oportunidades.id
+Ref: postulaciones.perfil_postulante_id > perfiles.id
+Ref: postulaciones.creado_por_usuario_id > usuarios.id
+Ref: ofertas_mentoria.usuario_mentor_id > usuarios.id
+Ref: ofertas_mentoria.categoria_id > categorias.id
+Ref: ofertas_mentoria.moneda_codigo > monedas.codigo
+Ref: solicitudes_mentoria.oferta_id > ofertas_mentoria.id
+Ref: solicitudes_mentoria.perfil_mentoreado_id > perfiles.id
+Ref: solicitudes_mentoria.creado_por_usuario_id > usuarios.id
+Ref: publicaciones_archivos.archivo_id > archivos.id
+Ref: publicaciones.perfil_autor_id > perfiles.id
+Ref: publicaciones.creado_por_usuario_id > usuarios.id
+Ref: publicaciones.tipo_publicacion_codigo > tipos_publicacion.codigo
+Ref: publicaciones.producto_id > productos.id
+Ref: publicaciones.oportunidad_id > oportunidades.id
+Ref: publicaciones.publicacion_compartida_id > publicaciones.id
+Ref: publicaciones_archivos.publicacion_id > publicaciones.id
+Ref: publicaciones_etiquetas.publicacion_id > publicaciones.id
+Ref: publicaciones_etiquetas.etiqueta_id > etiquetas.id
+Ref: menciones.publicacion_id > publicaciones.id
+Ref: menciones.perfil_id > perfiles.id
+Ref: comentarios.publicacion_id > publicaciones.id
+Ref: comentarios.perfil_autor_id > perfiles.id
+Ref: comentarios.creado_por_usuario_id > usuarios.id
+Ref: comentarios.responde_a_perfil_id > perfiles.id
+Ref: comentarios.(comentario_padre_id, publicacion_id) > comentarios.(id, publicacion_id)
+Ref: publicaciones.(comentario_aceptado_id, id) > comentarios.(id, publicacion_id)
+Ref: reacciones_publicacion.publicacion_id > publicaciones.id
+Ref: reacciones_publicacion.perfil_id > perfiles.id
+Ref: reacciones_publicacion.tipo_reaccion_codigo > tipos_reaccion.codigo
+Ref: reacciones_comentario.comentario_id > comentarios.id
+Ref: reacciones_comentario.perfil_id > perfiles.id
+Ref: reacciones_comentario.tipo_reaccion_codigo > tipos_reaccion.codigo
+Ref: guardados.usuario_id > usuarios.id
+Ref: guardados.publicacion_id > publicaciones.id
+Ref: guardados.producto_id > productos.id
+Ref: resenas.usuario_resenador_id > usuarios.id
+Ref: resenas.emprendimiento_id > emprendimientos.id
+Ref: resenas.respondido_por_usuario_id > usuarios.id
+Ref: resenas.(producto_id, emprendimiento_id) > productos.(id, emprendimiento_id)
+Ref: reportes.motivo_codigo > motivos_reporte.codigo
+Ref: resenas_archivos.resena_id > resenas.id
+Ref: resenas_archivos.archivo_id > archivos.id
+Ref: conversaciones.creado_por_usuario_id > usuarios.id
+Ref: participantes.conversacion_id > conversaciones.id
+Ref: participantes.perfil_id > perfiles.id
+Ref: participantes.usuario_asignado_id > usuarios.id
+Ref: reportes.resuelto_por_usuario_id > usuarios.id
+Ref: mensajes.usuario_remitente_id > usuarios.id
+Ref: mensajes.producto_id > productos.id
+Ref: mensajes.responde_a_mensaje_id > mensajes.id
+Ref: mensajes.(conversacion_id, perfil_remitente_id) > participantes.(conversacion_id, perfil_id)
+Ref: conversaciones.ultimo_mensaje_id > mensajes.id
+Ref: participantes.ultimo_mensaje_leido_id > mensajes.id
+Ref: mensajes_adjuntos.mensaje_id > mensajes.id
+Ref: mensajes_adjuntos.archivo_id > archivos.id
+Ref: solicitudes_cotizacion.emprendimiento_id > emprendimientos.id
+Ref: solicitudes_cotizacion.perfil_solicitante_id > perfiles.id
+Ref: solicitudes_cotizacion.creado_por_usuario_id > usuarios.id
+Ref: solicitudes_cotizacion.conversacion_id > conversaciones.id
+Ref: solicitudes_cotizacion.ciudad_entrega_id > ciudades.id
+Ref: solicitud_items.solicitud_cotizacion_id > solicitudes_cotizacion.id
+Ref: solicitud_items.producto_id > productos.id
+Ref: cotizaciones.solicitud_cotizacion_id > solicitudes_cotizacion.id
+Ref: cotizaciones.creado_por_usuario_id > usuarios.id
+Ref: cotizaciones.moneda_codigo > monedas.codigo
+Ref: cotizacion_items.cotizacion_id > cotizaciones.id
+Ref: cotizacion_items.producto_id > productos.id
+Ref: solicitudes_cotizacion.(cotizacion_aceptada_id, id) > cotizaciones.(id, solicitud_cotizacion_id)
+Ref: mensajes.solicitud_cotizacion_id > solicitudes_cotizacion.id
+Ref: resenas.solicitud_cotizacion_id > solicitudes_cotizacion.id
+Ref: historial_solicitudes.solicitud_cotizacion_id > solicitudes_cotizacion.id
+Ref: historial_solicitudes.usuario_actor_id > usuarios.id
+Ref: notificaciones.usuario_destinatario_id > usuarios.id
+Ref: notificaciones.perfil_actor_id > perfiles.id
+Ref: reportes.usuario_reportante_id > usuarios.id

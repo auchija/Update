@@ -83,7 +83,6 @@ public static class HealthCheckExtensions
             return Results.Json(response);
         })
         .WithName("Health Check")
-        .WithOpenApi()
         .Produces<HealthCheckResponse>(StatusCodes.Status200OK)
         .Produces<HealthCheckResponse>(
             StatusCodes.Status503ServiceUnavailable);
@@ -93,16 +92,14 @@ public static class HealthCheckExtensions
             Predicate = check => check.Tags.Contains("live"),
             ResponseWriter = WriteHealthResponse
         })
-        .WithName("Health Check - Live")
-        .WithOpenApi();
+        .WithName("Health Check - Live");
 
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = check => check.Tags.Contains("ready"),
             ResponseWriter = WriteHealthResponse
         })
-        .WithName("Health Check - Ready")
-        .WithOpenApi();
+        .WithName("Health Check - Ready");
 
         return app;
     }
