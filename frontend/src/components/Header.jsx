@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
 import { LANDING_SECTION_IDS, MAIN_CONTENT_ID } from "../constants/pageAnchors.js";
 import Button from "./Button.jsx";
 import styles from "./Header.module.css";
@@ -10,13 +13,15 @@ const SECTION_LINKS = [
 ];
 
 export default function Header({ showSectionLinks = false }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <header className={styles.header}>
       <a href={`#${MAIN_CONTENT_ID}`} className={styles.skipLink}>
         Saltar al contenido
       </a>
 
-      <div className={`container ${styles.inner}`}>
+      <div className={styles.inner}>
         <Logo />
         {showSectionLinks && <SectionNav />}
 
@@ -31,8 +36,69 @@ export default function Header({ showSectionLinks = false }) {
               Crear cuenta
             </Button>
           </div>
+          
+          <button
+            className={styles.mobileMenuButton}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Menú"
+          >
+            <AnimatePresence mode="wait">
+              {mobileMenuOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X size={24} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="open"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu size={24} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </button>
         </div>
       </div>
+
+      <AnimatePresence>
+        {mobileMenuOpen && showSectionLinks && (
+          <motion.nav
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className={styles.mobileMenu}
+          >
+            <ul className={styles.mobileMenuList}>
+              {SECTION_LINKS.map((link) => (
+                <motion.li
+                  key={link.href}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <a
+                    href={link.href}
+                    className={styles.mobileMenuLink}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </a>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
