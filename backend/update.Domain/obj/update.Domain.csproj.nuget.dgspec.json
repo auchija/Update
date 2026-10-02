@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {}
+    "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
+    "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj",
+        "projectUniqueName": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj",
         "projectName": "update.Domain",
-        "projectPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj",
+        "projectPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj",
         "packagesPath": "C:\\Users\\dierm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\obj\\",
+        "outputPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\dierm\\AppData\\Roaming\\NuGet\\NuGet.Config"

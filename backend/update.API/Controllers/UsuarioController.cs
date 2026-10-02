@@ -40,4 +40,5 @@ public class UsersController : ControllerBase
             return NotFound(new { mensaje = "Usuario no encontrado" });
 
         return Ok(usuario);
+    }
 }

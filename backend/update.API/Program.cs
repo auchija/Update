@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Net.Mime;
 using System.Text.Json;
+using update.API.Extensions;
 using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 using update.Infrastructure.Repositories;
@@ -22,6 +23,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Registrar repositorios y servicios
 builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddApplicationHealthChecks(
+    builder.Configuration);
+
+// API
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+builder.Services.AddHttpContextAccessor();
 
 // CORS para conectar con frontend
 builder.Services.AddCors(options =>
@@ -47,5 +55,6 @@ app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.MapApplicationHealthChecks();
 
 app.Run();

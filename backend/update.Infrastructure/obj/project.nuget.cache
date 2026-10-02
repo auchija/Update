@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "wY65Ly631jI=",
+  "dgSpecHash": "oWGWOrDTcg0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj",
+  "projectFilePath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\dierm\\.nuget\\packages\\azure.core\\1.50.0\\azure.core.1.50.0.nupkg.sha512",
     "C:\\Users\\dierm\\.nuget\\packages\\azure.identity\\1.17.1\\azure.identity.1.17.1.nupkg.sha512",
