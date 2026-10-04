@@ -3,7 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Input from "./Input.jsx";
 import styles from "./PasswordInput.module.css";
 
-export default function PasswordInput(props) {
+export default function PasswordInput({ validator, ...props }) {
   const [isVisible, setIsVisible] = useState(false);
   const Icon = isVisible ? EyeOff : Eye;
 
@@ -19,5 +19,5 @@ export default function PasswordInput(props) {
     </button>
   );
 
-  return <Input {...props} type={isVisible ? "text" : "password"} endSlot={visibilityToggle} />;
+  return <Input {...props} type={isVisible ? "text" : "password"} endSlot={visibilityToggle} validator={validator} />;
 }

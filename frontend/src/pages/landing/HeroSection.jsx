@@ -1,9 +1,22 @@
+import { useEffect } from "react";
 import Button from "../../components/Button.jsx";
 import { LANDING_SECTION_IDS } from "../../constants/pageAnchors.js";
 import styles from "./HeroSection.module.css";
 import ProductPreview from "./ProductPreview.jsx";
 
 export default function HeroSection() {
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const x = (e.clientX / window.innerWidth) * 100;
+      const y = (e.clientY / window.innerHeight) * 100;
+      document.documentElement.style.setProperty("--mouse-x", `${x}%`);
+      document.documentElement.style.setProperty("--mouse-y", `${y}%`);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   return (
     <section aria-labelledby="hero-titulo" className={styles.hero}>
       <div className={`container ${styles.inner}`}>

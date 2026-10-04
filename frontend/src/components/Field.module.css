@@ -112,6 +112,38 @@
   padding-top: 0.25rem;
 }
 
+@keyframes checkmarkSlide {
+  0% {
+    transform: translateX(-10px) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.checkmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #22c55e;
+  animation: checkmarkSlide 0.4s ease-out;
+}
+
+.end {
+  position: absolute;
+  inset-block: 0;
+  right: 0.75rem;  
+  display: flex;
+  align-items: center;
+}
+
+.withEnd {
+  padding-right: 3rem;  
+  padding-left: 0.75rem;
+}
+
 @media (min-width: 40rem) {
   .options {
     grid-template-columns: repeat(2, minmax(0, 1fr));

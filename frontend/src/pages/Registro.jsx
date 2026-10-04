@@ -81,6 +81,7 @@ export default function Registro() {
               value={form.values.displayName}
               onChange={form.handleChange}
               error={form.errors.displayName}
+              validator={(v) => v.length >= 3 && v.length <= 60}
             />
             <Input
               label="Nombre de usuario"
@@ -93,6 +94,7 @@ export default function Registro() {
               value={form.values.handle}
               onChange={updateHandle}
               error={form.errors.handle}
+              validator={(v) => /^[a-z0-9._]{3,30}$/.test(v)}
             />
             <Input
               label="Correo electrónico"
@@ -103,6 +105,7 @@ export default function Registro() {
               value={form.values.email}
               onChange={form.handleChange}
               error={form.errors.email}
+              validator={(v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)}
             />
             <PasswordInput
               label="Contraseña"
@@ -113,6 +116,7 @@ export default function Registro() {
               value={form.values.password}
               onChange={form.handleChange}
               error={form.errors.password}
+              validator={(v) => v.length >= 8 && /[a-zA-Z]/.test(v) && /[0-9]/.test(v)}
             />
             <CheckboxGroup
               legend="¿Cómo participas en la comunidad?"
