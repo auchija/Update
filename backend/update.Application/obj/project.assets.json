@@ -52,8 +52,8 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
-              "projectPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj"
+            "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
+              "projectPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj"
             }
           }
         }

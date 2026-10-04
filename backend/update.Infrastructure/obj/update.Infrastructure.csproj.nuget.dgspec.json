@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj": {}
+    "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj": {}
   },
   "projects": {
-    "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj": {
+    "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj",
+        "projectUniqueName": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj",
         "projectName": "update.Application",
-        "projectPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj",
+        "projectPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj",
         "packagesPath": "C:\\Users\\dierm\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\obj\\",
+        "outputPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\dierm\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -27,8 +27,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
-                "projectPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj"
+              "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
+                "projectPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj"
               }
             }
           }
@@ -343,14 +343,14 @@
         }
       }
     },
-    "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
+    "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj",
         "projectName": "update.Domain",
-        "projectPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj",
+        "projectPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj",
         "packagesPath": "C:\\Users\\dierm\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\obj\\",
+        "outputPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\dierm\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -678,14 +678,14 @@
         }
       }
     },
-    "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj": {
+    "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj",
         "projectName": "update.Infrastructure",
-        "projectPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj",
+        "projectPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\update.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\dierm\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\dierm\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -701,11 +701,11 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj": {
-                "projectPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj"
+              "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj": {
+                "projectPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Application\\update.Application.csproj"
               },
-              "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
-                "projectPath": "c:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj"
+              "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj": {
+                "projectPath": "C:\\Users\\dierm\\Documents\\Github\\Update\\backend\\update.Domain\\update.Domain.csproj"
               }
             }
           }
@@ -737,13 +737,25 @@
               "target": "Package",
               "version": "[10.0.12, )"
             },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
+            "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
               "version": "[10.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.12, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[10.0.12, )"
+            },
+            "Microsoft.Extensions.Configuration.FileExtensions": {
+              "target": "Package",
+              "version": "[10.0.12, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
               "version": "[10.0.12, )"
             },
@@ -754,6 +766,11 @@
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
               "version": "[10.0.3, )"
+            },
+            "System.Security.Cryptography.Xml": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.12, )"
             }
           },
           "imports": [
