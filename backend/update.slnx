@@ -3,4 +3,5 @@
   <Project Path="update.Application/update.Application.csproj" />
   <Project Path="update.Domain/update.Domain.csproj" />
   <Project Path="update.Infrastructure/update.Infrastructure.csproj" />
+  <Project Path="verificacion/update.Verificacion.csproj" />
 </Solution>
