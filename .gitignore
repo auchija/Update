@@ -21,6 +21,9 @@ coverage/
 
 *.log
 
+**/bin/
+**/obj/
+
 # Archivos generados por .NET
 [Bb]in/
 [Oo]bj/
