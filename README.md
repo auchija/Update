@@ -1,3 +1,9 @@
+## Integrantes
+Miguel Angel Jimenez Londoño
+Sebastian Montaño Reyes
+Mariana Aristizabal Truque
+Alejandro Gonzalez Romo
+David Elias Castro
 # UpDate
 
 UpDate es una red social para emprendedores. Es nuestro proyecto final de Desarrollo Web en la Universidad Autónoma de Occidente (UAO), en Cali.
