@@ -2,6 +2,8 @@ import { TEST_USERS } from "../data/users.js";
 import { ApiError } from "./api.js";
 
 const REGISTERED_USERS_STORAGE_KEY = "test-registered-users";
+// Imita la cookie httpOnly de renovación que usará el backend real.
+const MOCK_REFRESH_SESSION_KEY = "mock-refresh-session";
 const MAX_FAILED_ATTEMPTS = 5;
 const MIN_DELAY_MS = 500;
 const MAX_EXTRA_DELAY_MS = 700;
@@ -32,7 +34,7 @@ export async function mockLogin(identifier, password) {
   }
 
   failedAttemptsByUserId[user.id] = 0;
-  return createSession(user);
+  return startSession(user);
 }
 
 export async function mockRegister({
@@ -70,7 +72,36 @@ export async function mockRegister({
   };
   saveRegisteredUser(newUser);
 
-  return createSession(newUser);
+  return startSession(newUser);
+}
+
+export async function mockRefresh() {
+  await simulateNetworkDelay();
+
+  const userId = readStorage(MOCK_REFRESH_SESSION_KEY);
+  const user = userId && getAllUsers().find((candidate) => candidate.id === userId);
+
+  if (!user) {
+    removeStorage(MOCK_REFRESH_SESSION_KEY);
+    throw new ApiError(401, "No hay una sesión activa.");
+  }
+
+  return createSessionResponse(user);
+}
+
+export async function mockLogout() {
+  await simulateNetworkDelay();
+  removeStorage(MOCK_REFRESH_SESSION_KEY);
+}
+
+function startSession(user) {
+  writeStorage(MOCK_REFRESH_SESSION_KEY, user.id);
+  return createSessionResponse(user);
+}
+
+function createSessionResponse(user) {
+  const { password: _password, ...publicUser } = user;
+  return { accessToken: `token-de-prueba-${user.id}`, user: publicUser };
 }
 
 function findTakenFields(email, handle) {
@@ -92,17 +123,42 @@ function getAllUsers() {
 }
 
 function readRegisteredUsers() {
-  return JSON.parse(localStorage.getItem(REGISTERED_USERS_STORAGE_KEY) ?? "[]");
+  try {
+    return JSON.parse(readStorage(REGISTERED_USERS_STORAGE_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
 }
 
 function saveRegisteredUser(user) {
   const users = [...readRegisteredUsers(), user];
-  localStorage.setItem(REGISTERED_USERS_STORAGE_KEY, JSON.stringify(users));
+  writeStorage(REGISTERED_USERS_STORAGE_KEY, JSON.stringify(users));
 }
 
-function createSession(user) {
-  const { password: _password, ...publicUser } = user;
-  return { accessToken: `token-de-prueba-${user.id}`, user: publicUser };
+// localStorage puede fallar (modo privado, almacenamiento bloqueado):
+// en ese caso el mock sigue funcionando, solo que sin recordar la sesión.
+function readStorage(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Sin almacenamiento disponible: se ignora.
+  }
+}
+
+function removeStorage(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Sin almacenamiento disponible: se ignora.
+  }
 }
 
 function simulateNetworkDelay() {
