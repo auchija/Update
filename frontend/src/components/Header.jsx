@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { LANDING_SECTION_IDS, MAIN_CONTENT_ID } from "../constants/pageAnchors.js";
+import { DEFAULT_PRIVATE_ROUTE, ROUTES } from "../constants/routes.js";
+import { useAuth } from "../hooks/useAuth.js";
 import Button from "./Button.jsx";
 import styles from "./Header.module.css";
 import Logo from "./Logo.jsx";
@@ -14,6 +16,7 @@ const SECTION_LINKS = [
 
 export default function Header({ showSectionLinks = false }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { status } = useAuth();
 
   return (
     <header className={styles.header}>
@@ -27,16 +30,24 @@ export default function Header({ showSectionLinks = false }) {
 
         <div className={styles.actions}>
           <ThemeToggle />
-          <Button to="/login" variant="ghost" size="sm">
-            <span className="hide-from-sm">Entrar</span>
-            <span className="hide-below-sm">Iniciar sesión</span>
-          </Button>
-          <div className="hide-below-sm">
-            <Button to="/registro" size="sm">
-              Crear cuenta
+          {status === "authenticated" ? (
+            <Button to={DEFAULT_PRIVATE_ROUTE} size="sm">
+              Ir a la app
             </Button>
-          </div>
-          
+          ) : (
+            <>
+              <Button to={ROUTES.login} variant="ghost" size="sm">
+                <span className="hide-from-sm">Entrar</span>
+                <span className="hide-below-sm">Iniciar sesión</span>
+              </Button>
+              <div className="hide-below-sm">
+                <Button to={ROUTES.register} size="sm">
+                  Crear cuenta
+                </Button>
+              </div>
+            </>
+          )}
+
           <button
             className={styles.mobileMenuButton}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
