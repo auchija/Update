@@ -45,9 +45,13 @@ export default function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(async () => {
-    await authService.logout();
-    setUser(null);
-    setStatus("anonymous");
+    try {
+      await authService.logout();
+    } finally {
+      // Aunque falle la red, la sesión local se cierra igual.
+      setUser(null);
+      setStatus("anonymous");
+    }
   }, []);
 
   const value = useMemo(
