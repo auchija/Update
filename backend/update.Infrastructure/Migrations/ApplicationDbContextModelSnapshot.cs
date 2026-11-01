@@ -19,7 +19,7 @@ namespace update.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -2451,6 +2451,38 @@ namespace update.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("ck_reacciones_publicacion_tipo_reaccion_codigo_longitud", "char_length(\"tipo_reaccion_codigo\") <= 64");
                         });
+                });
+
+            modelBuilder.Entity("update.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("ExpiraEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expira_en");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("hash");
+
+                    b.Property<DateTime?>("RevocadoEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revocado_en");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_refresh_tokens");
+
+                    b.HasIndex("UsuarioId")
+                        .HasDatabaseName("ix_refresh_tokens_usuario_id");
+
+                    b.ToTable("refresh_tokens", (string)null);
                 });
 
             modelBuilder.Entity("update.Domain.Entities.Reporte", b =>

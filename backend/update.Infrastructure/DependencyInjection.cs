@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using update.Domain.Entities;
 using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 using update.Infrastructure.Repositories;
+using update.Application.Services;
 namespace update.Infrastructure;
 
 /// <summary>Registro explícito de repositorios y contexto, sin reflexión ni paquetes auxiliares.</summary>
@@ -124,6 +126,10 @@ public static class DependencyInjection
         servicios.AddScoped<IRepository<VarianteArchivo>>(sp => sp.GetRequiredService<IVarianteArchivoRepository>());
         servicios.AddScoped<IVerificacionRepository, VerificacionRepository>();
         servicios.AddScoped<IRepository<Verificacion>>(sp => sp.GetRequiredService<IVerificacionRepository>());
+        servicios.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        servicios.AddScoped<AuthService>();
+        servicios.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
+        servicios.AddScoped<TokenService>();
         return servicios;
     }
 }

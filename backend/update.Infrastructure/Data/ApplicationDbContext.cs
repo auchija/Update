@@ -63,6 +63,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<UsuarioReservado> UsuariosReservados => Set<UsuarioReservado>();
     public DbSet<VarianteArchivo> VariantesArchivo => Set<VarianteArchivo>();
     public DbSet<Verificacion> Verificaciones => Set<Verificacion>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
