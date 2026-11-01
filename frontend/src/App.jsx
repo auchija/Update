@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import Registro from "./pages/Registro.jsx";
+import Feed from "./pages/Feed.jsx";
 
 export default function App() {
   return (
@@ -9,6 +10,7 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
+      <Route path="/feed" element={<Feed />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

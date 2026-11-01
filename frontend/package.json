@@ -12,7 +12,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "framer-motion": "^14.0.0",
+    "framer-motion": "^14.9.0",
     "lucide-react": "^1.48.0",
     "motion": "^14.0.0",
     "react": "^19.2.8",
