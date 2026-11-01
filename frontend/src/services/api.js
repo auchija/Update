@@ -48,16 +48,26 @@ export async function apiRequest(path, { method = "GET", body, retryOnExpiredTok
 }
 
 async function sendRequest(path, { method, body, accessToken }) {
-  const headers = { "Content-Type": "application/json" };
+  // Con FormData (subida de archivos) no se fija Content-Type:
+  // el navegador pone "multipart/form-data" con su separador (boundary).
+  const isFormData = body instanceof FormData;
+  const headers = isFormData ? {} : { "Content-Type": "application/json" };
   if (accessToken) {
     headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  let requestBody;
+  if (isFormData) {
+    requestBody = body;
+  } else if (body !== undefined) {
+    requestBody = JSON.stringify(body);
   }
 
   try {
     return await fetch(API_URL + path, {
       method,
       headers,
-      body: body ? JSON.stringify(body) : undefined,
+      body: requestBody,
       credentials: "include",
     });
   } catch {
