@@ -40,8 +40,6 @@ public sealed class UsuarioController(ServicioCrud<Usuario> servicio, update.Dom
     {
         var entidad = new Usuario
         {
-            Id = entrada.Id,
-            TipoPerfil = entrada.TipoPerfil,
             Correo = entrada.Correo,
             HashContrasena = entrada.HashContrasena,
             RolPlataforma = entrada.RolPlataforma,
@@ -61,7 +59,6 @@ public sealed class UsuarioController(ServicioCrud<Usuario> servicio, update.Dom
     {
         var entidad = await servicio.ObtenerAsync([id], cancellationToken);
         if (entidad is null) return NotFound(new ProblemDetails { Status = 404, Title = "Registro no encontrado." });
-        entidad.TipoPerfil = entrada.TipoPerfil;
         entidad.Correo = entrada.Correo;
         entidad.HashContrasena = entrada.HashContrasena;
         entidad.RolPlataforma = entrada.RolPlataforma;
@@ -86,7 +83,6 @@ public sealed class UsuarioController(ServicioCrud<Usuario> servicio, update.Dom
     private static RespuestaUsuarioDto ARespuesta(Usuario entidad) => new()
     {
         Id = entidad.Id,
-        TipoPerfil = entidad.TipoPerfil,
         Correo = entidad.Correo,
         RolPlataforma = entidad.RolPlataforma,
         CorreoVerificadoEn = entidad.CorreoVerificadoEn,

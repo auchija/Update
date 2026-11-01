@@ -16,8 +16,8 @@ public sealed class AuthService(
 {
 
     public async Task<AuthSessionResult> RegistrarAsync(
-        RegistroRequest request,
-        CancellationToken cancellationToken)
+    RegistroRequest request,
+    CancellationToken cancellationToken)
     {
         var correo = request.Correo.Trim();
 
@@ -28,7 +28,6 @@ public sealed class AuthService(
         {
             Id = Guid.NewGuid(),
             Correo = correo,
-            TipoPerfil = TipoPerfil.Persona,
             RolPlataforma = RolPlataforma.Usuario,
             TerminosAceptadosEn = request.TerminosAceptadosEn
         };
@@ -39,6 +38,7 @@ public sealed class AuthService(
         usuario.Validar();
 
         await usuarios.AgregarAsync(usuario, cancellationToken);
+
         return await CrearSesionAsync(usuario, cancellationToken);
     }
 
@@ -171,7 +171,6 @@ public sealed class AuthService(
         return new RespuestaUsuarioDto
         {
             Id = usuario.Id,
-            TipoPerfil = usuario.TipoPerfil,
             Correo = usuario.Correo,
             RolPlataforma = usuario.RolPlataforma,
             CorreoVerificadoEn = usuario.CorreoVerificadoEn,

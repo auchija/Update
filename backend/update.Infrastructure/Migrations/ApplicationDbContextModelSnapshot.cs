@@ -1828,6 +1828,10 @@ namespace update.Infrastructure.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("total_seguidos");
 
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
                     b.HasKey("Id")
                         .HasName("pk_perfiles");
 
@@ -1839,6 +1843,9 @@ namespace update.Infrastructure.Migrations
 
                     b.HasIndex("PortadaArchivoId")
                         .HasDatabaseName("ix_perfiles_portada_archivo_id");
+
+                    b.HasIndex("UsuarioId")
+                        .HasDatabaseName("ix_perfiles_usuario_id");
 
                     b.HasIndex("Estado", "CreadoEn")
                         .HasDatabaseName("ix_perfiles_estado_creado_en");
@@ -3397,24 +3404,12 @@ namespace update.Infrastructure.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("terminos_aceptados_en");
 
-                    b.Property<string>("TipoPerfil")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(14)
-                        .HasColumnType("text")
-                        .HasDefaultValue("persona")
-                        .HasColumnName("tipo_perfil");
-
                     b.Property<DateTime?>("UltimoIngresoEn")
                         .HasColumnType("timestamptz")
                         .HasColumnName("ultimo_ingreso_en");
 
                     b.HasKey("Id")
                         .HasName("pk_usuarios");
-
-                    b.HasIndex("Id", "TipoPerfil")
-                        .IsUnique()
-                        .HasDatabaseName("ix_usuarios_id_tipo_perfil");
 
                     b.ToTable("usuarios", null, t =>
                         {
@@ -4197,11 +4192,20 @@ namespace update.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_perfiles_portada_archivo_id_archivos");
 
+                    b.HasOne("update.Domain.Entities.Usuario", "Usuario")
+                        .WithMany("Perfiles")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_perfiles_usuario_id_usuarios");
+
                     b.Navigation("Ciudad");
 
                     b.Navigation("FotoArchivo");
 
                     b.Navigation("PortadaArchivo");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("update.Domain.Entities.Postulacion", b =>
@@ -4742,19 +4746,6 @@ namespace update.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("update.Domain.Entities.Usuario", b =>
-                {
-                    b.HasOne("update.Domain.Entities.Perfil", "Perfil")
-                        .WithOne()
-                        .HasForeignKey("update.Domain.Entities.Usuario", "Id", "TipoPerfil")
-                        .HasPrincipalKey("update.Domain.Entities.Perfil", "Id", "Tipo")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_usuarios_id_tipo_perfil_perfiles");
-
-                    b.Navigation("Perfil");
-                });
-
             modelBuilder.Entity("update.Domain.Entities.UsuarioTipoPersona", b =>
                 {
                     b.HasOne("update.Domain.Entities.TipoPersona", "TipoPersona")
@@ -4815,6 +4806,11 @@ namespace update.Infrastructure.Migrations
                     b.Navigation("EnviadoPorUsuario");
 
                     b.Navigation("RevisadoPorUsuario");
+                });
+
+            modelBuilder.Entity("update.Domain.Entities.Usuario", b =>
+                {
+                    b.Navigation("Perfiles");
                 });
 #pragma warning restore 612, 618
         }

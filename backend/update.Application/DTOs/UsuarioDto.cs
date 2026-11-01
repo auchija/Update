@@ -10,11 +10,6 @@ namespace update.Application.DTOs;
 public sealed class CrearUsuarioDto
 {
     [JsonRequired]
-    [GuidNoVacio]
-    public Guid Id { get; set; }
-    [EnumDataType(typeof(TipoPerfil))]
-    public TipoPerfil TipoPerfil { get; set; } = TipoPerfil.Persona;
-    [JsonRequired]
     [Required(AllowEmptyStrings = false)]
     [MaxLength(254)]
     [EmailAddress]
@@ -40,8 +35,6 @@ public sealed class CrearUsuarioDto
 /// <summary>Contrato actualizar para usuarios; no expone navegaciones.</summary>
 public sealed class ActualizarUsuarioDto
 {
-    [EnumDataType(typeof(TipoPerfil))]
-    public TipoPerfil TipoPerfil { get; set; } = TipoPerfil.Persona;
     [JsonRequired]
     [Required(AllowEmptyStrings = false)]
     [MaxLength(254)]
@@ -69,7 +62,6 @@ public sealed class ActualizarUsuarioDto
 public sealed class RespuestaUsuarioDto
 {
     public Guid Id { get; set; }
-    public TipoPerfil TipoPerfil { get; set; } = TipoPerfil.Persona;
     public string Correo { get; set; } = string.Empty;
     public RolPlataforma RolPlataforma { get; set; } = RolPlataforma.Usuario;
     public DateTime? CorreoVerificadoEn { get; set; }

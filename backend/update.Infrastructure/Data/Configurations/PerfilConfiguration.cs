@@ -30,6 +30,7 @@ public sealed class PerfilConfiguration : IEntityTypeConfiguration<Perfil>
         builder.Property(e => e.FotoArchivoId).HasColumnName("foto_archivo_id").HasColumnType("uuid");
         builder.Property(e => e.PortadaArchivoId).HasColumnName("portada_archivo_id").HasColumnType("uuid");
         builder.Property(e => e.CiudadId).HasColumnName("ciudad_id").HasColumnType("integer");
+        builder.Property(e => e.UsuarioId).HasColumnName("usuario_id").HasColumnType("uuid").IsRequired();
         builder.Property(e => e.SitioWeb).HasColumnName("sitio_web").HasColumnType("text").HasMaxLength(2048);
         builder.Property(e => e.EsPrivado).HasColumnName("es_privado").HasColumnType("boolean").IsRequired().HasDefaultValue(false).HasSentinel(false);
         builder.Property(e => e.Estado).HasColumnName("estado").HasColumnType("text").IsRequired().HasMaxLength(10).HasConversion(new ConversorEnumDbml<EstadoCuenta>()).HasDefaultValue(EstadoCuenta.Activo).HasSentinel(EstadoCuenta.Activo);
@@ -44,6 +45,8 @@ public sealed class PerfilConfiguration : IEntityTypeConfiguration<Perfil>
         builder.HasOne(e => e.FotoArchivo).WithMany().HasForeignKey(e => e.FotoArchivoId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_perfiles_foto_archivo_id_archivos");
         builder.HasIndex(e => e.FotoArchivoId).HasDatabaseName("ix_perfiles_foto_archivo_id");
         builder.HasOne(e => e.PortadaArchivo).WithMany().HasForeignKey(e => e.PortadaArchivoId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_perfiles_portada_archivo_id_archivos");
+        builder.HasOne(p => p.Usuario).WithMany(u => u.Perfiles).HasForeignKey(p => p.UsuarioId).IsRequired().OnDelete(DeleteBehavior.Cascade).HasConstraintName("fk_perfiles_usuario_id_usuarios");
+        builder.HasIndex(e => e.UsuarioId).HasDatabaseName("ix_perfiles_usuario_id");
         builder.HasIndex(e => e.PortadaArchivoId).HasDatabaseName("ix_perfiles_portada_archivo_id");
         builder.HasIndex(e => new { e.Estado, e.CreadoEn }).HasDatabaseName("ix_perfiles_estado_creado_en");
         builder.HasQueryFilter(e => e.EliminadoEn == null);

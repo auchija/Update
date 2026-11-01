@@ -32,6 +32,7 @@ public sealed class PerfilesController(ServicioCrud<Perfil> servicio) : Controll
     {
         var entidad = new Perfil
         {
+            UsuarioId = entrada.UsuarioId,
             Tipo = entrada.Tipo,
             NombreUsuario = entrada.NombreUsuario,
             NombreVisible = entrada.NombreVisible,
@@ -83,6 +84,7 @@ public sealed class PerfilesController(ServicioCrud<Perfil> servicio) : Controll
 
     private static RespuestaPerfilDto ARespuesta(Perfil entidad) => new()
     {
+        UsuarioId = entidad.UsuarioId,
         Id = entidad.Id,
         Tipo = entidad.Tipo,
         NombreUsuario = entidad.NombreUsuario,

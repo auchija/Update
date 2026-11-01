@@ -7,7 +7,7 @@ namespace update.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController(AuthService authService) : ControllerBase
+public sealed class AuthController(AuthService authService, ILogger<AuthController> logger) : ControllerBase
 {
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -36,8 +36,10 @@ public sealed class AuthController(AuthService authService) : ControllerBase
                 user = respuesta.User
             });
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex)
         {
+            logger.LogError(ex, "Error durante el registro de usuario.");
+
             return Conflict(new ProblemDetails
             {
                 Status = StatusCodes.Status409Conflict,
@@ -131,7 +133,7 @@ public sealed class AuthController(AuthService authService) : ControllerBase
     [Authorize]
     public async Task<IActionResult> Me(CancellationToken cancellationToken)
     {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var userId = User.FindFirst("sub")?.Value;
 
         if (userId is null)
             return Unauthorized();

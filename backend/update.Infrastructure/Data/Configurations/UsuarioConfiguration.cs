@@ -20,7 +20,6 @@ public sealed class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
         builder.HasBaseType((Type?)null);
         builder.HasKey(e => e.Id).HasName("pk_usuarios");
         builder.Property(e => e.Id).HasColumnName("id").HasColumnType("uuid").IsRequired().ValueGeneratedNever();
-        builder.Property(e => e.TipoPerfil).HasColumnName("tipo_perfil").HasColumnType("text").IsRequired().HasMaxLength(14).HasConversion(new ConversorEnumDbml<TipoPerfil>()).HasDefaultValue(TipoPerfil.Persona).HasSentinel(TipoPerfil.Persona);
         builder.Property(e => e.Correo).HasColumnName("correo").HasColumnType("text").IsRequired().HasMaxLength(254);
         builder.Property(e => e.HashContrasena).HasColumnName("hash_contrasena").HasColumnType("text").HasMaxLength(512);
         builder.Property(e => e.RolPlataforma).HasColumnName("rol_plataforma").HasColumnType("text").IsRequired().HasMaxLength(13).HasConversion(new ConversorEnumDbml<RolPlataforma>()).HasDefaultValue(RolPlataforma.Usuario).HasSentinel(RolPlataforma.Usuario);
@@ -32,7 +31,6 @@ public sealed class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
         builder.Property(e => e.ContrasenaCambiadaEn).HasColumnName("contrasena_cambiada_en").HasColumnType("timestamptz");
         builder.Property(e => e.CreadoEn).HasColumnName("creado_en").HasColumnType("timestamptz").IsRequired().HasDefaultValueSql("now()");
         builder.Property(e => e.ActualizadoEn).HasColumnName("actualizado_en").HasColumnType("timestamptz").IsRequired().HasDefaultValueSql("now()");
-        builder.HasOne(e => e.Perfil).WithOne().HasForeignKey<Usuario>(e => new { e.Id, e.TipoPerfil }).HasPrincipalKey<Perfil>(e => new { e.Id, e.Tipo }).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_usuarios_id_tipo_perfil_perfiles");
-        builder.HasIndex(e => new { e.Id, e.TipoPerfil }).HasDatabaseName("ix_usuarios_id_tipo_perfil");
+        builder.HasMany(e => e.Perfiles).WithOne(e => e.Usuario).HasForeignKey(e => e.UsuarioId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_perfiles_usuario_id_usuarios");
     }
 }

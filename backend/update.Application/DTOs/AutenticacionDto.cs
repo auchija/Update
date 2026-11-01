@@ -10,8 +10,8 @@ public sealed class RegistroRequest
 {
     [JsonRequired]
     [Required(AllowEmptyStrings = false)]
-    [MaxLength(254)]
     [EmailAddress]
+    [MaxLength(254)]
     public string Correo { get; set; } = string.Empty;
 
     [JsonRequired]
@@ -20,7 +20,7 @@ public sealed class RegistroRequest
 
     [JsonRequired]
     [FechaUtc]
-    public DateTime TerminosAceptadosEn { get; set; }
+    public DateTime TerminosAceptadosEn { get; set; } = DateTime.UtcNow;
 }
 
 /// <summary>Contrato de inicio de sesión.</summary>

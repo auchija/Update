@@ -37,6 +37,8 @@ public sealed class CrearPerfilDto
     public int TotalSeguidores { get; set; } = 0;
     public int TotalSeguidos { get; set; } = 0;
     public int TotalPublicaciones { get; set; } = 0;
+    [GuidNoVacio]
+    public Guid UsuarioId { get; set; }
 }
 
 /// <summary>Contrato actualizar para perfiles; no expone navegaciones.</summary>
@@ -67,6 +69,8 @@ public sealed class ActualizarPerfilDto
     public int TotalSeguidores { get; set; } = 0;
     public int TotalSeguidos { get; set; } = 0;
     public int TotalPublicaciones { get; set; } = 0;
+    [GuidNoVacio]
+    public Guid UsuarioId { get; set; }
 }
 
 /// <summary>Contrato respuesta para perfiles; no expone navegaciones.</summary>
@@ -90,5 +94,7 @@ public sealed class RespuestaPerfilDto
     public DateTime CreadoEn { get; set; } = DateTime.UtcNow;
     public DateTime ActualizadoEn { get; set; } = DateTime.UtcNow;
     public DateTime? EliminadoEn { get; set; }
+    [GuidNoVacio]
+    public Guid UsuarioId { get; set; }
 }
 
