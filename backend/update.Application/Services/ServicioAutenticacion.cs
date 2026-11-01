@@ -5,6 +5,7 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 using update.Domain.Interfaces;
 using update.Application.DTOs;
+using update.Domain.Exceptions;
 
 namespace update.Application.Services;
 
@@ -12,7 +13,8 @@ public sealed class AuthService(
     IUsuarioRepository usuarios,
     IRefreshTokenRepository refreshTokens,
     IPasswordHasher<Usuario> passwordHasher,
-    TokenService tokenService)
+    TokenService tokenService,
+    IUnitOfWork unitOfWork)
 {
 
     public async Task<AuthSessionResult> RegistrarAsync(
@@ -37,41 +39,48 @@ public sealed class AuthService(
 
         usuario.Validar();
 
-        await usuarios.AgregarAsync(usuario, cancellationToken);
-
-        return await CrearSesionAsync(usuario, cancellationToken);
+        return await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
+        {
+            await usuarios.AgregarAsync(usuario, ct);
+            return await CrearSesionAsync(usuario, ct);
+        }, cancellationToken);
     }
 
     public async Task<AuthSessionResult?> IniciarSesionAsync(
         LoginRequest request,
         CancellationToken cancellationToken)
     {
-        var usuario = await usuarios.ObtenerPorCorreoAsync(
-            request.Correo, cancellationToken);
+        var ahora = DateTime.UtcNow;
+        var usuario = await usuarios.ObtenerPorCorreoAsync(request.Correo, cancellationToken);
 
-        // Respuesta genérica para no revelar si el correo está registrado.
-        if (usuario is null ||
-            usuario.EstaBloqueada() ||
-            string.IsNullOrWhiteSpace(usuario.HashContrasena))
-        {
-            return null;
-        }
+        if (usuario is null || string.IsNullOrWhiteSpace(usuario.HashContrasena))
+            return null; // 401
+
+        // Se comprueba antes de verificar el hash: no se gasta CPU ni se da pistas
+        if (usuario.EstaBloqueada(ahora))
+            throw new CuentaBloqueadaException(usuario.BloqueadoHasta!.Value);
 
         var resultado = passwordHasher.VerifyHashedPassword(
             usuario, usuario.HashContrasena, request.Contrasena);
 
         if (resultado == PasswordVerificationResult.Failed)
         {
-            usuario.IncrementarIntentosFallidos();
-
-            // Aplica aquí tu política de bloqueo; por ejemplo, tras varios
-            // intentos fallidos, llamar a usuario.BloquearTempo(...).
-
+            usuario.RegistrarIntentoFallido(ahora);
             await usuarios.ActualizarAsync(usuario, cancellationToken);
-            return null;
+
+            // El intento que dispara el bloqueo ya responde 423
+            if (usuario.EstaBloqueada(ahora))
+                throw new CuentaBloqueadaException(usuario.BloqueadoHasta!.Value);
+
+            return null; // 401
         }
 
+        // Hash de contraseñas: si Identity cambió sus parámetros, se re-hashea
+        if (resultado == PasswordVerificationResult.SuccessRehashNeeded)
+            usuario.HashContrasena = passwordHasher.HashPassword(usuario, request.Contrasena);
+
         usuario.ReiniciarIntentosFallidos();
+        usuario.UltimoIngresoEn = ahora;
         await usuarios.ActualizarAsync(usuario, cancellationToken);
 
         return await CrearSesionAsync(usuario, cancellationToken);
@@ -134,6 +143,7 @@ public sealed class AuthService(
     Usuario usuario,
     CancellationToken cancellationToken)
     {
+        var accessToken = tokenService.CrearAccessToken(usuario);
         var token = CrearRefreshToken();
         var expiraEn = DateTime.UtcNow.Add(DuracionRefreshToken);
 
@@ -147,11 +157,7 @@ public sealed class AuthService(
             },
             cancellationToken);
 
-        return new AuthSessionResult(
-            tokenService.CrearAccessToken(usuario),
-            CrearRespuestaUsuario(usuario),
-            token,
-            expiraEn);
+        return new AuthSessionResult(accessToken, CrearRespuestaUsuario(usuario), token, expiraEn);
     }
 
     private static readonly TimeSpan DuracionRefreshToken =

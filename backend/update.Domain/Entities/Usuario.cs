@@ -45,6 +45,26 @@ public sealed class Usuario : BaseEntity, IEntidadValidable
     [JsonIgnore]
     public ICollection<Perfil> Perfiles { get; set; } = new List<Perfil>();
 
+    public const int MaxIntentosFallidos = 5;
+    public static readonly TimeSpan DuracionBloqueo = TimeSpan.FromMinutes(15);
+
+    public bool EstaBloqueada(DateTime ahora) =>
+        BloqueadoHasta is not null && BloqueadoHasta > ahora;
+
+    public void RegistrarIntentoFallido(DateTime ahora)
+    {
+        if (BloqueadoHasta is not null && BloqueadoHasta <= ahora)
+        {
+            BloqueadoHasta = null;
+            IntentosFallidos = 0;
+        }
+
+        IntentosFallidos++;
+
+        if (IntentosFallidos >= MaxIntentosFallidos)
+            BloqueadoHasta = ahora + DuracionBloqueo;
+    }
+
     /// <summary>Comprueba las reglas de entrada antes de guardar.</summary>
     public void Validar()
     {

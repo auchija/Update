@@ -22,12 +22,11 @@ public sealed class TokenService(IConfiguration configuration)
         var ahora = DateTime.UtcNow;
 
         var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-            new Claim(ClaimTypes.Email, usuario.Correo),
-            // Debe coincidir con RoleClaimType = "rol" en Program.cs
-            new Claim("rol", usuario.RolPlataforma.ToString())
-        };
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
+        new Claim(JwtRegisteredClaimNames.Email, usuario.Correo),
+        new Claim("rol", usuario.RolPlataforma.ToString())
+    };
 
         var credenciales = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(clave)),

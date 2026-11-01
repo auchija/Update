@@ -130,6 +130,7 @@ public static class DependencyInjection
         servicios.AddScoped<AuthService>();
         servicios.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
         servicios.AddScoped<TokenService>();
+        servicios.AddScoped<IUnitOfWork, UnitOfWork>();
         return servicios;
     }
 }

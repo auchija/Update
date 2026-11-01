@@ -33,7 +33,9 @@ builder.Services.AddSwaggerGen(opciones =>
 {
     opciones.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
         Description = "JWT administrativo. Pega únicamente el token en Authorize."
     });
     opciones.AddSecurityRequirement(documento => new OpenApiSecurityRequirement
@@ -56,6 +58,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(claveJwt)),
         RoleClaimType = "rol",
         ClockSkew = TimeSpan.FromSeconds(30)
+    };
+    opciones.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = ctx =>
+        {
+            Console.WriteLine($"JWT falló: {ctx.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnChallenge = ctx =>
+        {
+            Console.WriteLine($"Challenge: {ctx.Error} | {ctx.ErrorDescription}");
+            return Task.CompletedTask;
+        }
     };
 });
 // Este CRUD es administrativo. Los casos de uso de usuario final necesitan reglas de propiedad.
