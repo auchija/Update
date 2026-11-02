@@ -1,5 +1,6 @@
 .hero {
   position: relative;
+  padding-bottom: 4rem;
 }
 
 .hero::before {
