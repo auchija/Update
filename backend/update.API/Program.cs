@@ -21,6 +21,7 @@ if (string.IsNullOrWhiteSpace(claveJwt) || Encoding.UTF8.GetByteCount(claveJwt) 
 builder.Services.AgregarInfraestructura(cadena);
 builder.Services.AddScoped(typeof(ServicioCrud<>));
 builder.Services.AddScoped<ServicioMiPerfil>();
+builder.Services.AddScoped<ServicioPublicaciones>();
 var carpetaUploads = Path.Combine(builder.Environment.ContentRootPath, "uploads");
 Directory.CreateDirectory(carpetaUploads);
 builder.Services.AddSingleton(new OpcionesSubida(carpetaUploads));

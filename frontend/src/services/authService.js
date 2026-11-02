@@ -1,24 +1,24 @@
 import { USE_MOCKS } from "../config.js";
 import { apiRequest } from "./api.js";
 import { mockLogin, mockLogout, mockRefresh, mockRegister } from "./mockAuthApi.js";
-import { clearSession, setSession } from "./session.js";
+import { clearSession, getCurrentUser, setSession } from "./session.js";
 
 export async function login(identifier, password) {
   const data = USE_MOCKS
     ? await mockLogin(identifier, password)
-    : await apiRequest("/auth/login", { method: "POST", body: { identifier, password } });
+    : await apiRequest("/auth/login", { method: "POST", body: { correo: identifier.trim(), contrasena: password } });
 
   setSession(data.accessToken, data.user);
-  return data.user;
+  return getCurrentUser();
 }
 
 export async function register(form) {
   const data = USE_MOCKS
     ? await mockRegister(form)
-    : await apiRequest("/auth/register", { method: "POST", body: form });
+    : await apiRequest("/auth/register", { method: "POST", body: { correo: form.email, contrasena: form.password, terminosAceptadosEn: form.termsAccepted ? new Date().toISOString() : null } });
 
   setSession(data.accessToken, data.user);
-  return data.user;
+  return getCurrentUser();
 }
 
 /**
@@ -37,7 +37,7 @@ export async function restoreSession() {
     // Si el backend solo devuelve el token, pedimos el usuario aparte.
     const user = data.user ?? (await apiRequest("/auth/me"));
     setSession(data.accessToken, user);
-    return user;
+    return getCurrentUser();
   } catch {
     clearSession();
     return null;

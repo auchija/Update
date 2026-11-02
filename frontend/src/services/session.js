@@ -3,7 +3,11 @@ let currentUser = null;
 
 export function setSession(token, user) {
   accessToken = token;
-  currentUser = user;
+  currentUser = user ? {
+    ...user,
+    email: user.email ?? user.correo,
+    displayName: user.displayName ?? user.correo?.split("@")[0] ?? "Mi perfil",
+  } : null;
 }
 
 export function getAccessToken() {

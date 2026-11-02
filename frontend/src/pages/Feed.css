@@ -63,3 +63,8 @@
   .feed-actions { align-items: stretch; flex-direction: column; }
   .feed-actions .feed-buttons button { flex: 1; }
 }
+
+.feed button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
