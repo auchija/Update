@@ -1,0 +1,39 @@
+.card {
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.headline {
+  font-weight: 600;
+}
+
+.bio {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-strong);
+}
+
+.statValue {
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.photoError {
+  font-size: var(--text-sm);
+  color: var(--danger);
+}

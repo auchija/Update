@@ -48,6 +48,13 @@
   opacity: 0.7;
 }
 
+.textarea {
+  height: auto;
+  min-height: 7rem;
+  padding-block: 0.625rem;
+  resize: vertical;
+}
+
 .withEnd {
   padding-right: 3rem;
 }
