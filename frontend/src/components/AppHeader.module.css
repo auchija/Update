@@ -77,6 +77,26 @@
   white-space: nowrap;
 }
 
+@media (max-width: 26rem) {
+  .inner > a span {
+    display: none;
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .inner {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    height: auto;
+    padding-block: 0.5rem;
+  }
+
+  .nav {
+    flex-basis: 100%;
+    order: 3;
+  }
+}
+
 @media (min-width: 40rem) {
   .navLabel {
     display: inline;
