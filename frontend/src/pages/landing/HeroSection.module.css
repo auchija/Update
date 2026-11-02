@@ -1,3 +1,7 @@
+.hero {
+  position: relative;
+}
+
 .hero::before {
   content: "";
   position: absolute;
@@ -28,16 +32,39 @@
 }
 
 .title {
-  font-size: var(--text-display);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.025em;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: normal;
 }
 
 .lead {
   max-width: 36rem;
   font-size: var(--text-lg);
   color: var(--foreground-muted);
+}
+
+.actions a {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.actions a:first-child:hover {
+  background: #f2c230;
+  color: #000000;
+  box-shadow: none;
+  translate: 0 0;
+}
+
+.actions a:last-child:hover {
+  border-color: #5a2db8;
+  background: #5a2db8;
+  color: #ffffff;
+  box-shadow: none;
+  translate: 0 0;
 }
 
 @keyframes slideUp {
@@ -53,7 +80,7 @@
 
 @media (min-width: 40rem) {
   .hero {
-    padding-block: 5rem;
+    padding-block: 7rem;
   }
 }
 

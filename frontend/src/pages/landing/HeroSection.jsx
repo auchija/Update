@@ -28,7 +28,7 @@ export default function HeroSection() {
             Muestra lo que estás construyendo y conecta con mentores, socios e inversionistas que
             entienden tu etapa. Menos currículum, más proyecto.
           </p>
-          <div className="cluster">
+          <div className={`cluster ${styles.actions}`}>
             <Button to="/registro" size="lg">
               Crear mi perfil
             </Button>
