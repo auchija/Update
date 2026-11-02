@@ -31,7 +31,8 @@ public sealed class ServicioMiPerfil(
         var perfil = await ObtenerOCrearAsync(usuarioId, cancellationToken);
         if (perfil is null) return null;
 
-        await ComprobarNombreUsuarioAsync(entrada.NombreUsuario, perfil.Id, cancellationToken);
+        if (!await NombreUsuarioDisponibleAsync(entrada.NombreUsuario, perfil.Id, cancellationToken))
+            throw new NombreUsuarioNoDisponibleException();
         var claveFoto = await ObtenerClaveFotoPropiaAsync(entrada.FotoArchivoId, usuarioId, cancellationToken);
 
         perfil.NombreUsuario = entrada.NombreUsuario;
@@ -66,14 +67,13 @@ public sealed class ServicioMiPerfil(
         return perfil;
     }
 
-    private async Task ComprobarNombreUsuarioAsync(string nombre, Guid perfilId, CancellationToken cancellationToken)
+    public async Task<bool> NombreUsuarioDisponibleAsync(string nombre, Guid perfilId, CancellationToken cancellationToken)
     {
-        if (await reservados.ObtenerPorClaveAsync([nombre], cancellationToken) is not null)
-            throw new NombreUsuarioNoDisponibleException();
+        if (await reservados.ObtenerPorClaveAsync([nombre], cancellationToken) is not null) return false;
 
         var iguales = await perfiles.BuscarAsync(
             p => p.NombreUsuario == nombre && p.Id != perfilId, 1, 1, cancellationToken);
-        if (iguales.Count > 0) throw new NombreUsuarioNoDisponibleException();
+        return iguales.Count == 0;
     }
 
     private async Task<string?> ObtenerClaveFotoPropiaAsync(Guid? archivoId, Guid usuarioId, CancellationToken cancellationToken)
