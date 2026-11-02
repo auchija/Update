@@ -1,40 +1,142 @@
 .cta {
-  padding-bottom: 4rem;
+  overflow: hidden;
 }
 
-.band {
+.wave {
+  display: block;
+  width: 100%;
+  height: clamp(3rem, 7vw, 6rem);
+  margin-bottom: -1px;
+  fill: #5a2db8;
+}
+
+.body {
+  padding-block: 2rem 3.5rem;
+  background: #5a2db8;
+}
+
+.content {
   display: grid;
-  gap: 1.5rem;
-  padding: 2.5rem 1.5rem;
-  border-radius: var(--radius-lg);
-  background: var(--primary);
-  color: var(--on-primary);
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 1.25rem;
+  padding-inline: 1rem;
+  text-align: center;
+  animation: subir 0.6s ease both;
 }
 
 .title {
-  font-size: var(--text-2xl);
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  color: var(--on-primary);
+  max-width: 44rem;
+  color: #ffffff;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: normal;
 }
 
-.band :focus-visible {
-  outline-color: var(--on-primary);
+.emphasis {
+  color: #f2c230;
+  font-style: italic;
 }
 
-@media (min-width: 40rem) {
-  .cta {
-    padding-bottom: 5rem;
+.lead {
+  max-width: 34rem;
+  color: #ffffff;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.875rem 1.75rem;
+  border-radius: var(--radius-full);
+  background: #f2c230;
+  color: #000000;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.button:hover {
+  background: #ffffff;
+}
+
+:global(.dark) .button {
+  background: #ffffff;
+}
+
+:global(.dark) .button:hover {
+  background: #f2c230;
+}
+
+.button:focus-visible {
+  outline-color: #ffffff;
+}
+
+.carousel {
+  overflow: hidden;
+  padding-top: 4.5rem;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: desplazar 40s linear infinite;
+}
+
+.imageCard {
+  flex-shrink: 0;
+  width: 7rem;
+  height: 9.5rem;
+  margin-right: 0.875rem;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: #000000;
+}
+
+.imageCard:nth-child(even) {
+  margin-top: -2rem;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  .band {
-    padding-inline: 2.5rem;
+@keyframes desplazar {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 
 @media (min-width: 48rem) {
-  .band {
-    grid-template-columns: 1fr auto;
-    align-items: center;
+  .body {
+    padding-bottom: 4.5rem;
+  }
+
+  .imageCard {
+    width: 9rem;
+    height: 12rem;
+    margin-right: 1.25rem;
+  }
+
+  .imageCard:nth-child(even) {
+    margin-top: -2.5rem;
   }
 }

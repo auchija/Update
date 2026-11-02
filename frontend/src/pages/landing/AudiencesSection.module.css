@@ -21,7 +21,8 @@
 }
 
 .audienceTitle {
-  font-size: var(--text-xl);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 1.375rem;
   font-weight: 700;
 }
 
