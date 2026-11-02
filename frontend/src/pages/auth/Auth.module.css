@@ -1,14 +1,122 @@
-.main {
-  display: grid;
-  place-items: center;
-  padding-block: 3rem;
+.page {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--background);
+}
+
+.panelSide {
+  display: none;
+  padding: 1.25rem;
+}
+
+.panel {
+  position: sticky;
+  top: 1.25rem;
+  height: calc(100vh - 2.5rem);
+  aspect-ratio: 5 / 7;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #efe9fb;
+  animation: aparecer 0.6s ease both;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(ellipse 30% 35% at 42% 55%, #5a2db8 0%, transparent 100%),
+    radial-gradient(ellipse 22% 18% at 68% 32%, #5a2db8 0%, transparent 100%),
+    radial-gradient(ellipse 45% 14% at 30% 20%, #a98bf0 0%, transparent 100%),
+    radial-gradient(ellipse 20% 16% at 82% 62%, #a98bf0 0%, transparent 100%);
+  filter: blur(20px);
+  animation: mover 14s ease-in-out infinite alternate;
+}
+
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgb(255 255 255 / 0.35) 0.8px, transparent 1.3px),
+    radial-gradient(circle, rgb(255 255 255 / 0.35) 0.8px, transparent 1.3px);
+  background-position:
+    0 0,
+    3px 3px;
+  background-size: 6px 6px;
+}
+
+.panelContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 2.5rem;
+}
+
+.panelBrand {
+  align-self: flex-start;
+  animation: bajar 0.5s ease 0.2s both;
+}
+
+.panelBrand a {
+  color: #171717;
+}
+
+.panelBrand svg circle:first-of-type {
+  fill: #5a2db8;
+}
+
+.panelBrand svg circle:last-of-type {
+  stroke: #5a2db8;
+}
+
+.panelTitle {
+  color: #171717;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  animation: subir 0.5s ease 0.3s both;
+}
+
+.formSide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  padding: 1.5rem;
+}
+
+.mobileBrand {
+  align-self: flex-start;
 }
 
 .card {
   display: grid;
-  gap: 1.5rem;
+  gap: 1.25rem;
   width: 100%;
-  max-width: 28rem;
+  max-width: 23.5rem;
+  animation: subir 0.5s ease 0.2s both;
+}
+
+.card input:not([type="checkbox"]) {
+  height: 2.625rem;
+  padding-inline: 0.875rem;
+  border-radius: 0.75rem;
+  background: var(--surface-sunken);
+  font-size: var(--text-sm);
+}
+
+.card button[type="submit"] {
+  height: 2.625rem;
+  border-radius: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .heading {
@@ -17,14 +125,20 @@
 }
 
 .title {
-  font-size: var(--text-2xl);
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  color: var(--foreground);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+
+:global(.dark) .title {
+  color: #ffffff;
 }
 
 .form {
   display: grid;
-  gap: 1.25rem;
+  gap: 0.875rem;
 }
 
 .switch {
@@ -47,4 +161,64 @@
 .actions {
   display: grid;
   gap: 0.5rem;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bajar {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mover {
+  from {
+    transform: translate(-3%, -2%) scale(1);
+  }
+  to {
+    transform: translate(3%, 2%) scale(1.08);
+  }
+}
+
+@media (min-width: 64rem) {
+  .panelSide {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    width: 50%;
+  }
+
+  .formSide {
+    width: 50%;
+    padding: 2.5rem 4rem;
+  }
+
+  .mobileBrand {
+    display: none;
+  }
 }
