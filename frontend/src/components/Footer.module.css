@@ -1,23 +1,118 @@
 .footer {
-  border-top: 1px solid var(--border);
-  background: var(--surface-sunken);
+  --footer-bg: #f2c230;
+  --footer-text: #000000;
+  --footer-accent: #5a2db8;
+  --footer-bar: rgb(0 0 0 / 0.2);
+
+  position: relative;
+  overflow: hidden;
+  padding-block: 3rem 1.5rem;
+  background: var(--footer-bg);
+  color: var(--footer-text);
 }
 
-.inner {
+:global(.dark) .footer {
+  --footer-bg: #1a1720;
+  --footer-text: #ffffff;
+  --footer-accent: #f2c230;
+  --footer-bar: rgb(242 194 48 / 0.25);
+}
+
+.bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.bar {
+  flex: 1;
+  background: linear-gradient(to top, var(--footer-bar), transparent);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
   display: grid;
-  gap: 1.5rem;
-  padding-block: 2.5rem;
+  gap: 2.5rem;
 }
 
 .brand {
   display: grid;
-  gap: 0.75rem;
-  max-width: 28rem;
+  justify-items: start;
+  gap: 1rem;
+}
+
+.brand a {
+  color: var(--footer-text);
+}
+
+.brand svg circle {
+  fill: var(--footer-accent);
+  stroke: var(--footer-accent);
+}
+
+.brand svg circle:last-of-type {
+  fill: none;
+}
+
+.brand svg path {
+  stroke: var(--footer-text);
+}
+
+.description {
+  max-width: 24rem;
+  font-weight: 500;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.columnTitle {
+  margin-bottom: 0.75rem;
+  color: var(--footer-text);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.list {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.list li a {
+  color: var(--footer-text);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.list li a:hover {
+  color: var(--footer-accent);
+  text-decoration: underline;
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+  margin-top: 2.5rem;
+  color: var(--footer-text);
+  font-size: var(--text-sm);
+  text-align: center;
 }
 
 @media (min-width: 48rem) {
-  .inner {
-    grid-template-columns: 1fr auto;
-    align-items: end;
+  .footer {
+    padding-block: 4.5rem 2rem;
+  }
+
+  .content {
+    grid-template-columns: 1fr 1fr;
   }
 }
