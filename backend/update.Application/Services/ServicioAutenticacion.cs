@@ -9,39 +9,81 @@ using update.Domain.Exceptions;
 
 namespace update.Application.Services;
 
+public sealed class DatosEnUsoException(IReadOnlyDictionary<string, string> errores)
+    : Exception("Algunos datos ya están en uso.")
+{
+    public IReadOnlyDictionary<string, string> Errores { get; } = errores;
+}
+
 public sealed class AuthService(
     IUsuarioRepository usuarios,
     IRefreshTokenRepository refreshTokens,
     IPasswordHasher<Usuario> passwordHasher,
     TokenService tokenService,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ServicioMiPerfil miPerfil,
+    IPerfilRepository perfiles,
+    ITipoPersonaRepository tiposPersona,
+    IUsuarioTipoPersonaRepository usuarioTiposPersona)
 {
+    private static readonly Dictionary<string, string> NombresPersona = new()
+    {
+        ["entrepreneur"] = "Emprendedor",
+        ["buyer"] = "Comprador",
+        ["mentor"] = "Mentor",
+        ["investor"] = "Inversionista",
+        ["supplier"] = "Proveedor",
+        ["collaborator"] = "Colaborador"
+    };
 
     public async Task<AuthSessionResult> RegistrarAsync(
     RegistroRequest request,
     CancellationToken cancellationToken)
     {
-        var correo = request.Correo.Trim();
+        var correo = request.Email.Trim().ToLowerInvariant();
+        var personas = request.Personas.Distinct().ToList();
+        if (personas.Any(codigo => !NombresPersona.ContainsKey(codigo)))
+            throw new ExcepcionDominio("Elige una opción válida de cómo participas.");
 
+        var errores = new Dictionary<string, string>();
         if (await usuarios.CorreoExisteAsync(correo, cancellationToken))
-            throw new InvalidOperationException("No se pudo crear la cuenta.");
+            errores["email"] = "Ese correo ya está registrado. ¿Quieres iniciar sesión?";
+        if (!await miPerfil.NombreUsuarioDisponibleAsync(request.Handle, Guid.Empty, cancellationToken))
+            errores["handle"] = "Ese usuario no está disponible. Prueba con otro.";
+        if (errores.Count > 0) throw new DatosEnUsoException(errores);
 
         var usuario = new Usuario
         {
             Id = Guid.NewGuid(),
             Correo = correo,
             RolPlataforma = RolPlataforma.Usuario,
-            TerminosAceptadosEn = request.TerminosAceptadosEn
+            TerminosAceptadosEn = DateTime.UtcNow
         };
 
         usuario.HashContrasena = passwordHasher.HashPassword(
-            usuario, request.Contrasena);
+            usuario, request.Password);
 
         usuario.Validar();
 
         return await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
         {
             await usuarios.AgregarAsync(usuario, ct);
+            await perfiles.AgregarAsync(new Perfil
+            {
+                UsuarioId = usuario.Id,
+                Tipo = TipoPerfil.Persona,
+                NombreUsuario = request.Handle,
+                NombreVisible = request.DisplayName.Trim()
+            }, ct);
+
+            foreach (var codigo in personas)
+            {
+                if (await tiposPersona.ObtenerPorClaveAsync([codigo], ct) is null)
+                    await tiposPersona.AgregarAsync(new TipoPersona { Codigo = codigo, Nombre = NombresPersona[codigo] }, ct);
+                await usuarioTiposPersona.AgregarAsync(
+                    new UsuarioTipoPersona { UsuarioId = usuario.Id, TipoPersonaCodigo = codigo }, ct);
+            }
+
             return await CrearSesionAsync(usuario, ct);
         }, cancellationToken);
     }
@@ -51,7 +93,7 @@ public sealed class AuthService(
         CancellationToken cancellationToken)
     {
         var ahora = DateTime.UtcNow;
-        var usuario = await usuarios.ObtenerPorCorreoAsync(request.Correo, cancellationToken);
+        var usuario = await BuscarPorIdentificadorAsync(request.Identifier, cancellationToken);
 
         if (usuario is null || string.IsNullOrWhiteSpace(usuario.HashContrasena))
             return null; // 401
@@ -61,7 +103,7 @@ public sealed class AuthService(
             throw new CuentaBloqueadaException(usuario.BloqueadoHasta!.Value);
 
         var resultado = passwordHasher.VerifyHashedPassword(
-            usuario, usuario.HashContrasena, request.Contrasena);
+            usuario, usuario.HashContrasena, request.Password);
 
         if (resultado == PasswordVerificationResult.Failed)
         {
@@ -77,7 +119,7 @@ public sealed class AuthService(
 
         // Hash de contraseñas: si Identity cambió sus parámetros, se re-hashea
         if (resultado == PasswordVerificationResult.SuccessRehashNeeded)
-            usuario.HashContrasena = passwordHasher.HashPassword(usuario, request.Contrasena);
+            usuario.HashContrasena = passwordHasher.HashPassword(usuario, request.Password);
 
         usuario.ReiniciarIntentosFallidos();
         usuario.UltimoIngresoEn = ahora;
@@ -124,7 +166,7 @@ public sealed class AuthService(
         await refreshTokens.ActualizarAsync(almacenado, cancellationToken);
     }
 
-    public async Task<RespuestaUsuarioDto?> ObtenerUsuarioAsync(
+    public async Task<UsuarioSesionDto?> ObtenerUsuarioAsync(
         string userId,
         CancellationToken cancellationToken)
     {
@@ -135,7 +177,44 @@ public sealed class AuthService(
             id, cancellationToken: cancellationToken);
 
         var usuario = resultados.SingleOrDefault();
-        return usuario is null ? null : CrearRespuestaUsuario(usuario);
+        return usuario is null ? null : await CrearUsuarioSesionAsync(usuario, cancellationToken);
+    }
+
+    private async Task<Usuario?> BuscarPorIdentificadorAsync(
+        string identificador,
+        CancellationToken cancellationToken)
+    {
+        var limpio = identificador.Trim().ToLowerInvariant();
+        if (!limpio.StartsWith('@') && limpio.Contains('@'))
+            return await usuarios.ObtenerPorCorreoAsync(limpio, cancellationToken);
+
+        var nombre = limpio.TrimStart('@');
+        var encontrados = await perfiles.BuscarAsync(
+            p => p.NombreUsuario == nombre && p.Tipo == TipoPerfil.Persona, 1, 1, cancellationToken);
+        if (encontrados.Count == 0) return null;
+
+        var resultados = await usuarios.ObtenerPorIdAsync(
+            encontrados[0].UsuarioId, cancellationToken: cancellationToken);
+        return resultados.SingleOrDefault();
+    }
+
+    private async Task<UsuarioSesionDto> CrearUsuarioSesionAsync(
+        Usuario usuario,
+        CancellationToken cancellationToken)
+    {
+        var resultado = await miPerfil.ObtenerAsync(usuario.Id, cancellationToken)
+            ?? throw new InvalidOperationException("El usuario no existe.");
+        var personas = await usuarioTiposPersona.ObtenerPorUsuarioIdAsync(
+            usuario.Id, cancellationToken: cancellationToken);
+
+        return new UsuarioSesionDto(
+            usuario.Id,
+            usuario.Correo,
+            resultado.Perfil.NombreUsuario,
+            resultado.Perfil.NombreVisible,
+            resultado.ClaveFoto is null ? null : $"/uploads/{resultado.ClaveFoto}",
+            personas.Select(p => p.TipoPersonaCodigo).ToList(),
+            usuario.RolPlataforma);
     }
 
 
@@ -157,7 +236,7 @@ public sealed class AuthService(
             },
             cancellationToken);
 
-        return new AuthSessionResult(accessToken, CrearRespuestaUsuario(usuario), token, expiraEn);
+        return new AuthSessionResult(accessToken, await CrearUsuarioSesionAsync(usuario, cancellationToken), token, expiraEn);
     }
 
     private static readonly TimeSpan DuracionRefreshToken =
@@ -171,21 +250,4 @@ public sealed class AuthService(
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
         return Convert.ToHexString(bytes);
     }
-
-    private static RespuestaUsuarioDto CrearRespuestaUsuario(Usuario usuario)
-    {
-        return new RespuestaUsuarioDto
-        {
-            Id = usuario.Id,
-            Correo = usuario.Correo,
-            RolPlataforma = usuario.RolPlataforma,
-            CorreoVerificadoEn = usuario.CorreoVerificadoEn,
-            TerminosAceptadosEn = usuario.TerminosAceptadosEn,
-            UltimoIngresoEn = usuario.UltimoIngresoEn,
-            ContrasenaCambiadaEn = usuario.ContrasenaCambiadaEn,
-            CreadoEn = usuario.CreadoEn,
-            ActualizadoEn = usuario.ActualizadoEn
-        };
-    }
-
 }

@@ -39,12 +39,17 @@ export async function apiRequest(path, { method = "GET", body, retryOnExpiredTok
   if (!response.ok) {
     throw new ApiError(
       response.status,
-      data?.message || DEFAULT_ERROR_MESSAGES[response.status] || GENERIC_ERROR_MESSAGE,
+      getBackendMessage(data) || DEFAULT_ERROR_MESSAGES[response.status] || GENERIC_ERROR_MESSAGE,
       data?.errors || {},
     );
   }
 
   return data;
+}
+
+function getBackendMessage(data) {
+  if (data?.message) return data.message;
+  return data?.errors || data?.status >= 500 ? "" : data?.title;
 }
 
 async function sendRequest(path, { method, body, accessToken }) {

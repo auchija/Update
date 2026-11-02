@@ -7,7 +7,7 @@ namespace update.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController(AuthService authService, ILogger<AuthController> logger) : ControllerBase
+public sealed class AuthController(AuthService authService) : ControllerBase
 {
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -33,17 +33,20 @@ public sealed class AuthController(AuthService authService, ILogger<AuthControll
             return StatusCode(StatusCodes.Status201Created, new
             {
                 accessToken = respuesta.AccessToken,
-                user = respuesta.User
+                user = ConAvatarAbsoluto(respuesta.User)
             });
         }
-        catch (InvalidOperationException ex)
+        catch (DatosEnUsoException ex)
         {
-            logger.LogError(ex, "Error durante el registro de usuario.");
-
             return Conflict(new ProblemDetails
             {
                 Status = StatusCodes.Status409Conflict,
-                Title = "No se pudo crear la cuenta."
+                Title = "No se pudo crear la cuenta.",
+                Extensions =
+                {
+                    ["message"] = ex.Message,
+                    ["errors"] = ex.Errores
+                }
             });
         }
     }
@@ -63,7 +66,7 @@ public sealed class AuthController(AuthService authService, ILogger<AuthControll
             return Unauthorized(new ProblemDetails
             {
                 Status = StatusCodes.Status401Unauthorized,
-                Title = "Correo o contraseña incorrectos."
+                Title = "Los datos no coinciden. Revisa tu correo o usuario y tu contraseña."
             });
         }
 
@@ -79,7 +82,7 @@ public sealed class AuthController(AuthService authService, ILogger<AuthControll
         return Ok(new
         {
             accessToken = respuesta.AccessToken,
-            user = respuesta.User
+            user = ConAvatarAbsoluto(respuesta.User)
         });
     }
 
@@ -107,7 +110,7 @@ public sealed class AuthController(AuthService authService, ILogger<AuthControll
         return Ok(new
         {
             accessToken = respuesta.AccessToken,
-            user = respuesta.User
+            user = ConAvatarAbsoluto(respuesta.User)
         });
     }
 
@@ -140,6 +143,10 @@ public sealed class AuthController(AuthService authService, ILogger<AuthControll
 
         var user = await authService.ObtenerUsuarioAsync(userId, cancellationToken);
 
-        return user is null ? NotFound() : Ok(user);
+        return user is null ? NotFound() : Ok(ConAvatarAbsoluto(user));
     }
+
+    private UsuarioSesionDto ConAvatarAbsoluto(UsuarioSesionDto user) => user.AvatarUrl is null
+        ? user
+        : user with { AvatarUrl = $"{Request.Scheme}://{Request.Host}{user.AvatarUrl}" };
 }
