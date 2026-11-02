@@ -1,6 +1,37 @@
-# Inventario de tablas y endpoints
+# Endpoints de la API
 
-Las rutas conservan los nombres de tabla. Las claves compuestas se envían en el orden indicado. Todos los CRUD requieren JWT con `rol=administrador`.
+Todas las rutas empiezan en `http://localhost:5195`. Las respuestas son JSON; los errores usan el formato ProblemDetails con `message` y, si hay campos inválidos, `errors` con un mensaje por campo (`{ "password": "..." }`). Swagger, en `/swagger`, permite probarlas en modo desarrollo.
+
+## Autenticación
+
+| Método y ruta | Qué hace | Respuestas |
+|---|---|---|
+| `POST /api/auth/register` | Crea la cuenta, el perfil y sus papeles. Devuelve `accessToken` y `user`, y deja la cookie de sesión. | 201, 400, 409 |
+| `POST /api/auth/login` | Inicia sesión con correo o `@usuario`. Bloquea la cuenta 15 minutos tras 5 intentos fallidos. | 200, 400, 401, 423 |
+| `POST /api/auth/refresh` | Renueva la sesión con la cookie (se usa al recargar la página). | 200, 401 |
+| `POST /api/auth/logout` | Cierra la sesión y anula la cookie. | 204 |
+| `GET /api/auth/me` | Datos del usuario con sesión. | 200, 401 |
+
+## Usuario con sesión
+
+Requieren el encabezado `Authorization: Bearer <accessToken>`.
+
+| Método y ruta | Qué hace | Respuestas |
+|---|---|---|
+| `GET /api/perfil/yo` | Mi perfil. | 200, 401 |
+| `PUT /api/perfil/yo` | Edita nombre, usuario, titular, biografía, sitio web y foto. | 200, 400, 401, 409 |
+| `POST /api/archivos/subir` | Sube una foto (`multipart/form-data`, campo `archivo`; JPG, PNG o WEBP de máximo 5 MB). Guarda el archivo en disco y sus datos en la tabla `archivos`. | 201, 400, 401 |
+
+## Salud
+
+| Método y ruta | Qué hace |
+|---|---|
+| `GET /health` | Estado del servidor y de la conexión a la base de datos. |
+| `GET /health/live`, `GET /health/ready` | Versiones cortas para monitoreo. |
+
+## CRUD de administración
+
+Uno por tabla, con `GET` (lista paginada con `?pagina=&tamanoPagina=`), `GET` por clave, `POST`, `PUT` y `DELETE`. Requieren un usuario con `rol_plataforma = 'administrador'`. Las claves compuestas se envían en el orden indicado.
 
 | Tabla SQL | Entidad C# | Clave primaria | Ruta GET/PUT/DELETE | Borrado lógico |
 |---|---|---|---|---|

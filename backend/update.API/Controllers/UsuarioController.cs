@@ -10,7 +10,6 @@ namespace update.API.Controllers;
 [ApiController]
 [Authorize(Policy = "Administracion")]
 [Route("api/usuarios")]
-[Route("api/Users")]
 public sealed class UsuarioController(ServicioCrud<Usuario> servicio, update.Domain.Interfaces.IUsuarioRepository repositorio) : ControllerBase
 {
     [HttpGet]

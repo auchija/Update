@@ -32,18 +32,6 @@
   text-align: center;
 }
 
-.testAccount {
-  padding: 0.75rem 1rem;
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-  color: var(--foreground-muted);
-}
-
-.testAccount code {
-  color: var(--foreground);
-}
-
 .actions {
   display: grid;
   gap: 0.5rem;

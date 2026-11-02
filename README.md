@@ -31,14 +31,22 @@ Esta entrega es la base del proyecto. Sobre ella vamos a construir el resto de l
 - **Página de inicio.** Explica qué es UpDate, cómo funciona en cinco pasos y qué gana cada tipo de persona al unirse.
 - **Registro.** Para crear una cuenta, la persona escribe su nombre, elige un nombre de usuario (por ejemplo, `@valentina`), pone su correo y una contraseña, marca uno o varios papeles y acepta los términos. Si algo está mal, el formulario le dice qué debe corregir.
 - **Inicio de sesión.** Se puede entrar con el correo o con el nombre de usuario.
-- **Servidor conectado a la base de datos.** El servidor tiene una dirección de prueba, `/api/health`, que sirve para comprobar que está encendido y que puede leer la base de datos.
-- **Diseño de la base de datos.** El diagrama entidad-relación y el archivo que crea todas las tablas.
+- **Servidor conectado a la base de datos.** El servidor tiene una dirección de prueba, `/health`, que sirve para comprobar que está encendido y que puede leer la base de datos.
+- **Diseño de la base de datos.** El diagrama entidad-relación y su diseño en formato DBML.
 
 Todas las pantallas se ven bien en celular, tableta y computador. Tienen modo claro y oscuro, y se pueden usar solo con el teclado.
 
-Por ahora el registro y el inicio de sesión funcionan con cuentas de prueba que se guardan en el navegador, porque el servidor todavía no tiene esa parte. Cuando la tenga, solo habrá que cambiar una opción para conectarlos.
+En esta primera entrega el registro y el inicio de sesión funcionaban con cuentas de prueba guardadas en el navegador. Desde la segunda entrega ya pasan por el servidor y la base de datos.
 
-Las publicaciones, los perfiles completos, el chat y los eventos quedan para las siguientes entregas.
+## Qué trae la segunda entrega
+
+- **Registro e inicio de sesión de verdad.** Las cuentas se guardan en la base de datos y la contraseña nunca se guarda tal cual, sino cifrada (como un _hash_). Se puede entrar con el correo o con `@usuario`. Si alguien se equivoca 5 veces seguidas con la contraseña, la cuenta se bloquea 15 minutos.
+- **Páginas públicas y privadas.** La página de inicio, el registro y el inicio de sesión son públicas. El feed y el perfil son privados: si alguien escribe su dirección sin haber iniciado sesión, lo mandamos al inicio de sesión. La sesión se mantiene al recargar la página y se cierra con el botón **Cerrar sesión**.
+- **Mi perfil.** Cada persona puede ver y editar su nombre, su usuario, un titular, su biografía y su sitio web.
+- **Foto de perfil.** La foto se sube al servidor, que revisa que de verdad sea una imagen JPG, PNG o WEBP de máximo 5 MB, la guarda en disco con un nombre único y anota en la base de datos quién la subió, cuánto pesa y su tipo.
+- **Mensajes claros cuando algo falla.** Mientras se espera al servidor se muestra que está cargando. Si hay un error, el formulario dice qué campo hay que corregir o qué pasó (sin conexión, cuenta bloqueada, usuario ocupado…).
+
+El chat y los eventos quedan para las siguientes entregas.
 
 ## Dónde está cada punto que se pidió
 
@@ -47,6 +55,13 @@ Las publicaciones, los perfiles completos, el chat y los eventos quedan para las
 - **Proyecto base con la prueba `/health` conectada a la base de datos:** la página web está en la carpeta [`frontend`](frontend/) y el servidor en la carpeta [`backend`](backend/). Los pasos para probarlo están en [Cómo probarlo](#cómo-probarlo).
 - **Página de inicio, registro e inicio de sesión que se adaptan a cualquier pantalla:** en la carpeta [`frontend/src/pages`](frontend/src/pages/).
 - **Repositorio Git y README:** este repositorio y este documento.
+
+Segunda entrega:
+
+- **Login y registro conectados a la base de datos:** [`AuthController.cs`](backend/update.API/Controllers/AuthController.cs) en el servidor y [`authService.js`](frontend/src/services/authService.js) en la página web.
+- **Rutas públicas y privadas:** [`PrivateRoute.jsx`](frontend/src/routes/PrivateRoute.jsx), [`PublicOnlyRoute.jsx`](frontend/src/routes/PublicOnlyRoute.jsx) y [`App.jsx`](frontend/src/App.jsx).
+- **Endpoints de la API usados desde la página web:** el perfil (`GET` y `PUT /api/perfil/yo`) desde [`perfilService.js`](frontend/src/services/perfilService.js). El manejo de carga y errores está en [`api.js`](frontend/src/services/api.js). Todos los endpoints están documentados en [`backend/ENDPOINTS.md`](backend/ENDPOINTS.md).
+- **Subida de archivos (`multipart/form-data`):** `POST /api/archivos/subir` en [`SubidaArchivosController.cs`](backend/update.API/Controllers/SubidaArchivosController.cs).
 
 ## Arquitectura
 
@@ -86,13 +101,13 @@ UpDate está dividido en tres partes independientes. Cada una tiene una sola res
 
 ### Cómo viaja un pedido
 
-Así funciona, por ejemplo, la dirección de prueba `/api/health`:
+Así funciona, por ejemplo, la dirección de prueba `/health`:
 
-1. Alguien abre `http://localhost:4000/api/health` en el navegador.
-2. El servidor recibe el pedido y le hace una pregunta sencilla a la base de datos: qué versión es y cuántas tablas tiene.
-3. Si la base de datos responde, el servidor contesta `"status": "ok"` con esos datos. Si no responde en 5 segundos, contesta `"status": "error"`.
+1. Alguien abre `http://localhost:5195/health` en el navegador.
+2. El servidor recibe el pedido y le hace una pregunta sencilla a la base de datos para saber si responde.
+3. Si la base de datos responde, el servidor contesta que todo está bien. Si no, contesta con un error.
 
-Cuando el servidor tenga el registro, el camino será el mismo: la página web revisa el formulario y se lo envía al servidor, el servidor vuelve a revisar los datos y los guarda en la base de datos, y luego le responde a la página web si la cuenta se creó o qué hay que corregir.
+El registro sigue el mismo camino: la página web revisa el formulario y se lo envía al servidor, el servidor vuelve a revisar los datos y los guarda en la base de datos, y luego le responde a la página web si la cuenta se creó o qué campo hay que corregir.
 
 ### Cómo está organizada cada parte por dentro
 
@@ -106,13 +121,16 @@ Cuando el servidor tenga el registro, el camino será el mismo: la página web r
 
 **Servidor** (carpeta [`backend`](backend/)):
 
-- **Conexión con la base de datos** (`UpDate.Api/Database`): cómo se conecta el servidor a PostgreSQL.
-- **Chequeo de salud** (`UpDate.Api/Health`): la dirección `/api/health`.
-- **Manejo de errores** (`UpDate.Api/Errors`): qué responder cuando algo falla o cuando se pide una dirección que no existe.
-- **Configuración** (`UpDate.Api/Configuration`): qué páginas web tienen permiso para hablar con el servidor.
-- **Pruebas automáticas** (`UpDate.Api.Tests`): revisan solas que el servidor responda bien cuando la base de datos funciona y cuando no.
+El servidor está dividido en capas. Cada capa solo conoce a la de abajo:
 
-**Base de datos** (carpeta [`bases-de-datos`](bases-de-datos/)): el diagrama y los archivos que la crean. Se explica en la siguiente sección.
+- **API** (`update.API`): recibe los pedidos de la página web. Aquí están los controladores (`Controllers`), el chequeo de salud `/health` y el manejo de errores (`Errors`), que decide qué responder cuando algo falla.
+- **Aplicación** (`update.Application`): las reglas de cada caso de uso, por ejemplo cómo se registra una persona o cómo se sube una foto (`Services`), y la forma de los datos que entran y salen (`DTOs`).
+- **Dominio** (`update.Domain`): las entidades del negocio (usuario, perfil, publicación…) con sus reglas básicas.
+- **Infraestructura** (`update.Infrastructure`): cómo se guarda todo en PostgreSQL, con Entity Framework y las migraciones.
+
+La lista completa de direcciones del servidor está en [`backend/ENDPOINTS.md`](backend/ENDPOINTS.md).
+
+**Base de datos** (carpeta [`bases-de-datos`](bases-de-datos/)): el diagrama y su diseño. Se explica en la siguiente sección.
 
 ### Dónde funciona cada parte
 
@@ -121,12 +139,14 @@ Por ahora todo funciona en un solo computador y nada está publicado en internet
 | Parte         | Dirección                  |
 | ------------- | -------------------------- |
 | Página web    | `http://localhost:5173`    |
-| Servidor      | `http://localhost:4000`    |
-| Base de datos | `localhost`, puerto `5432` |
+| Servidor      | `http://localhost:5195`    |
+| Base de datos | PostgreSQL (local, puerto `5432`, o en Supabase) |
+
+Las fotos que suben las personas se guardan en la carpeta `backend/update.API/uploads`, que no se sube al repositorio.
 
 ### Lo que viene
 
-La arquitectura ya está lista para crecer. En las próximas entregas el servidor tendrá el registro, el inicio de sesión, las publicaciones y el chat. Las fotos, videos y documentos que suban las personas se guardarán en un almacenamiento de archivos aparte, y también pasarán siempre por el servidor.
+La arquitectura ya está lista para crecer. En las próximas entregas el feed guardará las publicaciones en el servidor (la pantalla ya existe) y llegarán el chat y los eventos. Los videos y documentos seguirán el mismo camino que las fotos: pasarán siempre por el servidor, que guarda el archivo y anota sus datos en la base de datos.
 
 ## La base de datos
 
@@ -144,8 +164,9 @@ Todo en UpDate gira alrededor del **perfil**. Un perfil puede ser de una persona
 En total son 56 tablas. Los archivos están en la carpeta [`bases-de-datos`](bases-de-datos/):
 
 - [`diagrama-er.svg`](bases-de-datos/diagrama-er.svg): el diagrama entidad-relación, con todas las tablas y cómo se relacionan.
-- [`update.sql`](bases-de-datos/update.sql): el archivo que crea la base de datos completa.
 - [`update.dbml`](bases-de-datos/update.dbml): el mismo diseño en el formato de la página [dbdiagram.io](https://dbdiagram.io), donde se puede ver y editar el diagrama.
+
+Las tablas se crean con las migraciones del servidor (carpeta `backend/update.Infrastructure/Migrations`), como se explica en [Cómo probarlo](#cómo-probarlo).
 
 ## Cómo probarlo
 
@@ -166,43 +187,37 @@ cp .env.example .env
 npm run dev
 ```
 
-Después, abrir http://localhost:5173 en el navegador.
+Después, abrir http://localhost:5173 en el navegador. La página necesita que el servidor esté encendido (pasos 2 y 3).
 
-Para entrar sin crear una cuenta se puede usar el correo `demo@correo.com` (o el usuario `@valentina`) con la contraseña `Demo1234`.
+### 2. Darle al servidor sus datos privados
 
-### 2. Crear la base de datos
-
-En pgAdmin:
-
-1. Crear una base de datos nueva llamada `update`.
-2. Sobre esa base, abrir la herramienta de consultas (_Query Tool_), abrir el archivo [`bases-de-datos/update.sql`](bases-de-datos/update.sql) y ejecutarlo. Así se crean las 56 tablas.
-
-### 3. Encender el servidor
-
-En otra terminal, dentro de la carpeta del proyecto, darle al servidor los datos para entrar a la base de datos. Hay que cambiar `tu-contraseña` por la contraseña que se eligió al instalar PostgreSQL:
+En otra terminal, dentro de la carpeta del proyecto, guardar la dirección de la base de datos y una clave para firmar las sesiones. Hay que cambiar `tu-contraseña` por la contraseña de PostgreSQL (o usar la cadena de conexión de Supabase):
 
 ```bash
 cd backend
-dotnet user-secrets set "ConnectionStrings:Database" "Host=localhost;Port=5432;Database=update;Username=postgres;Password=tu-contraseña" --project UpDate.Api
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=update;Username=postgres;Password=tu-contraseña" --project update.API
+dotnet user-secrets set "Jwt:Clave" "una-clave-larga-de-al-menos-32-caracteres-123456" --project update.API
 ```
 
-Si PostgreSQL quedó instalado en otro puerto (por ejemplo, `5433`), también se cambia el `5432`. La contraseña queda guardada solo en ese computador; no se sube al repositorio.
+Estos datos quedan guardados solo en ese computador; no se suben al repositorio.
 
-Después, encender el servidor:
+### 3. Crear las tablas y encender el servidor
+
+Desde la carpeta `backend`:
 
 ```bash
-dotnet run --project UpDate.Api
+dotnet tool restore
+dotnet ef database update --project update.Infrastructure --startup-project update.API
+dotnet run --project update.API --launch-profile http
 ```
+
+El segundo comando crea las tablas con las migraciones del proyecto. Si la base de Supabase del equipo ya las tiene, no hace nada y se puede saltar.
 
 ### 4. Comprobar que todo funciona
 
-Abrir http://localhost:4000/api/health en el navegador.
+Abrir http://localhost:5195/health en el navegador.
 
-- Si aparece `"status": "ok"` y `"tables": 56`, todo está bien: el servidor está encendido, se conectó a la base de datos y encontró las 56 tablas.
-- Si aparece `"status": "error"`, el servidor no pudo conectarse: puede que la base de datos esté apagada o que la contraseña o el puerto estén mal.
+- Si dice que todo está bien, el servidor está encendido y se conectó a la base de datos.
+- Si aparece un error, el servidor no pudo conectarse: puede que la base de datos esté apagada o que la contraseña o el puerto estén mal.
 
-El servidor también tiene pruebas automáticas que revisan esto solas. Se ejecutan desde la carpeta `backend` con:
-
-```bash
-dotnet test
-```
+En http://localhost:5195/swagger se pueden ver y probar todos los endpoints. La base de Supabase del equipo es de prueba, así que se puede usar para registrarse, iniciar sesión y subir fotos sin miedo.

@@ -3,7 +3,6 @@ import Alert from "../components/Alert.jsx";
 import Button from "../components/Button.jsx";
 import Input from "../components/Input.jsx";
 import PasswordInput from "../components/PasswordInput.jsx";
-import { USE_MOCKS } from "../config.js";
 import { useForm } from "../hooks/useForm.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { validateLogin } from "../utils/authValidation.js";
@@ -63,20 +62,9 @@ export default function Login() {
         </Button>
       </form>
 
-      {USE_MOCKS && <TestAccountHint />}
-
       <p className={styles.switch}>
         ¿Aún no tienes cuenta? <Link to="/registro">Crea tu perfil</Link>
       </p>
     </AuthLayout>
-  );
-}
-
-function TestAccountHint() {
-  return (
-    <p className={styles.testAccount}>
-      Cuenta de prueba: <code>demo@correo.com</code> o <code>@valentina</code>, con contraseña{" "}
-      <code>Demo1234</code>
-    </p>
   );
 }

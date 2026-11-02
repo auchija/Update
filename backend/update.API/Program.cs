@@ -70,19 +70,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         RoleClaimType = "rol",
         ClockSkew = TimeSpan.FromSeconds(30)
     };
-    opciones.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = ctx =>
-        {
-            Console.WriteLine($"JWT falló: {ctx.Exception.Message}");
-            return Task.CompletedTask;
-        },
-        OnChallenge = ctx =>
-        {
-            Console.WriteLine($"Challenge: {ctx.Error} | {ctx.ErrorDescription}");
-            return Task.CompletedTask;
-        }
-    };
 });
 // Este CRUD es administrativo. Los casos de uso de usuario final necesitan reglas de propiedad.
 builder.Services.AddAuthorization(opciones => opciones.AddPolicy("Administracion",
@@ -111,8 +98,5 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapApplicationHealthChecks();
 app.MapOpenApi().RequireAuthorization("Administracion");
-app.MapGet("/estado", () => Results.Ok(new { servicio = "UpDate.API", estado = "disponible" }));
 // Las migraciones se ejecutan mediante dotnet ef; no se modifica la base al iniciar la API.
 app.Run();
-
-public partial class Program;

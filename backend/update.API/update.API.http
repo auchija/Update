@@ -1,6 +1,0 @@
-@update.API_HostAddress = http://localhost:5195
-
-GET {{update.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
