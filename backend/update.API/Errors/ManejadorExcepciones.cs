@@ -17,6 +17,11 @@ public sealed class ManejadorExcepciones(IProblemDetailsService problemas, ILogg
             estado = StatusCodes.Status400BadRequest;
             titulo = excepcion.Message;
         }
+        else if (excepcion is CuentaBloqueadaException)
+        {
+            estado = StatusCodes.Status423Locked;
+            titulo = excepcion.Message;
+        }
         else if (excepcion is DbUpdateConcurrencyException)
         {
             estado = StatusCodes.Status409Conflict;
