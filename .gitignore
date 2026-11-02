@@ -73,3 +73,5 @@ coverage/
 appsettings.Local.json
 appsettings.Development.json
 secrets.json
+
+backend/update.API/uploads/

@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using update.API.Converters;
 using update.API.Errors;
@@ -19,6 +20,11 @@ if (string.IsNullOrWhiteSpace(claveJwt) || Encoding.UTF8.GetByteCount(claveJwt) 
 
 builder.Services.AgregarInfraestructura(cadena);
 builder.Services.AddScoped(typeof(ServicioCrud<>));
+builder.Services.AddScoped<ServicioMiPerfil>();
+var carpetaUploads = Path.Combine(builder.Environment.ContentRootPath, "uploads");
+Directory.CreateDirectory(carpetaUploads);
+builder.Services.AddSingleton(new OpcionesSubida(carpetaUploads));
+builder.Services.AddScoped<ServicioSubidaArchivos>();
 builder.Services.AddControllers().AddJsonOptions(opciones =>
 {
     opciones.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -89,6 +95,12 @@ if (app.Environment.IsDevelopment())
 }
 else app.UseHttpsRedirection();
 app.UseCors("Frontend");
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(carpetaUploads),
+    RequestPath = "/uploads",
+    OnPrepareResponse = contexto => contexto.Context.Response.Headers.XContentTypeOptions = "nosniff"
+});
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
