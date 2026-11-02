@@ -26,6 +26,7 @@ var carpetaUploads = Path.Combine(builder.Environment.ContentRootPath, "uploads"
 Directory.CreateDirectory(carpetaUploads);
 builder.Services.AddSingleton(new OpcionesSubida(carpetaUploads));
 builder.Services.AddScoped<ServicioSubidaArchivos>();
+builder.Services.AddScoped<ServicioFeed>();
 builder.Services.AddControllers(opciones =>
     // Los errores de validación usan el nombre del campo en el JSON ("password"), no el de C# ("Password").
     opciones.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider()))

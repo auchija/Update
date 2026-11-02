@@ -20,7 +20,19 @@ Requieren el encabezado `Authorization: Bearer <accessToken>`.
 |---|---|---|
 | `GET /api/perfil/yo` | Mi perfil. | 200, 401 |
 | `PUT /api/perfil/yo` | Edita nombre, usuario, titular, biografía, sitio web y foto. | 200, 400, 401, 409 |
-| `POST /api/archivos/subir` | Sube una foto (`multipart/form-data`, campo `archivo`; JPG, PNG o WEBP de máximo 5 MB). Guarda el archivo en disco y sus datos en la tabla `archivos`. | 201, 400, 401 |
+| `POST /api/archivos/subir` | Sube una imagen (`multipart/form-data`: campo `archivo`, JPG, PNG o WEBP de máximo 5 MB, y campo `proposito`, `foto_perfil` por defecto o `publicacion`). Guarda el archivo en disco con nombre UUID y sus datos en la tabla `archivos`. | 201, 400, 401 |
+
+## Feed
+
+Requieren sesión. Cualquiera ve las publicaciones; solo su autor las edita o elimina.
+
+| Método y ruta | Qué hace | Respuestas |
+|---|---|---|
+| `GET /api/feed?pagina=1&tamanoPagina=20` | Publicaciones públicas, de la más nueva a la más antigua, con autor, imagen y `esMia`. | 200, 400, 401 |
+| `GET /api/feed/{id}` | Una publicación. | 200, 401, 404 |
+| `POST /api/feed` | Publica `{ contenido, imagenArchivoId }`. La imagen se sube antes con `proposito=publicacion` y debe ser de quien publica. Suma 1 a `totalPublicaciones` del perfil. | 201, 400, 401 |
+| `PUT /api/feed/{id}` | Edita el texto y cambia o quita la imagen (`imagenArchivoId: null`). Marca `editadoEn`. | 200, 400, 401, 403, 404 |
+| `DELETE /api/feed/{id}` | Borrado lógico (llena `eliminado_en`) y resta 1 a `totalPublicaciones`. | 204, 401, 403, 404 |
 
 ## Salud
 

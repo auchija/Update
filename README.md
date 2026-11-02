@@ -44,6 +44,7 @@ En esta primera entrega el registro y el inicio de sesión funcionaban con cuent
 - **Páginas públicas y privadas.** La página de inicio, el registro y el inicio de sesión son públicas. El feed y el perfil son privados: si alguien escribe su dirección sin haber iniciado sesión, lo mandamos al inicio de sesión. La sesión se mantiene al recargar la página y se cierra con el botón **Cerrar sesión**.
 - **Mi perfil.** Cada persona puede ver y editar su nombre, su usuario, un titular, su biografía y su sitio web.
 - **Foto de perfil.** La foto se sube al servidor, que revisa que de verdad sea una imagen JPG, PNG o WEBP de máximo 5 MB, la guarda en disco con un nombre único y anota en la base de datos quién la subió, cuánto pesa y su tipo.
+- **Publicaciones.** En el feed cada persona puede publicar texto con una imagen opcional, ver lo que publican los demás (de lo más nuevo a lo más viejo) y editar o eliminar solo lo suyo. La imagen sigue el mismo camino que la foto de perfil: se guarda en disco y sus datos en la base de datos, enlazada a la publicación.
 - **Mensajes claros cuando algo falla.** Mientras se espera al servidor se muestra que está cargando. Si hay un error, el formulario dice qué campo hay que corregir o qué pasó (sin conexión, cuenta bloqueada, usuario ocupado…).
 
 El chat y los eventos quedan para las siguientes entregas.
@@ -60,7 +61,7 @@ Segunda entrega:
 
 - **Login y registro conectados a la base de datos:** [`AuthController.cs`](backend/update.API/Controllers/AuthController.cs) en el servidor y [`authService.js`](frontend/src/services/authService.js) en la página web.
 - **Rutas públicas y privadas:** [`PrivateRoute.jsx`](frontend/src/routes/PrivateRoute.jsx), [`PublicOnlyRoute.jsx`](frontend/src/routes/PublicOnlyRoute.jsx) y [`App.jsx`](frontend/src/App.jsx).
-- **Endpoints de la API usados desde la página web:** el perfil (`GET` y `PUT /api/perfil/yo`) desde [`perfilService.js`](frontend/src/services/perfilService.js). El manejo de carga y errores está en [`api.js`](frontend/src/services/api.js). Todos los endpoints están documentados en [`backend/ENDPOINTS.md`](backend/ENDPOINTS.md).
+- **CRUD de la API usado desde la página web:** las publicaciones (`GET`, `POST`, `PUT` y `DELETE` en `/api/feed`) en [`FeedController.cs`](backend/update.API/Controllers/FeedController.cs) y [`FeedPage.jsx`](frontend/src/pages/app/FeedPage.jsx), y el perfil (`GET` y `PUT /api/perfil/yo`) desde [`perfilService.js`](frontend/src/services/perfilService.js). El manejo de carga y errores está en [`api.js`](frontend/src/services/api.js). Todos los endpoints están documentados en [`backend/ENDPOINTS.md`](backend/ENDPOINTS.md).
 - **Subida de archivos (`multipart/form-data`):** `POST /api/archivos/subir` en [`SubidaArchivosController.cs`](backend/update.API/Controllers/SubidaArchivosController.cs).
 
 ## Arquitectura
@@ -146,7 +147,7 @@ Las fotos que suben las personas se guardan en la carpeta `backend/update.API/up
 
 ### Lo que viene
 
-La arquitectura ya está lista para crecer. En las próximas entregas el feed guardará las publicaciones en el servidor (la pantalla ya existe) y llegarán el chat y los eventos. Los videos y documentos seguirán el mismo camino que las fotos: pasarán siempre por el servidor, que guarda el archivo y anota sus datos en la base de datos.
+La arquitectura ya está lista para crecer. En las próximas entregas llegarán los comentarios y reacciones en las publicaciones, el chat y los eventos. Los videos y documentos seguirán el mismo camino que las fotos: pasarán siempre por el servidor, que guarda el archivo y anota sus datos en la base de datos.
 
 ## La base de datos
 

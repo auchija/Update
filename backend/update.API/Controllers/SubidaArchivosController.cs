@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using update.Application.DTOs;
@@ -12,18 +13,22 @@ public sealed class SubidaArchivosController(ServicioSubidaArchivos servicio) : 
 {
     private const long LimitePeticionBytes = ServicioSubidaArchivos.TamanoMaximoBytes + 1024 * 1024;
 
+    /// <summary>Sube una imagen. El campo "proposito" es "foto_perfil" (por defecto) o "publicacion".</summary>
     [HttpPost("subir")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(LimitePeticionBytes)]
     [RequestFormLimits(MultipartBodyLengthLimit = LimitePeticionBytes)]
     [ProducesResponseType<RespuestaArchivoSubidoDto>(StatusCodes.Status201Created)]
-    public async Task<ActionResult<RespuestaArchivoSubidoDto>> Subir(IFormFile archivo, CancellationToken cancellationToken)
+    public async Task<ActionResult<RespuestaArchivoSubidoDto>> Subir(
+        [Required(ErrorMessage = "Elige una imagen.")] IFormFile archivo,
+        [FromForm] string? proposito,
+        CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
 
         await using var contenido = archivo.OpenReadStream();
-        var guardado = await servicio.SubirFotoPerfilAsync(
-            usuarioId, contenido, archivo.FileName, archivo.Length, cancellationToken);
+        var guardado = await servicio.SubirImagenAsync(
+            usuarioId, proposito, contenido, archivo.FileName, archivo.Length, cancellationToken);
 
         return StatusCode(StatusCodes.Status201Created, new RespuestaArchivoSubidoDto
         {

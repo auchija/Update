@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./constants/routes.js";
 import AppLayout from "./layouts/AppLayout.jsx";
-import Feed from "./pages/Feed.jsx";
+import FeedPage from "./pages/app/FeedPage.jsx";
 import ProfilePage from "./pages/app/ProfilePage.jsx";
 import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
@@ -21,7 +21,7 @@ export default function App() {
 
       <Route element={<PrivateRoute />}>
         <Route element={<AppLayout />}>
-          <Route path={ROUTES.feed} element={<Feed />} />
+          <Route path={ROUTES.feed} element={<FeedPage />} />
           <Route path={ROUTES.profile} element={<ProfilePage />} />
         </Route>
       </Route>

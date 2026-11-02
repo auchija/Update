@@ -18,15 +18,25 @@ public sealed class ServicioSubidaArchivos(IArchivoRepository archivos, Opciones
     private static readonly FormatoImagen Png = new("image/png", "png", [".png"]);
     private static readonly FormatoImagen Webp = new("image/webp", "webp", [".webp"]);
 
-    public async Task<Archivo> SubirFotoPerfilAsync(
+    // Lo que el cliente envía en el campo "proposito"; sin campo se asume foto de perfil.
+    private static readonly Dictionary<string, PropositoArchivo> Propositos = new()
+    {
+        ["foto_perfil"] = PropositoArchivo.FotoPerfil,
+        ["publicacion"] = PropositoArchivo.Publicacion
+    };
+
+    public async Task<Archivo> SubirImagenAsync(
         Guid usuarioId,
+        string? proposito,
         Stream contenido,
         string nombreOriginal,
         long tamanoBytes,
         CancellationToken cancellationToken)
     {
+        if (!Propositos.TryGetValue(proposito ?? "foto_perfil", out var propositoArchivo))
+            throw new ExcepcionDominio("El propósito debe ser foto_perfil o publicacion.");
         if (tamanoBytes <= 0) throw new ExcepcionDominio("El archivo está vacío.");
-        if (tamanoBytes > TamanoMaximoBytes) throw new ExcepcionDominio("La foto no puede pesar más de 5 MB.");
+        if (tamanoBytes > TamanoMaximoBytes) throw new ExcepcionDominio("La imagen no puede pesar más de 5 MB.");
 
         using var memoria = new MemoryStream();
         await contenido.CopyToAsync(memoria, cancellationToken);
@@ -46,7 +56,7 @@ public sealed class ServicioSubidaArchivos(IArchivoRepository archivos, Opciones
         {
             SubidoPorUsuarioId = usuarioId,
             Tipo = TipoArchivo.Imagen,
-            Proposito = PropositoArchivo.FotoPerfil,
+            Proposito = propositoArchivo,
             ProveedorAlmacenamiento = "local",
             Bucket = "uploads",
             ClaveObjeto = clave,
