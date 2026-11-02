@@ -21,7 +21,7 @@ export default function Feed() {
   const [pagina, setPagina] = useState(1);
   const [hayMas, setHayMas] = useState(false);
   const [intento, setIntento] = useState(0);
-  const configurado = !USE_MOCKS && Boolean(API_URL);
+  const configurado = USE_MOCKS || Boolean(API_URL);
   const ocupado = cargando || guardando;
 
   useEffect(() => {
@@ -30,7 +30,6 @@ export default function Feed() {
       setCargando(true);
       setErrorCarga("");
       try {
-        if (!configurado) throw new Error("Configura VITE_USE_MOCKS=false y VITE_API_URL para usar el backend real.");
         const lista = await listarPublicaciones(pagina);
         if (!Array.isArray(lista)) throw new Error("El servidor no devolvio una lista de publicaciones. Revisa VITE_API_URL.");
         if (!vigente) return;
