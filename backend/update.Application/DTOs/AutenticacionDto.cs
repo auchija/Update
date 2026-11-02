@@ -8,28 +8,28 @@ namespace update.Application.DTOs;
 public sealed class RegistroRequest
 {
     [JsonRequired]
-    [Required(AllowEmptyStrings = false)]
-    [StringLength(60, MinimumLength = 3)]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Escribe tu nombre.")]
+    [StringLength(60, MinimumLength = 3, ErrorMessage = "Usa de 3 a 60 caracteres.")]
     public string DisplayName { get; set; } = string.Empty;
 
     [JsonRequired]
-    [Required(AllowEmptyStrings = false)]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Elige un nombre de usuario.")]
     [RegularExpression("^[a-z0-9._]{3,30}$", ErrorMessage = "Usa de 3 a 30 caracteres: minúsculas, números, punto o guion bajo.")]
     public string Handle { get; set; } = string.Empty;
 
     [JsonRequired]
-    [Required(AllowEmptyStrings = false)]
-    [EmailAddress]
-    [MaxLength(254)]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Escribe tu correo.")]
+    [EmailAddress(ErrorMessage = "Escribe un correo válido.")]
+    [MaxLength(254, ErrorMessage = "El correo es demasiado largo.")]
     public string Email { get; set; } = string.Empty;
 
     [JsonRequired]
-    [Required(AllowEmptyStrings = false)]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Escribe una contraseña.")]
     [RegularExpression("^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$", ErrorMessage = "Usa al menos 8 caracteres, con una letra y un número.")]
     public string Password { get; set; } = string.Empty;
 
     [JsonRequired]
-    [MinLength(1)]
+    [MinLength(1, ErrorMessage = "Elige al menos una opción.")]
     public string[] Personas { get; set; } = [];
 
     [JsonRequired]
@@ -41,12 +41,12 @@ public sealed class RegistroRequest
 public sealed class LoginRequest
 {
     [JsonRequired]
-    [Required(AllowEmptyStrings = false)]
-    [MaxLength(254)]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Escribe tu correo o tu usuario.")]
+    [MaxLength(254, ErrorMessage = "Es demasiado largo.")]
     public string Identifier { get; set; } = string.Empty;
 
     [JsonRequired]
-    [Required(AllowEmptyStrings = false)]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Escribe tu contraseña.")]
     public string Password { get; set; } = string.Empty;
 }
 

@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using update.API.Converters;
@@ -25,12 +26,16 @@ var carpetaUploads = Path.Combine(builder.Environment.ContentRootPath, "uploads"
 Directory.CreateDirectory(carpetaUploads);
 builder.Services.AddSingleton(new OpcionesSubida(carpetaUploads));
 builder.Services.AddScoped<ServicioSubidaArchivos>();
-builder.Services.AddControllers().AddJsonOptions(opciones =>
+builder.Services.AddControllers(opciones =>
+    // Los errores de validación usan el nombre del campo en el JSON ("password"), no el de C# ("Password").
+    opciones.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider()))
+.AddJsonOptions(opciones =>
 {
     opciones.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     opciones.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false));
     opciones.JsonSerializerOptions.Converters.Add(new DireccionIpConverter());
-});
+})
+.ConfigureApiBehaviorOptions(opciones => opciones.InvalidModelStateResponseFactory = RespuestaValidacion.Crear);
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ManejadorExcepciones>();
 builder.Services.AddOpenApi();

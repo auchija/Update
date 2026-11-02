@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using update.Domain.Entities;
 using update.Domain.Interfaces;
@@ -25,7 +26,8 @@ public sealed class TokenService(IConfiguration configuration)
     {
         new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, usuario.Correo),
-        new Claim("rol", usuario.RolPlataforma.ToString())
+        // Mismo formato que el JSON y la base ("administrador"); la política de roles distingue mayúsculas.
+        new Claim("rol", JsonNamingPolicy.SnakeCaseLower.ConvertName(usuario.RolPlataforma.ToString()))
     };
 
         var credenciales = new SigningCredentials(
