@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
-using Microsoft.Extensions.FileProviders;
+
 using Microsoft.IdentityModel.Tokens;
 using update.API.Converters;
 using update.API.Errors;
@@ -23,10 +23,27 @@ builder.Services.AgregarInfraestructura(cadena);
 builder.Services.AddScoped(typeof(ServicioCrud<>));
 builder.Services.AddScoped<ServicioMiPerfil>();
 var carpetaUploads = Path.Combine(builder.Environment.ContentRootPath, "uploads");
-Directory.CreateDirectory(carpetaUploads);
+builder.Services.AddHttpClient("storage").ConfigurePrimaryHttpMessageHandler(
+    () => new HttpClientHandler { AllowAutoRedirect = false });
+builder.Services.AddScoped<IAlmacenObjetos>(sp =>
+{
+    var url = builder.Configuration["Supabase:Url"];
+    var clave = builder.Configuration["Supabase:ServiceRoleKey"];
+    var bucket = builder.Configuration["Supabase:Bucket"];
+    if (!Uri.TryCreate(url, UriKind.Absolute, out var baseUri) || baseUri.Scheme != "https"
+        || string.IsNullOrWhiteSpace(clave) || string.IsNullOrWhiteSpace(bucket))
+        throw new InvalidOperationException("Configura Supabase:Url, Bucket y ServiceRoleKey en el servidor.");
+    var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient("storage");
+    http.BaseAddress = new Uri(baseUri, "/storage/v1/");
+    http.DefaultRequestHeaders.Add("apikey", clave);
+    http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", clave);
+    return new AlmacenSupabase(http, bucket);
+});
+builder.Services.AddScoped(sp => new Lazy<IAlmacenObjetos>(sp.GetRequiredService<IAlmacenObjetos>));
 builder.Services.AddSingleton(new OpcionesSubida(carpetaUploads));
 builder.Services.AddScoped<ServicioSubidaArchivos>();
 builder.Services.AddScoped<ServicioFeed>();
+builder.Services.AddScoped<MisEmprendimientos>();
 builder.Services.AddControllers(opciones =>
     // Los errores de validación usan el nombre del campo en el JSON ("password"), no el de C# ("Password").
     opciones.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider()))
@@ -88,12 +105,6 @@ if (app.Environment.IsDevelopment())
 }
 else app.UseHttpsRedirection();
 app.UseCors("Frontend");
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(carpetaUploads),
-    RequestPath = "/uploads",
-    OnPrepareResponse = contexto => contexto.Context.Response.Headers.XContentTypeOptions = "nosniff"
-});
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

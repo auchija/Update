@@ -24,6 +24,14 @@ public sealed class FeedController(ServicioFeed servicio) : ControllerBase
         return Ok(resultado.Select(p => ARespuesta(p, usuarioId)).ToList());
     }
 
+    [HttpGet("mias")]
+    public async Task<IActionResult> MisPublicaciones(int pagina = 1, int tamanoPagina = 20, CancellationToken ct = default)
+    {
+        if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuario)) return Unauthorized();
+        var resultado = await servicio.ListarAsync(pagina, tamanoPagina, ct, usuario);
+        return Ok(resultado.Select(p => ARespuesta(p, usuario)));
+    }
+
     [HttpGet("{id:guid}")]
     [ProducesResponseType<RespuestaPublicacionFeedDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -31,7 +39,7 @@ public sealed class FeedController(ServicioFeed servicio) : ControllerBase
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
 
-        var resultado = await servicio.ObtenerAsync(id, cancellationToken);
+        var resultado = await servicio.ObtenerAsync(id, usuarioId, cancellationToken);
         return resultado is null ? NoEncontrada() : Ok(ARespuesta(resultado, usuarioId));
     }
 
@@ -106,6 +114,7 @@ public sealed class FeedController(ServicioFeed servicio) : ControllerBase
         Id = resultado.Publicacion.Id,
         Contenido = resultado.Publicacion.Contenido,
         ImagenArchivoId = resultado.ImagenArchivoId,
+        AdjuntoTipoMime = resultado.TipoMime,
         ImagenUrl = UrlArchivo(resultado.ClaveImagen),
         Autor = new AutorPublicacionDto
         {

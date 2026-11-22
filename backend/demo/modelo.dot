@@ -1,0 +1,21 @@
+digraph update {
+ graph [label="UpDate | Archivos, publicaciones y emprendimientos", labelloc=t, fontname="Helvetica", fontsize=20, bgcolor="white", pad=.3, rankdir=LR];
+ node [shape=box, style="rounded,filled", fillcolor="#F0EAFE", color="#57468D", fontname="Helvetica", fontsize=12];
+ edge [fontname="Helvetica", fontsize=10, color="#4B5272", fontcolor="#34324A"];
+ usuarios -> perfiles [label="1 : N propietario"];
+ perfiles -> emprendimientos [label="1 : 0..1 PK compartida"];
+ categorias -> emprendimientos [label="1 : N"];
+ usuarios -> emprendimientos [label="1 : N crea"];
+ perfiles -> publicaciones [label="1 : N autor"];
+ usuarios -> publicaciones [label="1 : N crea"];
+ usuarios -> archivos [label="1 : N sube"];
+ archivos -> perfiles [label="foto / portada opcional"];
+ publicaciones -> publicaciones_archivos [label="1 : N"];
+ archivos -> publicaciones_archivos [label="1 : N"];
+ emprendimientos -> productos [label="1 : N"];
+ productos -> productos_archivos [label="1 : N"];
+ archivos -> productos_archivos [label="1 : N"];
+ usuarios -> productos [label="1 : N crea"];
+ storage [label="Supabase Storage\nObjeto fisico", fillcolor="#D7F2E7"];
+ archivos -> storage [style=dashed,label="bucket + clave_objeto (sin FK)"];
+}

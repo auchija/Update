@@ -31,6 +31,7 @@ public sealed class RespuestaPublicacionFeedDto
     public Guid Id { get; set; }
     public string Contenido { get; set; } = string.Empty;
     public Guid? ImagenArchivoId { get; set; }
+    public string? AdjuntoTipoMime { get; set; }
     public string? ImagenUrl { get; set; }
     public AutorPublicacionDto Autor { get; set; } = new();
     /// <summary>true si la escribió quien hace la petición; el cliente solo muestra Editar y Eliminar en ese caso.</summary>

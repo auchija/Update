@@ -7,7 +7,7 @@ using update.Domain.Interfaces;
 namespace update.Application.Services;
 
 /// <summary>Publicación lista para responder: autor, clave de su foto y la imagen adjunta, si hay.</summary>
-public sealed record PublicacionFeed(Publicacion Publicacion, Perfil Autor, string? ClaveFotoAutor, Guid? ImagenArchivoId, string? ClaveImagen);
+public sealed record PublicacionFeed(Publicacion Publicacion, Perfil Autor, string? ClaveFotoAutor, Guid? ImagenArchivoId, string? ClaveImagen, string? TipoMime);
 
 public sealed class PublicacionAjenaException() : Exception("Solo puedes cambiar tus propias publicaciones.");
 
@@ -23,9 +23,9 @@ public sealed class ServicioFeed(
 {
     private const string TipoGeneral = "general";
 
-    public async Task<IReadOnlyList<PublicacionFeed>> ListarAsync(int pagina, int tamanoPagina, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<PublicacionFeed>> ListarAsync(int pagina, int tamanoPagina, CancellationToken cancellationToken, Guid? usuarioId = null)
     {
-        var recientes = await publicaciones.ObtenerRecientesAsync(pagina, tamanoPagina, cancellationToken);
+        var recientes = await publicaciones.ObtenerRecientesAsync(pagina, tamanoPagina, cancellationToken, usuarioId);
         var imagenes = (await publicacionArchivos.ObtenerPorPublicacionesAsync(recientes.Select(p => p.Id).ToList(), cancellationToken))
             .GroupBy(pa => pa.PublicacionId)
             .ToDictionary(g => g.Key, g => g.First().Archivo);
@@ -33,20 +33,20 @@ public sealed class ServicioFeed(
         return recientes.Select(p =>
         {
             var imagen = imagenes.GetValueOrDefault(p.Id);
-            return new PublicacionFeed(p, p.PerfilAutor, p.PerfilAutor.FotoArchivo?.ClaveObjeto, imagen?.Id, imagen?.ClaveObjeto);
+            return new PublicacionFeed(p, p.PerfilAutor, p.PerfilAutor.FotoArchivo?.ClaveObjeto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime);
         }).ToList();
     }
 
-    public async Task<PublicacionFeed?> ObtenerAsync(Guid publicacionId, CancellationToken cancellationToken)
+    public async Task<PublicacionFeed?> ObtenerAsync(Guid publicacionId, Guid usuarioId, CancellationToken cancellationToken)
     {
         var publicacion = await publicaciones.ObtenerPorClaveAsync([publicacionId], cancellationToken);
-        if (publicacion is not { Visibilidad: VisibilidadPublicacion.Publico }) return null;
+        if (publicacion is null || (publicacion.Visibilidad != VisibilidadPublicacion.Publico && publicacion.CreadoPorUsuarioId != usuarioId)) return null;
         var autor = await perfiles.ObtenerPorClaveAsync([publicacion.PerfilAutorId], cancellationToken);
-        if (autor is null) return null;
+        if (autor is null || (autor.EsPrivado && publicacion.CreadoPorUsuarioId != usuarioId)) return null;
 
         var fotoAutor = autor.FotoArchivoId is null ? null : await archivos.ObtenerPorClaveAsync([autor.FotoArchivoId.Value], cancellationToken);
         var imagen = (await publicacionArchivos.ObtenerPorPublicacionesAsync([publicacionId], cancellationToken)).FirstOrDefault()?.Archivo;
-        return new PublicacionFeed(publicacion, autor, fotoAutor?.ClaveObjeto, imagen?.Id, imagen?.ClaveObjeto);
+        return new PublicacionFeed(publicacion, autor, fotoAutor?.ClaveObjeto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime);
     }
 
     public async Task<PublicacionFeed?> CrearAsync(Guid usuarioId, GuardarPublicacionDto entrada, CancellationToken cancellationToken)
@@ -79,7 +79,7 @@ public sealed class ServicioFeed(
             return true;
         }, cancellationToken);
 
-        return new PublicacionFeed(publicacion, autor.Perfil, autor.ClaveFoto, imagen?.Id, imagen?.ClaveObjeto);
+        return new PublicacionFeed(publicacion, autor.Perfil, autor.ClaveFoto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime);
     }
 
     public async Task<PublicacionFeed?> ActualizarAsync(Guid usuarioId, Guid publicacionId, GuardarPublicacionDto entrada, CancellationToken cancellationToken)
@@ -107,7 +107,7 @@ public sealed class ServicioFeed(
             return true;
         }, cancellationToken);
 
-        return new PublicacionFeed(publicacion, autor.Perfil, autor.ClaveFoto, imagen?.Id, imagen?.ClaveObjeto);
+        return new PublicacionFeed(publicacion, autor.Perfil, autor.ClaveFoto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime);
     }
 
     public async Task<bool> EliminarAsync(Guid usuarioId, Guid publicacionId, CancellationToken cancellationToken)
