@@ -28,20 +28,21 @@ export default function FileUpload({
 }) {
   const [localError, setLocalError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [preview, setPreview] = useState(null);
   const shownError = localError || error;
   const { id, hintId, errorId, describedBy } = useFieldIds({ hint, error: shownError });
 
-  // Crea la URL temporal de la imagen y la libera al cambiar o desmontar.
+  // Lee la imagen para la vista previa. El setState va dentro del callback
+  // (no directo en el efecto) y se guarda junto al archivo para no mostrar uno viejo.
   useEffect(() => {
-    if (!file || !isImage(file.type)) {
-      setPreviewUrl(null);
-      return undefined;
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
+    if (!file || !isImage(file.type)) return undefined;
+    const reader = new FileReader();
+    reader.onload = () => setPreview({ file, url: reader.result });
+    reader.readAsDataURL(file);
+    return () => reader.abort();
   }, [file]);
+
+  const previewUrl = preview?.file === file ? preview.url : null;
 
   function selectFile(selected) {
     if (!selected) return;
