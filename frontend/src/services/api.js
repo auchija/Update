@@ -1,5 +1,5 @@
 import { API_URL } from "../config.js";
-import { clearSession, getAccessToken, getCurrentUser, setSession } from "./session.js";
+import { expireSession, getAccessToken, getCurrentUser, setSession } from "./session.js";
 
 const NO_CONNECTION_STATUS = 0;
 
@@ -53,8 +53,7 @@ function getBackendMessage(data) {
 }
 
 async function sendRequest(path, { method, body, accessToken }) {
-  // Con FormData (subida de archivos) no se fija Content-Type:
-  // el navegador pone "multipart/form-data" con su separador (boundary).
+
   const isFormData = body instanceof FormData;
   const headers = isFormData ? {} : { "Content-Type": "application/json" };
   if (accessToken) {
@@ -83,7 +82,18 @@ async function sendRequest(path, { method, body, accessToken }) {
   }
 }
 
-async function refreshAccessToken() {
+let refreshing = null;
+
+function refreshAccessToken() {
+  if (!refreshing) {
+    refreshing = renewAccessToken().finally(() => {
+      refreshing = null;
+    });
+  }
+  return refreshing;
+}
+
+async function renewAccessToken() {
   try {
     const data = await apiRequest("/auth/refresh", {
       method: "POST",
@@ -92,7 +102,7 @@ async function refreshAccessToken() {
     setSession(data.accessToken, data.user ?? getCurrentUser());
     return true;
   } catch {
-    clearSession();
+    expireSession();
     return false;
   }
 }
