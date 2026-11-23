@@ -3,6 +3,8 @@ import * as authService from "../services/authService.js";
 import { onSessionExpired } from "../services/session.js";
 import { AuthContext } from "./authContext.js";
 
+// Se guarda la promesa para que la sesión se restaure una sola vez,
+// aunque React (en modo desarrollo) ejecute el efecto dos veces.
 let restoringSession = null;
 
 function restoreSessionOnce() {
@@ -12,6 +14,7 @@ function restoreSessionOnce() {
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  // "checking" mientras se verifica la sesión; luego "authenticated" o "anonymous".
   const [status, setStatus] = useState("checking");
 
   useEffect(() => {

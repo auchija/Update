@@ -53,7 +53,8 @@ function getBackendMessage(data) {
 }
 
 async function sendRequest(path, { method, body, accessToken }) {
-
+  // Con FormData (subida de archivos) no se fija Content-Type:
+  // el navegador pone "multipart/form-data" con su separador (boundary).
   const isFormData = body instanceof FormData;
   const headers = isFormData ? {} : { "Content-Type": "application/json" };
   if (accessToken) {
