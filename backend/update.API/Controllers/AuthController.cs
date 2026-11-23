@@ -10,8 +10,9 @@ namespace update.API.Controllers;
 public sealed class AuthController(AuthService authService) : ControllerBase
 {
     [HttpPost("register")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UsuarioSesionDto))]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Registrar(
         [FromBody] RegistroRequest request,
         CancellationToken cancellationToken)
@@ -52,8 +53,9 @@ public sealed class AuthController(AuthService authService) : ControllerBase
     }
 
     [HttpPost("login")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UsuarioSesionDto))]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> IniciarSesion(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken)
@@ -87,7 +89,8 @@ public sealed class AuthController(AuthService authService) : ControllerBase
     }
 
     [HttpPost("refresh")]
-    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UsuarioSesionDto))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
     {
         if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
@@ -116,6 +119,8 @@ public sealed class AuthController(AuthService authService) : ControllerBase
 
     [HttpPost("logout")]
     [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
         if (Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
@@ -134,6 +139,9 @@ public sealed class AuthController(AuthService authService) : ControllerBase
 
     [HttpGet("me")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UsuarioSesionDto))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Me(CancellationToken cancellationToken)
     {
         var userId = User.FindFirst("sub")?.Value;

@@ -13,6 +13,8 @@ namespace update.API.Controllers;
 public sealed class CategoriasController(ServicioCrud<Categoria> servicio) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<RespuestaCategoriaDto>))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IReadOnlyList<RespuestaCategoriaDto>>> Listar([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20, CancellationToken cancellationToken = default)
     {
         var entidades = await servicio.ListarAsync(pagina, tamanoPagina, cancellationToken);
@@ -20,6 +22,9 @@ public sealed class CategoriasController(ServicioCrud<Categoria> servicio) : Con
     }
 
     [HttpGet("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RespuestaCategoriaDto))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<RespuestaCategoriaDto>> Obtener(int id, CancellationToken cancellationToken)
     {
         var entidad = await servicio.ObtenerAsync([id], cancellationToken);
@@ -28,6 +33,9 @@ public sealed class CategoriasController(ServicioCrud<Categoria> servicio) : Con
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(RespuestaCategoriaDto))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<RespuestaCategoriaDto>> Crear([FromBody] CrearCategoriaDto entrada, CancellationToken cancellationToken)
     {
         var entidad = new Categoria
@@ -44,6 +52,10 @@ public sealed class CategoriasController(ServicioCrud<Categoria> servicio) : Con
     }
 
     [HttpPut("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Actualizar(int id, [FromBody] ActualizarCategoriaDto entrada, CancellationToken cancellationToken)
     {
         var entidad = await servicio.ObtenerAsync([id], cancellationToken);
@@ -59,6 +71,9 @@ public sealed class CategoriasController(ServicioCrud<Categoria> servicio) : Con
     }
 
     [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Eliminar(int id, CancellationToken cancellationToken)
     {
         if (!await servicio.EliminarAsync([id], cancellationToken))

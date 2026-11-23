@@ -13,6 +13,8 @@ namespace update.API.Controllers;
 public sealed class BloqueosController(ServicioCrud<Bloqueo> servicio) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<RespuestaBloqueoDto>))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IReadOnlyList<RespuestaBloqueoDto>>> Listar([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20, CancellationToken cancellationToken = default)
     {
         var entidades = await servicio.ListarAsync(pagina, tamanoPagina, cancellationToken);
@@ -20,6 +22,9 @@ public sealed class BloqueosController(ServicioCrud<Bloqueo> servicio) : Control
     }
 
     [HttpGet("{usuarioBloqueadorId:guid}/{perfilBloqueadoId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RespuestaBloqueoDto))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<RespuestaBloqueoDto>> Obtener(Guid usuarioBloqueadorId, Guid perfilBloqueadoId, CancellationToken cancellationToken)
     {
         var entidad = await servicio.ObtenerAsync([usuarioBloqueadorId, perfilBloqueadoId], cancellationToken);
@@ -28,6 +33,9 @@ public sealed class BloqueosController(ServicioCrud<Bloqueo> servicio) : Control
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(RespuestaBloqueoDto))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<RespuestaBloqueoDto>> Crear([FromBody] CrearBloqueoDto entrada, CancellationToken cancellationToken)
     {
         var entidad = new Bloqueo
@@ -40,6 +48,10 @@ public sealed class BloqueosController(ServicioCrud<Bloqueo> servicio) : Control
     }
 
     [HttpPut("{usuarioBloqueadorId:guid}/{perfilBloqueadoId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Actualizar(Guid usuarioBloqueadorId, Guid perfilBloqueadoId, [FromBody] ActualizarBloqueoDto entrada, CancellationToken cancellationToken)
     {
         var entidad = await servicio.ObtenerAsync([usuarioBloqueadorId, perfilBloqueadoId], cancellationToken);
@@ -50,6 +62,9 @@ public sealed class BloqueosController(ServicioCrud<Bloqueo> servicio) : Control
     }
 
     [HttpDelete("{usuarioBloqueadorId:guid}/{perfilBloqueadoId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Eliminar(Guid usuarioBloqueadorId, Guid perfilBloqueadoId, CancellationToken cancellationToken)
     {
         if (!await servicio.EliminarAsync([usuarioBloqueadorId, perfilBloqueadoId], cancellationToken))

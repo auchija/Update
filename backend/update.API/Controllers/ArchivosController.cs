@@ -13,6 +13,8 @@ namespace update.API.Controllers;
 public sealed class ArchivosController(ServicioCrud<Archivo> servicio) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<RespuestaArchivoDto>))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IReadOnlyList<RespuestaArchivoDto>>> Listar([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20, CancellationToken cancellationToken = default)
     {
         var entidades = await servicio.ListarAsync(pagina, tamanoPagina, cancellationToken);
@@ -20,6 +22,9 @@ public sealed class ArchivosController(ServicioCrud<Archivo> servicio) : Control
     }
 
     [HttpGet("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RespuestaArchivoDto))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<RespuestaArchivoDto>> Obtener(Guid id, CancellationToken cancellationToken)
     {
         var entidad = await servicio.ObtenerAsync([id], cancellationToken);
@@ -28,6 +33,9 @@ public sealed class ArchivosController(ServicioCrud<Archivo> servicio) : Control
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(RespuestaArchivoDto))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<RespuestaArchivoDto>> Crear([FromBody] CrearArchivoDto entrada, CancellationToken cancellationToken)
     {
         var entidad = new Archivo
@@ -54,6 +62,10 @@ public sealed class ArchivosController(ServicioCrud<Archivo> servicio) : Control
     }
 
     [HttpPut("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Actualizar(Guid id, [FromBody] ActualizarArchivoDto entrada, CancellationToken cancellationToken)
     {
         var entidad = await servicio.ObtenerAsync([id], cancellationToken);
@@ -79,6 +91,9 @@ public sealed class ArchivosController(ServicioCrud<Archivo> servicio) : Control
     }
 
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Eliminar(Guid id, CancellationToken cancellationToken)
     {
         if (!await servicio.EliminarAsync([id], cancellationToken))
