@@ -84,7 +84,7 @@ function MetricCard({ value, label }) {
     }
 
     requestAnimationFrame(tick);
-  }, [isInView]);
+  }, [isInView, target, decimals, prefix, suffix]);
 
   return (
     <motion.div ref={ref} variants={groupItem} className={styles.metricCard}>
