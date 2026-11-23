@@ -18,6 +18,10 @@
   overflow: hidden;
 }
 
+.sticky .imageContainer {
+  min-height: 0;
+}
+
 .staticWrapper {
 }
 
