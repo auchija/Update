@@ -1,0 +1,5 @@
+# No subir a Vercel la configuración local: el .env apunta a la API en localhost.
+.env
+.env.local
+node_modules
+dist
