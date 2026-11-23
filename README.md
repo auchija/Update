@@ -192,27 +192,31 @@ Después, abrir http://localhost:5173 en el navegador. La página necesita que e
 
 ### 2. Darle al servidor sus datos privados
 
-En otra terminal, dentro de la carpeta del proyecto, guardar la dirección de la base de datos y una clave para firmar las sesiones. Hay que cambiar `tu-contraseña` por la contraseña de PostgreSQL (o usar la cadena de conexión de Supabase):
+En otra terminal, dentro de la carpeta del proyecto, guardar la dirección de la base de datos, una clave para firmar las sesiones y los datos de Supabase Storage, donde se guardan los archivos. Hay que cambiar lo que está entre `< >` (la lista completa, con dónde encontrar cada dato, está en [`backend/.env.example`](backend/.env.example)):
 
 ```bash
 cd backend
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=update;Username=postgres;Password=tu-contraseña" --project update.API
-dotnet user-secrets set "Jwt:Clave" "una-clave-larga-de-al-menos-32-caracteres-123456" --project update.API
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=update;Username=postgres;Password=<contraseña>" --project update.API
+dotnet user-secrets set "Jwt:Clave" "<una-clave-larga-de-al-menos-32-caracteres>" --project update.API
+dotnet user-secrets set "Supabase:Url" "https://<proyecto>.supabase.co" --project update.API
+dotnet user-secrets set "Supabase:Bucket" "archivos" --project update.API
+dotnet user-secrets set "Supabase:ServiceRoleKey" "<service-role-key>" --project update.API
 ```
 
 Estos datos quedan guardados solo en ese computador; no se suben al repositorio.
 
 ### 3. Crear las tablas y encender el servidor
 
-Desde la carpeta `backend`:
+Desde la carpeta `backend` (en PowerShell; la primera línea le da a `dotnet ef` la misma conexión del paso 2):
 
-```bash
+```powershell
+$env:ConnectionStrings__DefaultConnection = "Host=localhost;Port=5432;Database=update;Username=postgres;Password=<contraseña>"
 dotnet tool restore
 dotnet ef database update --project update.Infrastructure --startup-project update.API
 dotnet run --project update.API --launch-profile http
 ```
 
-El segundo comando crea las tablas con las migraciones del proyecto. Si la base de Supabase del equipo ya las tiene, no hace nada y se puede saltar.
+`dotnet ef database update` crea las tablas, los índices y las categorías base con las migraciones del proyecto. Si la base ya está al día, no hace nada.
 
 ### 4. Comprobar que todo funciona
 
@@ -222,3 +226,47 @@ Abrir http://localhost:5195/health en el navegador.
 - Si aparece un error, el servidor no pudo conectarse: puede que la base de datos esté apagada o que la contraseña o el puerto estén mal.
 
 En http://localhost:5195/swagger se pueden ver y probar todos los endpoints. La base de Supabase del equipo es de prueba, así que se puede usar para registrarse, iniciar sesión y subir fotos sin miedo.
+
+### 5. Cargar datos de demostración
+
+Con el servidor encendido, desde la carpeta del proyecto:
+
+```bash
+node backend/demo/sembrar.mjs
+```
+
+Crea dos cuentas de prueba (`demo_backend2_1` y `demo_backend2_2`), cada una con una publicación y un emprendimiento. Se puede correr varias veces sin duplicar nada. Más detalles en [`backend/README.md`](backend/README.md#datos-de-demostración).
+
+## Despliegue
+
+En producción cada parte vive en un servicio distinto:
+
+| Parte | Dónde | Configuración en el repositorio |
+| --- | --- | --- |
+| Página web | Vercel | [`frontend/vercel.json`](frontend/vercel.json) |
+| Servidor | Render (con Docker) | [`backend/Dockerfile`](backend/Dockerfile) y [`render.yaml`](render.yaml) |
+| Base de datos y archivos | Supabase (PostgreSQL y Storage) | migraciones en `backend/update.Infrastructure/Migrations` |
+
+La página web reenvía `/api` y `/uploads` al servidor de Render. Así, para el navegador todo viene del mismo dominio: la cookie de sesión funciona al recargar la página y las imágenes se cargan con `https`.
+
+### 1. Supabase
+
+1. En **Storage**, crear un bucket llamado `archivos`. Puede ser privado: el servidor lo lee con su clave y los muestra en `/uploads/...`.
+2. En **Project Settings > Database**, copiar la cadena de conexión (.NET). En **Project Settings > API**, copiar la URL del proyecto y la clave `service_role`.
+3. Aplicar las migraciones a esa base desde la carpeta `backend`, como en el paso 3 de [Cómo probarlo](#3-crear-las-tablas-y-encender-el-servidor), con la cadena de conexión de Supabase.
+
+### 2. Render (servidor)
+
+1. En Render: **New > Blueprint**, elegir este repositorio. Render lee [`render.yaml`](render.yaml) y crea el servicio `update-api`, que se construye con [`backend/Dockerfile`](backend/Dockerfile).
+2. Llenar las variables que pide (la lista, con dónde encontrar cada una, está en [`backend/.env.example`](backend/.env.example)). `Jwt__Clave` la genera Render sola. `Cors__Origenes__0` es la dirección que dará Vercel en el paso 3; se puede llenar después.
+3. Cuando termine, abrir `https://<servicio>.onrender.com/health`: debe decir que está sano. Swagger queda en `/swagger`.
+
+En el plan gratuito, Render apaga el servidor tras 15 minutos sin uso y tarda cerca de un minuto en despertar. Antes de la sustentación conviene abrir `/health` para que esté encendido.
+
+### 3. Vercel (página web)
+
+1. Si la dirección de Render no es `https://update-api.onrender.com`, cambiarla en [`frontend/vercel.json`](frontend/vercel.json) (dos líneas) y subir el cambio.
+2. En Vercel: **Add New > Project**, elegir este repositorio y poner **Root Directory** en `frontend`. Vercel detecta Vite solo; no hace falta ninguna variable de entorno.
+3. Copiar la dirección que da Vercel (por ejemplo `https://update.vercel.app`) en la variable `Cors__Origenes__0` de Render.
+
+Después de esto, la página publicada funciona igual que en local: registro, inicio de sesión, feed, perfil y archivos.
