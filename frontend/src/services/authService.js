@@ -24,10 +24,9 @@ export async function restoreSession() {
   try {
     const data = await apiRequest("/auth/refresh", { method: "POST", retryOnExpiredToken: false });
 
-    setSession(data.accessToken, data.user ?? null);
+    setSession(data.accessToken, null);
 
-    // Si el backend solo devuelve el token, pedimos el usuario aparte.
-    const user = data.user ?? (await apiRequest("/auth/me"));
+    const user = await apiRequest("/auth/me");
     setSession(data.accessToken, user);
     return user;
   } catch {
