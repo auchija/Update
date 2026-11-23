@@ -48,6 +48,8 @@ public sealed class ArchivoConfiguration : IEntityTypeConfiguration<Archivo>
         builder.HasOne(e => e.SubidoPorUsuario).WithMany().HasForeignKey(e => e.SubidoPorUsuarioId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_archivos_subido_por_usuario_id_usuarios");
         builder.HasIndex(e => e.SubidoPorUsuarioId).HasDatabaseName("ix_archivos_subido_por_usuario_id");
         builder.HasIndex(e => new { e.Estado, e.CreadoEn }).HasDatabaseName("ix_archivos_estado_creado_en");
+        // Índice del historial paginado "Mis archivos" (GET /api/archivos/mios).
+        builder.HasIndex(e => new { e.SubidoPorUsuarioId, e.Id }).HasFilter("eliminado_en IS NULL").HasDatabaseName("ix_archivos_historial_usuario");
         builder.HasQueryFilter(e => e.EliminadoEn == null);
     }
 }

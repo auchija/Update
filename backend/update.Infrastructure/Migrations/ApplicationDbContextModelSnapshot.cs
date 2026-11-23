@@ -152,6 +152,10 @@ namespace update.Infrastructure.Migrations
                     b.HasIndex("Estado", "CreadoEn")
                         .HasDatabaseName("ix_archivos_estado_creado_en");
 
+                    b.HasIndex("SubidoPorUsuarioId", "Id")
+                        .HasDatabaseName("ix_archivos_historial_usuario")
+                        .HasFilter("eliminado_en IS NULL");
+
                     b.ToTable("archivos", null, t =>
                         {
                             t.HasCheckConstraint("ck_archivos_bucket_longitud", "char_length(\"bucket\") <= 255");
@@ -817,6 +821,9 @@ namespace update.Infrastructure.Migrations
 
                     b.HasIndex("CreadoPorUsuarioId")
                         .HasDatabaseName("ix_emprendimientos_creado_por_usuario_id");
+
+                    b.HasIndex("CreadoPorUsuarioId", "Id")
+                        .HasDatabaseName("ix_emprendimientos_lista_usuario");
 
                     b.HasIndex("Id", "TipoPerfil")
                         .IsUnique()
@@ -2319,6 +2326,16 @@ namespace update.Infrastructure.Migrations
 
                     b.HasIndex("ComentarioAceptadoId", "Id")
                         .HasDatabaseName("ix_publicaciones_comentario_aceptado_id_id");
+
+                    b.HasIndex("CreadoPorUsuarioId", "CreadoEn", "Id")
+                        .IsDescending(false, true, true)
+                        .HasDatabaseName("ix_publicaciones_historial_autor")
+                        .HasFilter("eliminado_en IS NULL");
+
+                    b.HasIndex("Visibilidad", "CreadoEn", "Id")
+                        .IsDescending(false, true, true)
+                        .HasDatabaseName("ix_publicaciones_feed_pagina")
+                        .HasFilter("eliminado_en IS NULL");
 
                     b.ToTable("publicaciones", null, t =>
                         {

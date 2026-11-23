@@ -53,6 +53,9 @@ public sealed class PublicacionConfiguration : IEntityTypeConfiguration<Publicac
         builder.HasIndex(e => e.PublicacionCompartidaId).HasDatabaseName("ix_publicaciones_publicacion_compartida_id");
         builder.HasOne(e => e.ComentarioAceptado).WithMany().HasForeignKey(e => new { e.ComentarioAceptadoId, e.Id }).HasPrincipalKey(e => new { e.Id, e.PublicacionId }).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_publicaciones_comentario_aceptado_id_id_comentarios");
         builder.HasIndex(e => new { e.ComentarioAceptadoId, e.Id }).HasDatabaseName("ix_publicaciones_comentario_aceptado_id_id");
+        // Índices de las consultas paginadas: "Mis publicaciones" (GET /api/feed/mias) y el feed (GET /api/feed).
+        builder.HasIndex(e => new { e.CreadoPorUsuarioId, e.CreadoEn, e.Id }).IsDescending(false, true, true).HasFilter("eliminado_en IS NULL").HasDatabaseName("ix_publicaciones_historial_autor");
+        builder.HasIndex(e => new { e.Visibilidad, e.CreadoEn, e.Id }).IsDescending(false, true, true).HasFilter("eliminado_en IS NULL").HasDatabaseName("ix_publicaciones_feed_pagina");
         builder.HasQueryFilter(e => e.EliminadoEn == null);
     }
 }
