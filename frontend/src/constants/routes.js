@@ -3,6 +3,7 @@ export const ROUTES = {
   login: "/login",
   register: "/registro",
   feed: "/feed",
+  myPosts: "/mis-publicaciones",
   profile: "/perfil",
 };
 
