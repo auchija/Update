@@ -1,5 +1,6 @@
 import Avatar from "../../components/Avatar.jsx";
 import Button from "../../components/Button.jsx";
+import PostAttachment from "./PostAttachment.jsx";
 import styles from "./FeedPage.module.css";
 
 const dateFormat = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
@@ -23,14 +24,11 @@ export default function PostCard({ post, onEdit, onDelete, isDeleting }) {
 
       <p className={styles.content}>{post.contenido}</p>
 
-      {post.imagenUrl && (
-        <img
-          src={post.imagenUrl}
-          alt={`Imagen de la publicación de ${autor.nombreVisible}`}
-          loading="lazy"
-          className={styles.image}
-        />
-      )}
+      <PostAttachment
+        url={post.imagenUrl}
+        mimeType={post.adjuntoTipoMime}
+        alt={`Imagen de la publicación de ${autor.nombreVisible}`}
+      />
 
       {post.esMia && (
         <footer className="cluster cluster--xs">
