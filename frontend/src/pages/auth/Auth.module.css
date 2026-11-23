@@ -94,7 +94,9 @@
   background: #facc15;
   color: #000000;
   font-size: var(--text-sm);
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 @media (hover: hover) {
@@ -151,8 +153,12 @@
 }
 
 @keyframes marqueeH {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .testimonialCard {

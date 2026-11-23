@@ -9,27 +9,32 @@ const STEPS = [
   {
     title: "Crea tu perfil",
     text: "Elige cómo participas en la comunidad (puedes ser varias cosas a la vez) y qué te interesa.",
-    image: "https://images.unsplash.com/photo-1448932223592-d1fc686e76ea?w=600&q=80&fit=crop&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1448932223592-d1fc686e76ea?w=600&q=80&fit=crop&auto=format",
   },
   {
     title: "Publica tu proyecto",
     text: "Explica qué construyes, en qué etapa va y qué necesitas para avanzar.",
-    image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&q=80&fit=crop&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&q=80&fit=crop&auto=format",
   },
   {
     title: "Conecta",
     text: "Encuentra personas que ya recorrieron el camino y conversa con ellas.",
-    image: "https://images.unsplash.com/photo-1523908511403-7fc7b25592f4?w=600&q=80&fit=crop&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1523908511403-7fc7b25592f4?w=600&q=80&fit=crop&auto=format",
   },
   {
     title: "Encuentra oportunidades",
     text: "Socios, mentorías, convocatorias e inversión para tu etapa.",
-    image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80&fit=crop&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80&fit=crop&auto=format",
   },
   {
     title: "Asiste a eventos",
     text: "Encuentros y comunidades de emprendedores cerca de ti.",
-    image: "https://images.unsplash.com/photo-1790725673673-547b23f1ee61?w=600&q=80&fit=crop&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1790725673673-547b23f1ee61?w=600&q=80&fit=crop&auto=format",
     isUpcoming: true,
   },
 ];
@@ -81,10 +86,7 @@ export default function HowItWorksSection() {
       className={styles.outerScroll}
       style={reduceMotion ? {} : { height: `calc(100svh + ${scrollDistance}px)` }}
     >
-      <div
-        ref={containerRef}
-        className={reduceMotion ? styles.staticWrapper : styles.sticky}
-      >
+      <div ref={containerRef} className={reduceMotion ? styles.staticWrapper : styles.sticky}>
         <svg
           className={styles.wave}
           viewBox="0 0 1440 120"
@@ -113,22 +115,17 @@ export default function HowItWorksSection() {
                   className={styles.sectionTitle}
                   variants={reduceMotion ? {} : fadeUp}
                 >
-                  Del perfil a la oportunidad, en{" "}
-                  <em className={styles.accentWord}>cinco pasos</em>
+                  Del perfil a la oportunidad, en <em className={styles.accentWord}>cinco pasos</em>
                 </motion.h2>
                 <motion.p className="text-muted" variants={reduceMotion ? {} : fadeUp}>
-                  En {SITE_NAME} tu proyecto es tu carta de presentación. A partir de él llegan
-                  las conexiones y las oportunidades.
+                  En {SITE_NAME} tu proyecto es tu carta de presentación. A partir de él llegan las
+                  conexiones y las oportunidades.
                 </motion.p>
               </motion.div>
             </div>
 
             <div className={styles.trackOuter}>
-              <motion.div
-                ref={trackRef}
-                style={reduceMotion ? {} : { x }}
-                className={styles.track}
-              >
+              <motion.div ref={trackRef} style={reduceMotion ? {} : { x }} className={styles.track}>
                 {STEPS.map((s, i) => (
                   <StepCard key={s.title} step={s} number={i + 1} reduceMotion={reduceMotion} />
                 ))}

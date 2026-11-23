@@ -141,13 +141,13 @@
 .end {
   position: absolute;
   inset-block: 0;
-  right: 0.75rem;  
+  right: 0.75rem;
   display: flex;
   align-items: center;
 }
 
 .withEnd {
-  padding-right: 3rem;  
+  padding-right: 3rem;
   padding-left: 0.75rem;
 }
 

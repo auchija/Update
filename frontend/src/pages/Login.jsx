@@ -32,7 +32,14 @@ export default function Login() {
 
   return (
     <AuthLayout pageTitle="Iniciar sesión">
-      <AuthHeading title={<>Iniciar <em>sesión</em></>} subtitle="Entra para seguir construyendo tu proyecto." />
+      <AuthHeading
+        title={
+          <>
+            Iniciar <em>sesión</em>
+          </>
+        }
+        subtitle="Entra para seguir construyendo tu proyecto."
+      />
 
       {form.formError && <Alert variant="danger">{form.formError}</Alert>}
 

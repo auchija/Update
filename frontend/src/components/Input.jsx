@@ -4,18 +4,22 @@ import { classNames } from "../utils/classNames.js";
 import styles from "./Field.module.css";
 import { FieldError, FieldHint, RequiredMark } from "./FieldParts.jsx";
 
-export default function Input({ label, hint, error, endSlot, required, validator, value, ...props }) {
+export default function Input({
+  label,
+  hint,
+  error,
+  endSlot,
+  required,
+  validator,
+  value,
+  ...props
+}) {
   const { id, hintId, errorId, describedBy } = useFieldIds({ hint, error });
 
   const isValid = value && !error && validator && validator(value);
   const checkmark = isValid && (
-  <Check 
-    size={22} 
-    strokeWidth={3}
-    strokeLinecap="butt"
-    className={styles.checkmark} 
-  />
-);
+    <Check size={22} strokeWidth={3} strokeLinecap="butt" className={styles.checkmark} />
+  );
   const finalEndSlot = checkmark || endSlot;
 
   return (
@@ -34,7 +38,6 @@ export default function Input({ label, hint, error, endSlot, required, validator
           aria-describedby={describedBy}
           className={classNames(styles.control, finalEndSlot && styles.withEnd)}
           {...props}
-          
         />
         {finalEndSlot && <div className={styles.end}>{finalEndSlot}</div>}
       </div>

@@ -11,42 +11,48 @@ const TESTIMONIALS = [
   {
     id: 1,
     text: "Encontré un inversionista para mi emprendimiento en menos de dos semanas. La plataforma conecta a las personas indicadas.",
-    avatar: "https://images.unsplash.com/photo-1534751516642-a1af1ef26a56?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
+    avatar:
+      "https://images.unsplash.com/photo-1534751516642-a1af1ef26a56?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
     name: "Valentina Torres",
     role: "Fundadora, GreenPack",
   },
   {
     id: 2,
     text: "Como mentor, encontré proyectos con visión real. Ahora acompaño a tres equipos y es la parte más satisfactoria de mi semana.",
-    avatar: "https://images.unsplash.com/photo-1552358155-515e264cb8b8?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
+    avatar:
+      "https://images.unsplash.com/photo-1552358155-515e264cb8b8?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
     name: "Carlos Mendoza",
     role: "Mentor de producto",
   },
   {
     id: 3,
     text: "Me uní a un equipo como desarrolladora y el proyecto ya tiene sus primeros clientes. Todo empezó con un mensaje en UpDate.",
-    avatar: "https://images.unsplash.com/photo-1604874156629-5c6c3b3bded7?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
+    avatar:
+      "https://images.unsplash.com/photo-1604874156629-5c6c3b3bded7?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
     name: "Isabela Ruiz",
     role: "Desarrolladora fullstack",
   },
   {
     id: 4,
     text: "Publiqué mi emprendimiento un viernes. El lunes ya tenía conversaciones con dos posibles compradores.",
-    avatar: "https://images.unsplash.com/photo-1667312147803-4b2437b5485e?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
+    avatar:
+      "https://images.unsplash.com/photo-1667312147803-4b2437b5485e?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
     name: "Andrés Ospina",
     role: "Fundador, LogiQ",
   },
   {
     id: 5,
     text: "Como proveedor, antes tocaba puertas en frío. Ahora los emprendedores me encuentran a mí.",
-    avatar: "https://images.unsplash.com/photo-1573497161161-c3e73707e25c?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
+    avatar:
+      "https://images.unsplash.com/photo-1573497161161-c3e73707e25c?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
     name: "Luisa Herrera",
     role: "Proveedora de packaging",
   },
   {
     id: 6,
     text: "Invertí en dos proyectos que conocí aquí. El filtro por tipo de emprendimiento me ahorra tiempo valioso.",
-    avatar: "https://images.unsplash.com/photo-1782323709687-43675cbddd46?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
+    avatar:
+      "https://images.unsplash.com/photo-1782323709687-43675cbddd46?w=96&h=96&q=80&auto=format&fit=crop&crop=faces",
     name: "Miguel Pardo",
     role: "Inversionista ángel",
   },
@@ -123,7 +129,8 @@ function PanelSide() {
           const gy = row * SPACING;
           const dist = Math.sqrt((gx - mx) ** 2 + (gy - my) ** 2);
           const envelope = Math.exp(-dist / WAVE_FALLOFF);
-          const ripple = Math.sin(dist / WAVE_LENGTH - timeRef.current * WAVE_SPEED) * envelope * WAVE_AMP;
+          const ripple =
+            Math.sin(dist / WAVE_LENGTH - timeRef.current * WAVE_SPEED) * envelope * WAVE_AMP;
           const intensity = Math.abs(ripple) / WAVE_AMP;
 
           ctx.globalAlpha = 0.18 + intensity * 0.82;
@@ -179,9 +186,7 @@ function PanelSide() {
 function TestimonialCard({ testimonial }) {
   return (
     <figure className={styles.testimonialCard}>
-      <blockquote className={styles.testimonialText}>
-        &ldquo;{testimonial.text}&rdquo;
-      </blockquote>
+      <blockquote className={styles.testimonialText}>&ldquo;{testimonial.text}&rdquo;</blockquote>
       <figcaption className={styles.testimonialAuthor}>
         <div className={styles.testimonialAvatar}>
           <img

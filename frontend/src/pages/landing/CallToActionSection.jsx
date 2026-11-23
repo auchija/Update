@@ -58,10 +58,7 @@ export default function CallToActionSection() {
           >
             Tu próximo socio puede estar a <em className={styles.emphasis}>una conexión</em>
           </motion.h2>
-          <motion.p
-            className={styles.lead}
-            variants={reduceMotion ? {} : fadeUp}
-          >
+          <motion.p className={styles.lead} variants={reduceMotion ? {} : fadeUp}>
             Crea tu perfil y empieza a conectar con quienes pueden impulsar tu proyecto.
           </motion.p>
           <motion.div variants={reduceMotion ? {} : fadeUp}>

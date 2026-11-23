@@ -51,7 +51,11 @@ export default function Registro() {
   return (
     <AuthLayout pageTitle="Crear cuenta">
       <AuthHeading
-        title={<>Crea tu <em>cuenta</em></>}
+        title={
+          <>
+            Crea tu <em>cuenta</em>
+          </>
+        }
         subtitle="Muestra tu proyecto y conecta con quienes pueden impulsarlo."
       />
 

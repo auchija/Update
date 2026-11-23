@@ -83,7 +83,9 @@
   font-size: var(--text-sm);
   font-weight: 600;
   text-decoration: none;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .ctaPrimary:hover {
@@ -112,7 +114,10 @@
   font-size: var(--text-sm);
   font-weight: 500;
   text-decoration: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .ctaSecondary:hover {
@@ -157,8 +162,12 @@
 }
 
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-25%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-25%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -35,17 +35,10 @@ export default function LandingSection({ id, title, description, sunken = false,
           whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
         >
-          <motion.h2
-            id={titleId}
-            className={styles.title}
-            variants={reduceMotion ? {} : fadeUp}
-          >
+          <motion.h2 id={titleId} className={styles.title} variants={reduceMotion ? {} : fadeUp}>
             {title}
           </motion.h2>
-          <motion.p
-            className="text-muted"
-            variants={reduceMotion ? {} : fadeUp}
-          >
+          <motion.p className="text-muted" variants={reduceMotion ? {} : fadeUp}>
             {description}
           </motion.p>
         </motion.div>

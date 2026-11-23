@@ -19,5 +19,12 @@ export default function PasswordInput({ validator, ...props }) {
     </button>
   );
 
-  return <Input {...props} type={isVisible ? "text" : "password"} endSlot={visibilityToggle} validator={validator} />;
+  return (
+    <Input
+      {...props}
+      type={isVisible ? "text" : "password"}
+      endSlot={visibilityToggle}
+      validator={validator}
+    />
+  );
 }

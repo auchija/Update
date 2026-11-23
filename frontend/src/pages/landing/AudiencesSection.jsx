@@ -56,8 +56,7 @@ export default function AudiencesSection() {
       id={LANDING_SECTION_IDS.audiences}
       title={
         <>
-          Un lugar para cada lado del{" "}
-          <em className={styles.accentWord}>emprendimiento</em>
+          Un lugar para cada lado del <em className={styles.accentWord}>emprendimiento</em>
         </>
       }
       description={`Al crear tu cuenta eliges cómo participas, y puedes marcar varias opciones. Cada una ve ${SITE_NAME} desde su necesidad.`}
@@ -93,7 +92,12 @@ function AudienceCard({ persona, rise }) {
       <div className={styles.cardBottom}>
         <span className={styles.cardLink}>
           {link}
-          <ArrowRight size={16} strokeWidth={1.75} aria-hidden="true" className={styles.arrowIcon} />
+          <ArrowRight
+            size={16}
+            strokeWidth={1.75}
+            aria-hidden="true"
+            className={styles.arrowIcon}
+          />
         </span>
       </div>
     </motion.article>
