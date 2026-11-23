@@ -36,6 +36,10 @@ public sealed class RespuestaPublicacionFeedDto
     public AutorPublicacionDto Autor { get; set; } = new();
     /// <summary>true si la escribió quien hace la petición; el cliente solo muestra Editar y Eliminar en ese caso.</summary>
     public bool EsMia { get; set; }
+    public int TotalReacciones { get; set; }
+    public int TotalComentarios { get; set; }
+    /// <summary>true si quien hace la petición ya le dio "me gusta".</summary>
+    public bool MeGusta { get; set; }
     public DateTime CreadoEn { get; set; }
     public DateTime? EditadoEn { get; set; }
 }

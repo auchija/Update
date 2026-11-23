@@ -9,7 +9,7 @@ namespace update.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/feed")]
-public sealed class FeedController(ServicioFeed servicio) : ControllerBase
+public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comunidad) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType<IReadOnlyList<RespuestaPublicacionFeedDto>>(StatusCodes.Status200OK)]
@@ -20,7 +20,7 @@ public sealed class FeedController(ServicioFeed servicio) : ControllerBase
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
 
-        var resultado = await servicio.ListarAsync(pagina, tamanoPagina, cancellationToken);
+        var resultado = await servicio.ListarAsync(usuarioId, pagina, tamanoPagina, cancellationToken);
         return Ok(resultado.Select(p => ARespuesta(p, usuarioId)).ToList());
     }
 
@@ -32,7 +32,7 @@ public sealed class FeedController(ServicioFeed servicio) : ControllerBase
     public async Task<ActionResult<IReadOnlyList<RespuestaPublicacionFeedDto>>> MisPublicaciones(int pagina = 1, int tamanoPagina = 20, CancellationToken ct = default)
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuario)) return Unauthorized();
-        var resultado = await servicio.ListarAsync(pagina, tamanoPagina, ct, usuario);
+        var resultado = await servicio.ListarAsync(usuario, pagina, tamanoPagina, ct, soloMias: true);
         return Ok(resultado.Select(p => ARespuesta(p, usuario)).ToList());
     }
 
@@ -113,23 +113,87 @@ public sealed class FeedController(ServicioFeed servicio) : ControllerBase
         Title = ex.Message
     });
 
-    private RespuestaPublicacionFeedDto ARespuesta(PublicacionFeed resultado, Guid usuarioId) => new()
+    /// <summary>Da "me gusta" a la publicación. Repetirlo no suma otra vez.</summary>
+    [HttpPost("{id:guid}/me-gusta")]
+    [ProducesResponseType<EstadoMeGustaDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<ActionResult<EstadoMeGustaDto>> DarMeGusta(Guid id, CancellationToken cancellationToken)
+        => MarcarMeGusta(id, true, cancellationToken);
+
+    /// <summary>Quita el "me gusta". Repetirlo no resta otra vez.</summary>
+    [HttpDelete("{id:guid}/me-gusta")]
+    [ProducesResponseType<EstadoMeGustaDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<ActionResult<EstadoMeGustaDto>> QuitarMeGusta(Guid id, CancellationToken cancellationToken)
+        => MarcarMeGusta(id, false, cancellationToken);
+
+    /// <summary>Comentarios de la publicación, del más antiguo al más nuevo.</summary>
+    [HttpGet("{id:guid}/comentarios")]
+    [ProducesResponseType<IReadOnlyList<RespuestaComentarioFeedDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<RespuestaComentarioFeedDto>>> ListarComentarios(
+        Guid id,
+        [FromQuery] int pagina = 1,
+        [FromQuery] int tamanoPagina = 20,
+        CancellationToken cancellationToken = default)
     {
-        Id = resultado.Publicacion.Id,
-        Contenido = resultado.Publicacion.Contenido,
-        ImagenArchivoId = resultado.ImagenArchivoId,
-        AdjuntoTipoMime = resultado.TipoMime,
-        ImagenUrl = UrlArchivo(resultado.ClaveImagen),
-        Autor = new AutorPublicacionDto
+        if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
+
+        var resultado = await comunidad.ListarComentariosAsync(usuarioId, id, pagina, tamanoPagina, cancellationToken);
+        return resultado is null ? NoEncontrada() : Ok(resultado.Select(c => MapeoComunidad.Comentario(c, UrlArchivo)).ToList());
+    }
+
+    [HttpPost("{id:guid}/comentarios")]
+    [ProducesResponseType<RespuestaComentarioFeedDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RespuestaComentarioFeedDto>> Comentar(
+        Guid id,
+        [FromBody] ComentarDto entrada,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
+
+        var resultado = await comunidad.ComentarAsync(usuarioId, id, entrada, cancellationToken);
+        return resultado is null
+            ? NoEncontrada()
+            : StatusCode(StatusCodes.Status201Created, MapeoComunidad.Comentario(resultado, UrlArchivo));
+    }
+
+    /// <summary>Borra un comentario propio, o cualquiera de una publicación propia.</summary>
+    [HttpDelete("{id:guid}/comentarios/{comentarioId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> EliminarComentario(Guid id, Guid comentarioId, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
+
+        try
         {
-            NombreUsuario = resultado.Autor.NombreUsuario,
-            NombreVisible = resultado.Autor.NombreVisible,
-            FotoUrl = UrlArchivo(resultado.ClaveFotoAutor)
-        },
-        EsMia = resultado.Publicacion.CreadoPorUsuarioId == usuarioId,
-        CreadoEn = resultado.Publicacion.CreadoEn,
-        EditadoEn = resultado.Publicacion.EditadoEn
-    };
+            return await comunidad.EliminarComentarioAsync(usuarioId, id, comentarioId, cancellationToken)
+                ? NoContent()
+                : NotFound(new ProblemDetails { Status = StatusCodes.Status404NotFound, Title = "El comentario no existe o fue eliminado." });
+        }
+        catch (ComentarioAjenoException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails { Status = StatusCodes.Status403Forbidden, Title = ex.Message });
+        }
+    }
+
+    private async Task<ActionResult<EstadoMeGustaDto>> MarcarMeGusta(Guid id, bool meGusta, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
+
+        var resultado = await comunidad.MarcarMeGustaAsync(usuarioId, id, meGusta, cancellationToken);
+        return resultado is null
+            ? NoEncontrada()
+            : Ok(new EstadoMeGustaDto { MeGusta = resultado.MeGusta, TotalReacciones = resultado.TotalReacciones });
+    }
+
+    private RespuestaPublicacionFeedDto ARespuesta(PublicacionFeed resultado, Guid usuarioId)
+        => MapeoComunidad.Publicacion(resultado, usuarioId, UrlArchivo);
 
     private string? UrlArchivo(string? clave) => clave is null ? null : $"{Request.Scheme}://{Request.Host}/uploads/{clave}";
 }

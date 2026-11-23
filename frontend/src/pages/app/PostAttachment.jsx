@@ -1,5 +1,5 @@
 import { FileText } from "lucide-react";
-import styles from "./FeedPage.module.css";
+import styles from "./Post.module.css";
 
 /** Muestra el adjunto de una publicación: la imagen, o un enlace si es PDF. */
 export default function PostAttachment({ url, mimeType, alt }) {
@@ -14,5 +14,5 @@ export default function PostAttachment({ url, mimeType, alt }) {
     );
   }
 
-  return <img src={url} alt={alt} loading="lazy" className={styles.image} />;
+  return <img src={url} alt={alt} loading="lazy" decoding="async" className={styles.image} />;
 }

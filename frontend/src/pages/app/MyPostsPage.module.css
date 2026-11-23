@@ -1,0 +1,23 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  max-width: 30rem;
+  margin-inline: auto;
+}
+
+.header {
+  display: grid;
+  gap: 0.25rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 30rem) {
+  .header {
+    padding-inline: 0;
+  }
+}
+
+.title {
+  font-size: var(--text-2xl);
+}

@@ -1,0 +1,447 @@
+/* ---------- Tarjeta de publicación ---------- */
+
+.post {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+@media (min-width: 30rem) {
+  .post {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    overflow: hidden;
+    padding-bottom: 0.25rem;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 3.5rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.875rem;
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.authorText {
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.handle {
+  overflow: hidden;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.authorName {
+  overflow: hidden;
+  color: var(--foreground-muted);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.author:hover .handle {
+  text-decoration: underline;
+}
+
+.dot,
+.time {
+  flex-shrink: 0;
+  color: var(--foreground-muted);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.time:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Menú ⋯ ---------- */
+
+.menu {
+  position: relative;
+  margin-left: auto;
+}
+
+.menuButton {
+  display: inline-flex;
+  padding: 0.5rem;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  cursor: pointer;
+  list-style: none;
+}
+
+.menuButton::-webkit-details-marker {
+  display: none;
+}
+
+.menuButton:hover {
+  background: var(--surface-sunken);
+}
+
+.menuList {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  z-index: 5;
+  display: grid;
+  min-width: 10rem;
+  padding: 0.375rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-align: left;
+}
+
+.menuItem:hover {
+  background: var(--surface-sunken);
+}
+
+.menuDanger {
+  color: var(--danger);
+}
+
+/* ---------- Foto ---------- */
+
+.media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: var(--surface-sunken);
+  user-select: none;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  max-height: 40rem;
+  object-fit: cover;
+}
+
+.burst {
+  position: absolute;
+  width: 6rem;
+  height: 6rem;
+  color: #fff;
+  fill: #fff;
+  filter: drop-shadow(0 6px 18px rgb(0 0 0 / 0.35));
+  animation: latido 900ms var(--ease-natural) forwards;
+  pointer-events: none;
+}
+
+@keyframes latido {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  35% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* Publicación solo de texto: el texto ocupa el lugar de la foto. */
+.textBody {
+  display: grid;
+  gap: 0.875rem;
+  padding: 0.25rem 1rem 0.5rem;
+}
+
+.bigText {
+  font-size: var(--text-lg);
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.mediumText {
+  font-size: var(--text-base);
+  line-height: 1.6;
+}
+
+.document {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.document:hover {
+  background: var(--primary-soft);
+}
+
+/* ---------- Acciones ---------- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.375rem 0.5rem 0;
+}
+
+.action {
+  display: inline-flex;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--foreground);
+  transition: transform var(--duration-fast) var(--ease-natural);
+}
+
+.action:hover {
+  color: var(--foreground-muted);
+}
+
+.action:active {
+  transform: scale(0.88);
+}
+
+.actionIcon {
+  width: 1.6rem;
+  height: 1.6rem;
+  stroke-width: 1.75;
+}
+
+.liked {
+  color: #e8365d;
+}
+
+.liked:hover {
+  color: #e8365d;
+}
+
+.liked .actionIcon {
+  fill: currentColor;
+  animation: pop 350ms var(--ease-natural);
+}
+
+@keyframes pop {
+  40% {
+    transform: scale(1.25);
+  }
+}
+
+.shareStatus {
+  margin-left: 0.25rem;
+  color: var(--foreground-muted);
+  font-size: var(--text-sm);
+}
+
+/* ---------- Detalles: contador, texto, comentarios ---------- */
+
+.details {
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.125rem 1rem 0.75rem;
+  font-size: var(--text-sm);
+}
+
+.likes {
+  font-weight: 700;
+}
+
+.caption {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.clamped {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.captionHandle {
+  color: var(--foreground);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.captionHandle:hover {
+  text-decoration: underline;
+}
+
+.more,
+.viewComments {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--foreground-muted);
+  font-size: var(--text-sm);
+}
+
+.more:hover,
+.viewComments:hover {
+  text-decoration: underline;
+}
+
+.inlineError {
+  color: var(--danger);
+  font-size: var(--text-sm);
+}
+
+.comments {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.commentList {
+  display: grid;
+  gap: 0.75rem;
+  padding-block: 0.25rem;
+}
+
+.comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.commentBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.commentText {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.commentTime {
+  color: var(--foreground-muted);
+  font-size: var(--text-xs);
+}
+
+.commentDelete {
+  display: inline-flex;
+  padding: 0.25rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--foreground-muted);
+  opacity: 0.6;
+}
+
+.comment:hover .commentDelete,
+.commentDelete:focus-visible {
+  opacity: 1;
+}
+
+.commentDelete:hover {
+  color: var(--danger);
+}
+
+.commentForm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.25rem;
+  padding-top: 0.5rem;
+}
+
+.commentInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0.375rem 0;
+  border: 0;
+  background: none;
+  font-size: var(--text-sm);
+}
+
+.commentInput:focus {
+  outline: none;
+}
+
+.commentInput::placeholder {
+  color: var(--foreground-muted);
+}
+
+.commentForm:focus-within {
+  border-top-color: var(--primary-line);
+}
+
+.commentSubmit {
+  padding: 0.25rem;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.commentSubmit:disabled {
+  opacity: 0.6;
+}
+
+/* ---------- Formulario de publicación ---------- */
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.currentFile {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+}
+
+.currentFile .image {
+  max-height: 18rem;
+  border-radius: var(--radius-md);
+}

@@ -1,25 +1,27 @@
 import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import Alert from "../../components/Alert.jsx";
 import Button from "../../components/Button.jsx";
-import { ROUTES } from "../../constants/routes.js";
 import { usePaginatedList } from "../../hooks/usePaginatedList.js";
 import { FEED_PAGE_SIZE, getMisPublicaciones } from "../../services/feedService.js";
 import PostList from "./PostList.jsx";
-import styles from "./FeedPage.module.css";
+import styles from "./MyPostsPage.module.css";
 
 /** Historial: solo las publicaciones del usuario con sesión, con editar y eliminar. */
 export default function MyPostsPage() {
-  const list = usePaginatedList(getMisPublicaciones, FEED_PAGE_SIZE);
+  const { openComposer, postsVersion } = useOutletContext();
+  const list = usePaginatedList(getMisPublicaciones, FEED_PAGE_SIZE, postsVersion);
   const [notice, setNotice] = useState(null);
 
   return (
     <>
-      <title>Mis publicaciones</title>
-      <div className={styles.feed}>
-        <header>
-          <h1>Mis publicaciones</h1>
+      <title>Mis publicaciones · UpDate</title>
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Mis publicaciones</h1>
           <p className="text-muted">
-            Todo lo que has publicado, de lo más reciente a lo más antiguo.
+            Todo lo que has publicado, de lo más reciente a lo más antiguo. Usa el menú ⋯ para
+            editar o eliminar.
           </p>
         </header>
 
@@ -33,7 +35,7 @@ export default function MyPostsPage() {
             <>
               <h2>Aún no has publicado nada</h2>
               <p className="text-muted">Cuando publiques algo, lo verás aquí.</p>
-              <Button to={ROUTES.feed}>Crear mi primera publicación</Button>
+              <Button onClick={openComposer}>Crear mi primera publicación</Button>
             </>
           }
         />

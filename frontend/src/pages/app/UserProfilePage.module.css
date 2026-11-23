@@ -1,0 +1,179 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  max-width: 58rem;
+  margin-inline: auto;
+}
+
+.state {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+/* ---------- Cabecera ---------- */
+
+/* Móvil: foto a la izquierda de usuario y contadores; la biografía abajo a todo el ancho.
+   Desde tablet: la biografía pasa a la columna derecha. */
+.header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "avatar top"
+    "avatar stats"
+    "bio bio";
+  align-items: center;
+  gap: 0.875rem 1.25rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 48rem) {
+  .header {
+    grid-template-areas:
+      "avatar top"
+      "avatar stats"
+      "avatar bio";
+    align-items: start;
+    gap: 1.25rem 4rem;
+    padding: 0.5rem 2rem 1rem;
+  }
+
+  .avatar {
+    align-self: center;
+    padding-inline: 1rem;
+  }
+}
+
+.avatar {
+  grid-area: avatar;
+}
+
+.identity {
+  display: contents;
+}
+
+.topRow {
+  grid-area: top;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  min-width: 0;
+}
+
+.handle {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.stats {
+  grid-area: stats;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.75rem;
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 48rem) {
+  .stats {
+    font-size: var(--text-base);
+  }
+}
+
+.stats strong {
+  font-weight: 700;
+}
+
+.bio {
+  grid-area: bio;
+  display: grid;
+  gap: 0.125rem;
+  font-size: var(--text-sm);
+}
+
+.name {
+  font-weight: 700;
+}
+
+.headline {
+  color: var(--foreground-muted);
+}
+
+.bioText {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.website {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  justify-self: start;
+  margin-top: 0.25rem;
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.website:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Pestaña y contenido ---------- */
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--border);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: -1px;
+  padding-block: 0.875rem;
+  border-top: 1px solid var(--foreground);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.emptyIcon {
+  display: inline-flex;
+  padding: 1rem;
+  border: 2px solid var(--foreground);
+  border-radius: var(--radius-full);
+}
+
+.footerNote {
+  padding-inline: 1rem;
+  color: var(--foreground-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}

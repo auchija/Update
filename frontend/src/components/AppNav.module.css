@@ -1,0 +1,213 @@
+/* Móvil: barra superior + barra inferior. Desde 48rem: barra lateral de íconos; desde 80rem, con textos. */
+
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 3.5rem;
+  padding-inline: 1rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.iconButton {
+  display: inline-flex;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--foreground);
+}
+
+.iconButton:hover {
+  background: var(--surface-sunken);
+}
+
+.bottomBar {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 10;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 92%, transparent);
+  backdrop-filter: blur(10px);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottomList {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 3.25rem;
+}
+
+.bottomLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--foreground);
+}
+
+.bottomLink.active {
+  color: var(--primary);
+}
+
+.bottomLink.active :is(img, span[role="img"], span[aria-hidden]) {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.sidebar {
+  display: none;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  stroke-width: 1.75;
+  transition: transform var(--duration-fast) var(--ease-natural);
+}
+
+@media (min-width: 48rem) {
+  .topBar,
+  .bottomBar {
+    display: none;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    width: 4.75rem;
+    height: 100dvh;
+    padding: 1.25rem 0.75rem;
+    border-right: 1px solid var(--border);
+    background: var(--background);
+  }
+
+  .brand {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.75rem;
+    padding-inline: 0.5rem;
+  }
+
+  /* Con la barra estrecha solo se ve el símbolo del logo. */
+  .brand :global(a) span {
+    display: none;
+  }
+
+  .list {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    padding: 0.75rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--foreground);
+    font-size: var(--text-base);
+    text-align: left;
+    text-decoration: none;
+    transition: background-color var(--duration-fast) var(--ease-natural);
+  }
+
+  .link:hover {
+    background: var(--surface-sunken);
+  }
+
+  .link:hover .icon {
+    transform: scale(1.06);
+  }
+
+  .link.active {
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .link.active .icon {
+    stroke-width: 2.4;
+  }
+
+  .link :global(img),
+  .link span[role="img"],
+  .link span[aria-hidden] {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  .link.active :is(img, span[role="img"], span[aria-hidden]) {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+
+  .label {
+    display: none;
+  }
+
+  .footer {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    margin-top: auto;
+  }
+
+  /* El selector de tema no cabe en la barra estrecha; vuelve con los textos. */
+  .footer > :first-child {
+    display: none;
+  }
+}
+
+@media (min-width: 80rem) {
+  .sidebar {
+    width: 15rem;
+    padding-inline: 1rem;
+  }
+
+  .brand {
+    justify-content: flex-start;
+    padding-inline: 0.75rem;
+  }
+
+  .brand :global(a) span {
+    display: inline;
+  }
+
+  .link {
+    justify-content: flex-start;
+  }
+
+  .label {
+    display: inline;
+  }
+
+  .footer {
+    justify-items: start;
+  }
+
+  .footer > :first-child {
+    display: inline-flex;
+    margin-left: 0.5rem;
+  }
+}

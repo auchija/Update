@@ -7,5 +7,9 @@ public interface IPublicacionRepository : IRepository<Publicacion>
 {
     Task<IReadOnlyList<Publicacion>> ObtenerPorPerfilAutorIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default);
     /// <summary>Publicaciones públicas, de la más nueva a la más antigua, con su autor y la foto del autor.</summary>
-    Task<IReadOnlyList<Publicacion>> ObtenerRecientesAsync(int pagina, int tamanoPagina, CancellationToken cancellationToken = default, Guid? usuarioId = null);
+    /// <param name="usuarioId">Si se indica, solo las de ese usuario (incluidas las no públicas).</param>
+    /// <param name="perfilAutorId">Si se indica, solo las públicas de ese perfil.</param>
+    Task<IReadOnlyList<Publicacion>> ObtenerRecientesAsync(int pagina, int tamanoPagina, CancellationToken cancellationToken = default, Guid? usuarioId = null, Guid? perfilAutorId = null);
+    /// <summary>Suma (o resta) a los contadores en una sola sentencia UPDATE, sin carreras entre peticiones.</summary>
+    Task AjustarContadoresAsync(Guid publicacionId, int reacciones, int comentarios, CancellationToken cancellationToken = default);
 }

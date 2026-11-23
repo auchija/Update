@@ -1,0 +1,33 @@
+.list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 30rem) {
+  .list {
+    gap: 1.5rem;
+  }
+}
+
+.state {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
+}
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1.5rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+}

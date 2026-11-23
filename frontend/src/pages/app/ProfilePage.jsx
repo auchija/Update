@@ -4,6 +4,7 @@ import Avatar from "../../components/Avatar.jsx";
 import Button from "../../components/Button.jsx";
 import Card from "../../components/Card.jsx";
 import Spinner from "../../components/Spinner.jsx";
+import { userProfilePath } from "../../constants/routes.js";
 import { useAuth } from "../../hooks/useAuth.js";
 import { getMiPerfil } from "../../services/perfilService.js";
 import ProfileForm from "./ProfileForm.jsx";
@@ -56,7 +57,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <title>Mi perfil</title>
+      <title>Editar perfil · UpDate</title>
       <Card className={styles.card}>
         {loadError && (
           <div className="stack">
@@ -87,9 +88,14 @@ export default function ProfilePage() {
                   <p className="text-muted">@{perfil.nombreUsuario}</p>
                 </div>
               </div>
-              <Button variant="secondary" onClick={startEditing}>
-                Editar perfil
-              </Button>
+              <div className="cluster cluster--xs">
+                <Button variant="ghost" to={userProfilePath(perfil.nombreUsuario)}>
+                  Ver mi perfil
+                </Button>
+                <Button variant="secondary" onClick={startEditing}>
+                  Editar perfil
+                </Button>
+              </div>
             </div>
 
             {perfil.titular && <p className={styles.headline}>{perfil.titular}</p>}

@@ -31,7 +31,12 @@ builder.Services.AddScoped<IAlmacenObjetos>(sp =>
     var url = builder.Configuration["Supabase:Url"];
     var clave = builder.Configuration["Supabase:ServiceRoleKey"];
     var bucket = builder.Configuration["Supabase:Bucket"];
-    if (!Uri.TryCreate(url, UriKind.Absolute, out var baseUri) || baseUri.Scheme != "https"
+    // En desarrollo también se acepta http en la propia máquina, para Supabase local
+    // (`supabase start` corre en http://127.0.0.1:54321).
+    var urlValida = Uri.TryCreate(url, UriKind.Absolute, out var baseUri)
+        && (baseUri.Scheme == "https"
+            || (builder.Environment.IsDevelopment() && baseUri.Scheme == "http" && baseUri.IsLoopback));
+    if (!urlValida
         || string.IsNullOrWhiteSpace(clave) || string.IsNullOrWhiteSpace(bucket))
         throw new InvalidOperationException("Configura Supabase:Url, Bucket y ServiceRoleKey en el servidor.");
     var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient("storage");
@@ -44,6 +49,7 @@ builder.Services.AddScoped(sp => new Lazy<IAlmacenObjetos>(sp.GetRequiredService
 builder.Services.AddSingleton(new OpcionesSubida(carpetaUploads));
 builder.Services.AddScoped<ServicioSubidaArchivos>();
 builder.Services.AddScoped<ServicioFeed>();
+builder.Services.AddScoped<ServicioComunidad>();
 builder.Services.AddScoped<MisEmprendimientos>();
 builder.Services.AddControllers(opciones =>
     // Los errores de validación usan el nombre del campo en el JSON ("password"), no el de C# ("Password").

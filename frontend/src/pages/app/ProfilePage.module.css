@@ -1,6 +1,6 @@
 .card {
   max-width: 42rem;
-  margin-inline: auto;
+  margin-inline: max(1rem, (100% - 42rem) / 2);
 }
 
 .header {

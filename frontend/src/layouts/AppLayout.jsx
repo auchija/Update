@@ -1,23 +1,49 @@
-import { Outlet } from "react-router-dom";
-import AppHeader from "../components/AppHeader.jsx";
+import { useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import AppNav from "../components/AppNav.jsx";
+import Modal from "../components/Modal.jsx";
 import { MAIN_CONTENT_ID } from "../constants/pageAnchors.js";
-import { classNames } from "../utils/classNames.js";
+import { ROUTES } from "../constants/routes.js";
+import PostForm from "../pages/app/PostForm.jsx";
 import styles from "./AppLayout.module.css";
 
 /**
- * Estructura común de todas las páginas privadas:
- * barra de la app arriba y el contenido de cada página en <Outlet />.
+ * Estructura común de las páginas privadas: navegación, contenido en <Outlet />
+ * y la ventana "Nueva publicación", que se abre desde cualquier página.
+ * Las páginas reciben por useOutletContext: openComposer() y postsVersion,
+ * que cambia cada vez que se publica algo (para recargar la lista).
  */
 export default function AppLayout() {
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [postsVersion, setPostsVersion] = useState(0);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  function handleCreated() {
+    setIsComposerOpen(false);
+    setPostsVersion((current) => current + 1);
+    if (pathname !== ROUTES.feed) navigate(ROUTES.feed);
+  }
+
+  const openComposer = () => setIsComposerOpen(true);
+
   return (
     <div className={styles.page}>
       <a href={`#${MAIN_CONTENT_ID}`} className={styles.skipLink}>
         Saltar al contenido
       </a>
-      <AppHeader />
-      <main id={MAIN_CONTENT_ID} className={classNames("container", styles.main)}>
-        <Outlet />
+      <AppNav onCreate={openComposer} />
+      <main id={MAIN_CONTENT_ID} className={styles.main}>
+        <Outlet context={{ openComposer, postsVersion }} />
       </main>
+
+      <Modal
+        open={isComposerOpen}
+        onClose={() => setIsComposerOpen(false)}
+        title="Nueva publicación"
+      >
+        <PostForm onSaved={handleCreated} onCancel={() => setIsComposerOpen(false)} />
+      </Modal>
     </div>
   );
 }

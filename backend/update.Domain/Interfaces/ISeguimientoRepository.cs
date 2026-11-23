@@ -7,4 +7,6 @@ public interface ISeguimientoRepository : IRepository<Seguimiento>
 {
     Task<IReadOnlyList<Seguimiento>> ObtenerPorUsuarioSeguidorIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Seguimiento>> ObtenerPorEstadoAsync(EstadoSeguimiento valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default);
+    /// <summary>De esos perfiles, cuáles sigue el usuario.</summary>
+    Task<IReadOnlyList<Guid>> ObtenerPerfilesSeguidosAsync(Guid usuarioId, IReadOnlyCollection<Guid> perfilIds, CancellationToken cancellationToken = default);
 }

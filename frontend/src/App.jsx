@@ -1,10 +1,13 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./constants/routes.js";
 import AppLayout from "./layouts/AppLayout.jsx";
+import ExplorePage from "./pages/app/ExplorePage.jsx";
 import FeedPage from "./pages/app/FeedPage.jsx";
 import MyFilesPage from "./pages/app/MyFilesPage.jsx";
 import MyPostsPage from "./pages/app/MyPostsPage.jsx";
+import PostPage from "./pages/app/PostPage.jsx";
 import ProfilePage from "./pages/app/ProfilePage.jsx";
+import UserProfilePage from "./pages/app/UserProfilePage.jsx";
 import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import Registro from "./pages/Registro.jsx";
@@ -24,9 +27,12 @@ export default function App() {
       <Route element={<PrivateRoute />}>
         <Route element={<AppLayout />}>
           <Route path={ROUTES.feed} element={<FeedPage />} />
+          <Route path={ROUTES.explore} element={<ExplorePage />} />
           <Route path={ROUTES.myPosts} element={<MyPostsPage />} />
           <Route path={ROUTES.myFiles} element={<MyFilesPage />} />
           <Route path={ROUTES.profile} element={<ProfilePage />} />
+          <Route path={ROUTES.userProfile} element={<UserProfilePage />} />
+          <Route path={ROUTES.post} element={<PostPage />} />
         </Route>
       </Route>
 

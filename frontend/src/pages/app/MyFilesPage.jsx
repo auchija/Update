@@ -68,7 +68,7 @@ export default function MyFilesPage() {
 
   return (
     <>
-      <title>Mis archivos</title>
+      <title>Mis archivos · UpDate</title>
       <div className={styles.page}>
         <header>
           <h1>Mis archivos</h1>

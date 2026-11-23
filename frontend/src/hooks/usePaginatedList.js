@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
  * Carga una lista paginada de la API con estados de carga, error y "Ver más".
  * El backend devuelve arreglos sin total: si llega una página completa, puede haber más.
  * `fetchPage` debe ser estable (una función del servicio, no una flecha nueva en cada render).
+ * Cambiar `refreshKey` vuelve a cargar la primera página (por ejemplo, después de publicar).
  */
-export function usePaginatedList(fetchPage, pageSize) {
+export function usePaginatedList(fetchPage, pageSize, refreshKey = 0) {
   const [items, setItems] = useState(null);
   const [loadError, setLoadError] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -30,7 +31,7 @@ export function usePaginatedList(fetchPage, pageSize) {
     return () => {
       cancelled = true;
     };
-  }, [fetchPage, pageSize, attempt]);
+  }, [fetchPage, pageSize, attempt, refreshKey]);
 
   function retry() {
     setLoadError("");

@@ -52,6 +52,25 @@ Requieren sesión. Cualquiera ve las publicaciones; solo su autor las edita o el
 | `POST /api/feed` | Publica `{ contenido, imagenArchivoId }`. El adjunto (imagen o PDF) se sube antes con `proposito=publicacion` y debe ser de quien publica; la respuesta trae `adjuntoTipoMime`. Suma 1 a `totalPublicaciones` del perfil. | 201, 400, 401 |
 | `PUT /api/feed/{id}` | Edita el texto y cambia o quita la imagen (`imagenArchivoId: null`). Marca `editadoEn`. | 200, 400, 401, 403, 404 |
 | `DELETE /api/feed/{id}` | Borrado lógico (llena `eliminado_en`) y resta 1 a `totalPublicaciones`. | 204, 401, 403, 404 |
+| `POST /api/feed/{id}/me-gusta` | Da "me gusta". Repetirlo no suma otra vez. Devuelve `{ meGusta, totalReacciones }`. | 200, 401, 404 |
+| `DELETE /api/feed/{id}/me-gusta` | Quita el "me gusta". | 200, 401, 404 |
+| `GET /api/feed/{id}/comentarios?pagina=1&tamanoPagina=20` | Comentarios, del más antiguo al más nuevo, con autor y `puedeEliminar`. | 200, 400, 401, 404 |
+| `POST /api/feed/{id}/comentarios` | Comenta `{ contenido }` (máximo 1000 caracteres). Suma 1 a `totalComentarios`. | 201, 400, 401, 404 |
+| `DELETE /api/feed/{id}/comentarios/{comentarioId}` | Borra un comentario propio, o cualquiera de una publicación propia. | 204, 401, 403, 404 |
+
+Cada publicación del feed trae `totalReacciones`, `totalComentarios` y `meGusta` (si quien pide ya le dio "me gusta").
+
+## Comunidad
+
+Requieren sesión. `{handle}` es el @usuario, sin importar mayúsculas.
+
+| Método y ruta | Qué hace | Respuestas |
+|---|---|---|
+| `GET /api/comunidad/sugerencias?cantidad=10` | Perfiles activos para descubrir (los que más publican), sin el propio, con `loSigo`. | 200, 401 |
+| `GET /api/comunidad/perfiles/{handle}` | Perfil público: nombre, titular, biografía, foto, contadores, `esMio` y `loSigo`. | 200, 401, 404 |
+| `GET /api/comunidad/perfiles/{handle}/publicaciones?pagina=1&tamanoPagina=20` | Publicaciones públicas del perfil. | 200, 400, 401, 404 |
+| `POST /api/comunidad/perfiles/{handle}/seguir` | Sigue el perfil (suma seguidores y seguidos). Repetirlo no suma otra vez. | 200, 400, 401, 404 |
+| `DELETE /api/comunidad/perfiles/{handle}/seguir` | Deja de seguir. | 200, 401, 404 |
 
 ## Salud
 

@@ -1,0 +1,70 @@
+.dialog {
+  /* El reset global (* { margin: 0 }) quita el margin: auto que centra el <dialog>. */
+  margin: auto;
+  width: min(36rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: 0 24px 64px -16px rgb(28 24 35 / 0.45);
+}
+
+.dialog::backdrop {
+  background: rgb(18 10 36 / 0.6);
+  backdrop-filter: blur(3px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dialog[open] {
+    animation: aparecer var(--duration-slow) var(--ease-natural);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+.panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  max-height: calc(100dvh - 2rem);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 3rem;
+  padding-inline: 3rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-size: var(--text-base);
+  color: var(--foreground);
+}
+
+.close {
+  position: absolute;
+  right: 0.5rem;
+  display: inline-flex;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+}
+
+.close:hover {
+  background: var(--surface-sunken);
+}
+
+.body {
+  overflow-y: auto;
+  padding: 1.25rem;
+}

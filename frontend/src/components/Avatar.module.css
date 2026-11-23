@@ -12,6 +12,12 @@
   object-fit: cover;
 }
 
+.xs {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.6rem;
+}
+
 .sm {
   width: 2rem;
   height: 2rem;
@@ -25,7 +31,42 @@
 }
 
 .lg {
-  width: 5rem;
-  height: 5rem;
+  width: 4rem;
+  height: 4rem;
+  font-size: var(--text-lg);
+}
+
+.xl {
+  width: 5.5rem;
+  height: 5.5rem;
   font-size: var(--text-xl);
+}
+
+@media (min-width: 48rem) {
+  .xl {
+    width: 9rem;
+    height: 9rem;
+    font-size: var(--text-3xl);
+  }
+}
+
+/* Aro degradado amarillo → morado, con un borde del color de fondo entre el aro y la foto. */
+.ring {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  background: conic-gradient(from 210deg, var(--accent), #e86a92, var(--primary), var(--accent));
+}
+
+.ring > .avatar {
+  border: 2px solid var(--background);
+}
+
+.ring-xl {
+  padding: 3px;
+}
+
+.ring-xl > .avatar {
+  border-width: 3px;
 }

@@ -7,7 +7,7 @@ using update.Domain.Interfaces;
 namespace update.Application.Services;
 
 /// <summary>Publicación lista para responder: autor, clave de su foto y la imagen adjunta, si hay.</summary>
-public sealed record PublicacionFeed(Publicacion Publicacion, Perfil Autor, string? ClaveFotoAutor, Guid? ImagenArchivoId, string? ClaveImagen, string? TipoMime);
+public sealed record PublicacionFeed(Publicacion Publicacion, Perfil Autor, string? ClaveFotoAutor, Guid? ImagenArchivoId, string? ClaveImagen, string? TipoMime, bool MeGusta = false);
 
 public sealed class PublicacionAjenaException() : Exception("Solo puedes cambiar tus propias publicaciones.");
 
@@ -18,22 +18,31 @@ public sealed class ServicioFeed(
     IArchivoRepository archivos,
     ITipoPublicacionRepository tiposPublicacion,
     IPerfilRepository perfiles,
+    IReaccionPublicacionRepository reacciones,
     ServicioMiPerfil miPerfil,
     IUnitOfWork unitOfWork)
 {
     private const string TipoGeneral = "general";
 
-    public async Task<IReadOnlyList<PublicacionFeed>> ListarAsync(int pagina, int tamanoPagina, CancellationToken cancellationToken, Guid? usuarioId = null)
+    /// <param name="visorUsuarioId">Quien pide la lista: se usa para marcar sus "me gusta".</param>
+    /// <param name="soloMias">Solo las publicaciones del visor, incluidas las no públicas.</param>
+    /// <param name="perfilAutorId">Solo las públicas de ese perfil.</param>
+    public async Task<IReadOnlyList<PublicacionFeed>> ListarAsync(
+        Guid visorUsuarioId, int pagina, int tamanoPagina, CancellationToken cancellationToken,
+        bool soloMias = false, Guid? perfilAutorId = null)
     {
-        var recientes = await publicaciones.ObtenerRecientesAsync(pagina, tamanoPagina, cancellationToken, usuarioId);
-        var imagenes = (await publicacionArchivos.ObtenerPorPublicacionesAsync(recientes.Select(p => p.Id).ToList(), cancellationToken))
+        var recientes = await publicaciones.ObtenerRecientesAsync(
+            pagina, tamanoPagina, cancellationToken, soloMias ? visorUsuarioId : null, perfilAutorId);
+        var ids = recientes.Select(p => p.Id).ToList();
+        var imagenes = (await publicacionArchivos.ObtenerPorPublicacionesAsync(ids, cancellationToken))
             .GroupBy(pa => pa.PublicacionId)
             .ToDictionary(g => g.Key, g => g.First().Archivo);
+        var conMeGusta = await PublicacionesConMeGustaAsync(visorUsuarioId, ids, cancellationToken);
 
         return recientes.Select(p =>
         {
             var imagen = imagenes.GetValueOrDefault(p.Id);
-            return new PublicacionFeed(p, p.PerfilAutor, p.PerfilAutor.FotoArchivo?.ClaveObjeto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime);
+            return new PublicacionFeed(p, p.PerfilAutor, p.PerfilAutor.FotoArchivo?.ClaveObjeto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime, conMeGusta.Contains(p.Id));
         }).ToList();
     }
 
@@ -46,7 +55,16 @@ public sealed class ServicioFeed(
 
         var fotoAutor = autor.FotoArchivoId is null ? null : await archivos.ObtenerPorClaveAsync([autor.FotoArchivoId.Value], cancellationToken);
         var imagen = (await publicacionArchivos.ObtenerPorPublicacionesAsync([publicacionId], cancellationToken)).FirstOrDefault()?.Archivo;
-        return new PublicacionFeed(publicacion, autor, fotoAutor?.ClaveObjeto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime);
+        var meGusta = (await PublicacionesConMeGustaAsync(usuarioId, [publicacionId], cancellationToken)).Count > 0;
+        return new PublicacionFeed(publicacion, autor, fotoAutor?.ClaveObjeto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime, meGusta);
+    }
+
+    private async Task<HashSet<Guid>> PublicacionesConMeGustaAsync(Guid usuarioId, IReadOnlyCollection<Guid> publicacionIds, CancellationToken cancellationToken)
+    {
+        if (publicacionIds.Count == 0) return [];
+        var perfilVisor = (await perfiles.BuscarAsync(p => p.UsuarioId == usuarioId && p.Tipo == TipoPerfil.Persona, 1, 1, cancellationToken)).FirstOrDefault();
+        if (perfilVisor is null) return [];
+        return [.. await reacciones.ObtenerPublicacionesConReaccionAsync(perfilVisor.Id, publicacionIds, cancellationToken)];
     }
 
     public async Task<PublicacionFeed?> CrearAsync(Guid usuarioId, GuardarPublicacionDto entrada, CancellationToken cancellationToken)
@@ -107,7 +125,8 @@ public sealed class ServicioFeed(
             return true;
         }, cancellationToken);
 
-        return new PublicacionFeed(publicacion, autor.Perfil, autor.ClaveFoto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime);
+        var meGusta = (await PublicacionesConMeGustaAsync(usuarioId, [publicacionId], cancellationToken)).Count > 0;
+        return new PublicacionFeed(publicacion, autor.Perfil, autor.ClaveFoto, imagen?.Id, imagen?.ClaveObjeto, imagen?.TipoMime, meGusta);
     }
 
     public async Task<bool> EliminarAsync(Guid usuarioId, Guid publicacionId, CancellationToken cancellationToken)

@@ -1,29 +1,29 @@
 import { useState } from "react";
 import Alert from "../../components/Alert.jsx";
 import Button from "../../components/Button.jsx";
-import Card from "../../components/Card.jsx";
+import Modal from "../../components/Modal.jsx";
 import Spinner from "../../components/Spinner.jsx";
 import { eliminarPublicacion } from "../../services/feedService.js";
 import PostCard from "./PostCard.jsx";
 import PostForm from "./PostForm.jsx";
-import styles from "./FeedPage.module.css";
+import styles from "./PostList.module.css";
 
 /**
- * Lista de publicaciones con carga, error, vacío, edición en línea, eliminación y "Ver más".
+ * Lista de publicaciones con carga, error, vacío, edición (en una ventana), eliminación y "Ver más".
  * La usan el feed y "Mis publicaciones". `list` viene de usePaginatedList.
  */
 export default function PostList({ list, label, emptyState, onNotice }) {
-  const [editingId, setEditingId] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
   function startEditing(post) {
     onNotice(null);
-    setEditingId(post.id);
+    setEditingPost(post);
   }
 
   function handleUpdated(post) {
     list.replaceItem(post);
-    setEditingId(null);
+    setEditingPost(null);
     onNotice({ variant: "success", text: "Guardamos los cambios." });
   }
 
@@ -35,7 +35,6 @@ export default function PostList({ list, label, emptyState, onNotice }) {
     try {
       await eliminarPublicacion(post.id);
       list.removeItem(post.id);
-      if (editingId === post.id) setEditingId(null);
       onNotice({ variant: "success", text: "Eliminamos la publicación." });
     } catch (error) {
       onNotice({ variant: "danger", text: error.message });
@@ -56,33 +55,31 @@ export default function PostList({ list, label, emptyState, onNotice }) {
   return (
     <section aria-label={label} className={styles.list}>
       {list.loadError && (
-        <Card className="stack">
+        <div className={styles.state}>
           <Alert variant="danger">{list.loadError}</Alert>
-          <div>
-            <Button variant="secondary" onClick={list.retry}>
-              Reintentar
-            </Button>
-          </div>
-        </Card>
+          <Button variant="secondary" onClick={list.retry}>
+            Reintentar
+          </Button>
+        </div>
       )}
 
-      {!list.loadError && !list.items && <Spinner label="Cargando publicaciones" />}
+      {!list.loadError && !list.items && (
+        <div className={styles.state}>
+          <Spinner label="Cargando publicaciones" />
+        </div>
+      )}
 
-      {list.items?.length === 0 && <Card className={styles.empty}>{emptyState}</Card>}
+      {list.items?.length === 0 && <div className={styles.empty}>{emptyState}</div>}
 
       {list.items?.map((post) => (
-        <Card key={post.id}>
-          {editingId === post.id ? (
-            <PostForm post={post} onSaved={handleUpdated} onCancel={() => setEditingId(null)} />
-          ) : (
-            <PostCard
-              post={post}
-              onEdit={() => startEditing(post)}
-              onDelete={() => handleDelete(post)}
-              isDeleting={deletingId === post.id}
-            />
-          )}
-        </Card>
+        <PostCard
+          key={post.id}
+          post={post}
+          onChange={list.replaceItem}
+          onEdit={() => startEditing(post)}
+          onDelete={() => handleDelete(post)}
+          isDeleting={deletingId === post.id}
+        />
       ))}
 
       {list.hasMore && (
@@ -92,6 +89,20 @@ export default function PostList({ list, label, emptyState, onNotice }) {
           </Button>
         </div>
       )}
+
+      <Modal
+        open={Boolean(editingPost)}
+        onClose={() => setEditingPost(null)}
+        title="Editar publicación"
+      >
+        {editingPost && (
+          <PostForm
+            post={editingPost}
+            onSaved={handleUpdated}
+            onCancel={() => setEditingPost(null)}
+          />
+        )}
+      </Modal>
     </section>
   );
 }

@@ -2,7 +2,7 @@
   display: grid;
   gap: 1rem;
   max-width: 48rem;
-  margin-inline: auto;
+  margin-inline: max(1rem, (100% - 48rem) / 2);
 }
 
 .list {

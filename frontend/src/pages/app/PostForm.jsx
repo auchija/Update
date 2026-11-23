@@ -11,7 +11,7 @@ import {
 } from "../../services/feedService.js";
 import { POST_MAX_LENGTH, validatePost } from "../../utils/postValidation.js";
 import PostAttachment from "./PostAttachment.jsx";
-import styles from "./FeedPage.module.css";
+import styles from "./Post.module.css";
 
 /**
  * Crea una publicación o, si recibe `post`, la edita.
@@ -57,22 +57,7 @@ export default function PostForm({ post, onSaved, onCancel }) {
 
   return (
     <form onSubmit={form.handleSubmit} noValidate className="stack">
-      <h2 className={styles.formTitle}>{isEditing ? "Editar publicación" : "Crear publicación"}</h2>
-
       {form.formError && <Alert variant="danger">{form.formError}</Alert>}
-
-      <Textarea
-        label="¿Qué quieres compartir?"
-        name="contenido"
-        rows={isEditing ? 4 : 5}
-        placeholder="Cuenta en qué estás trabajando, qué lograste o qué necesitas."
-        required
-        maxLength={POST_MAX_LENGTH}
-        hint={`${form.values.contenido.length} de ${POST_MAX_LENGTH} caracteres`}
-        value={form.values.contenido}
-        onChange={form.handleChange}
-        error={form.errors.contenido}
-      />
 
       {keepCurrentFile ? (
         <div className={styles.currentFile}>
@@ -87,15 +72,28 @@ export default function PostForm({ post, onSaved, onCancel }) {
         </div>
       ) : (
         <FileUpload
-          label="Archivo adjunto (opcional)"
+          label="Foto o documento (opcional)"
           file={file}
           onChange={handleFileChange}
           disabled={form.isSubmitting}
         />
       )}
 
+      <Textarea
+        label="¿Qué quieres compartir?"
+        name="contenido"
+        rows={4}
+        placeholder="Cuenta en qué estás trabajando, qué lograste o qué necesitas."
+        required
+        maxLength={POST_MAX_LENGTH}
+        hint={`${form.values.contenido.length} de ${POST_MAX_LENGTH} caracteres`}
+        value={form.values.contenido}
+        onChange={form.handleChange}
+        error={form.errors.contenido}
+      />
+
       <div className={styles.formActions}>
-        {isEditing && (
+        {onCancel && (
           <Button variant="ghost" onClick={onCancel} disabled={form.isSubmitting}>
             Cancelar
           </Button>
