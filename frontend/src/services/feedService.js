@@ -19,6 +19,10 @@ export function eliminarPublicacion(id) {
   return apiRequest(`/feed/${id}`, { method: "DELETE" });
 }
 
-export function subirImagenPublicacion(archivo) {
+export function getMisPublicaciones(pagina = 1) {
+  return apiRequest(`/feed/mias?pagina=${pagina}&tamanoPagina=${FEED_PAGE_SIZE}`);
+}
+
+export function subirArchivoPublicacion(archivo) {
   return subirImagen(archivo, "publicacion");
 }
