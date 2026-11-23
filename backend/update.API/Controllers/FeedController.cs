@@ -24,12 +24,16 @@ public sealed class FeedController(ServicioFeed servicio) : ControllerBase
         return Ok(resultado.Select(p => ARespuesta(p, usuarioId)).ToList());
     }
 
+    /// <summary>Historial de publicaciones propias (incluidas las no públicas), de la más nueva a la más antigua.</summary>
     [HttpGet("mias")]
-    public async Task<IActionResult> MisPublicaciones(int pagina = 1, int tamanoPagina = 20, CancellationToken ct = default)
+    [ProducesResponseType<IReadOnlyList<RespuestaPublicacionFeedDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<IReadOnlyList<RespuestaPublicacionFeedDto>>> MisPublicaciones(int pagina = 1, int tamanoPagina = 20, CancellationToken ct = default)
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuario)) return Unauthorized();
         var resultado = await servicio.ListarAsync(pagina, tamanoPagina, ct, usuario);
-        return Ok(resultado.Select(p => ARespuesta(p, usuario)));
+        return Ok(resultado.Select(p => ARespuesta(p, usuario)).ToList());
     }
 
     [HttpGet("{id:guid}")]

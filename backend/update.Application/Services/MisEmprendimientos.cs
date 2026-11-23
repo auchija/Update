@@ -12,14 +12,17 @@ public sealed record DatosEmprendimiento(
     EtapaEmprendimiento Etapa,
     Guid? PortadaArchivoId);
 
+/// <summary>PortadaUrl sale como ruta relativa ("/uploads/..."); el controlador la completa con el host de la API.</summary>
 public sealed record VistaEmprendimiento(Guid Id, string Nombre, int CategoriaId, EtapaEmprendimiento Etapa, Guid? PortadaArchivoId, string? PortadaUrl);
+
+public sealed record CategoriaResumen(int Id, string Nombre, string Slug);
 
 public sealed class MisEmprendimientos(IEmprendimientoRepository negocios, IPerfilRepository perfiles,
     ICategoriaRepository categorias, IArchivoRepository archivos, IUnitOfWork unidad)
 {
-    public async Task<IReadOnlyList<object>> ListarCategorias(int pagina, int tamano, CancellationToken ct)
+    public async Task<IReadOnlyList<CategoriaResumen>> ListarCategorias(int pagina, int tamano, CancellationToken ct)
         => (await categorias.BuscarAsync(c => c.Activo, pagina, tamano, ct))
-            .Select(c => (object)new { c.Id, c.Nombre, c.Slug }).ToList();
+            .Select(c => new CategoriaResumen(c.Id, c.Nombre, c.Slug)).ToList();
 
     private static VistaEmprendimiento Vista(Emprendimiento e, Perfil p, string? clave) =>
         new(e.Id, p.NombreVisible, e.CategoriaId, e.Etapa, p.PortadaArchivoId, clave is null ? null : $"/uploads/{clave}");

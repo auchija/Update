@@ -19,6 +19,8 @@ public sealed class SubidaArchivosController(ServicioSubidaArchivos servicio) : 
     [RequestSizeLimit(LimitePeticionBytes)]
     [RequestFormLimits(MultipartBodyLengthLimit = LimitePeticionBytes)]
     [ProducesResponseType<RespuestaArchivoSubidoDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<RespuestaArchivoSubidoDto>> Subir(
         [Required(ErrorMessage = "Elige una imagen.")] IFormFile archivo,
         [FromForm] string? proposito,
@@ -33,23 +35,39 @@ public sealed class SubidaArchivosController(ServicioSubidaArchivos servicio) : 
         return StatusCode(StatusCodes.Status201Created, new RespuestaArchivoSubidoDto
         {
             Id = guardado.Id,
-            Url = $"{Request.Scheme}://{Request.Host}/uploads/{guardado.ClaveObjeto}",
+            Url = UrlArchivo(guardado.ClaveObjeto),
             TipoMime = guardado.TipoMime,
             TamanoBytes = guardado.TamanoBytes
         });
     }
 
+    /// <summary>Historial paginado de los archivos que subió el usuario con sesión.</summary>
     [HttpGet("mios")]
-    public async Task<IActionResult> Historial(int pagina = 1, int tamanoPagina = 20, CancellationToken ct = default)
+    [ProducesResponseType<IReadOnlyList<RespuestaArchivoHistorialDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<IReadOnlyList<RespuestaArchivoHistorialDto>>> Historial(int pagina = 1, int tamanoPagina = 20, CancellationToken ct = default)
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuario)) return Unauthorized();
         var lista = await servicio.HistorialAsync(usuario, pagina, tamanoPagina, ct);
-        return Ok(lista.Select(a => new { a.Id, a.NombreOriginal, a.TamanoBytes, a.TipoMime, a.CreadoEn,
-            a.SubidoPorUsuarioId, a.Proposito, url = $"/uploads/{a.ClaveObjeto}" }));
+        return Ok(lista.Select(a => new RespuestaArchivoHistorialDto
+        {
+            Id = a.Id,
+            NombreOriginal = a.NombreOriginal,
+            TamanoBytes = a.TamanoBytes,
+            TipoMime = a.TipoMime,
+            CreadoEn = a.CreadoEn,
+            SubidoPorUsuarioId = a.SubidoPorUsuarioId,
+            Proposito = a.Proposito,
+            Url = UrlArchivo(a.ClaveObjeto)
+        }).ToList());
     }
 
+    /// <summary>Muestra o descarga un archivo público. Las imágenes se ven en el navegador; los PDF se descargan.</summary>
     [AllowAnonymous]
     [HttpGet("/uploads/{clave}")]
+    [ProducesResponseType<FileContentResult>(StatusCodes.Status200OK, "image/jpeg", "image/png", "image/webp", "application/pdf")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Ver(string clave, CancellationToken ct)
     {
         var resultado = await servicio.AbrirAsync(clave, ct);
@@ -62,23 +80,43 @@ public sealed class SubidaArchivosController(ServicioSubidaArchivos servicio) : 
             : File(datos, archivo.TipoMime);
     }
 
+    /// <summary>Borra un archivo propio del almacenamiento y su registro. 409 si sigue en uso en un perfil, publicación o producto.</summary>
     [HttpDelete("mios/{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Eliminar(Guid id, CancellationToken ct)
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuario)) return Unauthorized();
         return StatusCode(await servicio.EliminarPropioAsync(usuario, id, ct));
     }
+
+    /// <summary>Quita un archivo de un producto propio; el archivo sigue en el historial.</summary>
     [HttpDelete("/api/mis-productos/{productoId:guid}/archivos/{archivoId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DesvincularProducto(Guid productoId, Guid archivoId, CancellationToken ct)
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuario)) return Unauthorized();
         return StatusCode(await servicio.DesvincularProductoAsync(usuario, productoId, archivoId, ct));
     }
 
+    /// <summary>Adjunta a un producto propio un archivo subido con proposito=producto.</summary>
     [HttpPut("/api/mis-productos/{productoId:guid}/archivos/{archivoId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AdjuntarProducto(Guid productoId, Guid archivoId, CancellationToken ct)
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuario)) return Unauthorized();
         return StatusCode(await servicio.AdjuntarProductoAsync(usuario, productoId, archivoId, ct));
     }
+
+    private string UrlArchivo(string clave) => $"{Request.Scheme}://{Request.Host}/uploads/{clave}";
 }

@@ -20,7 +20,25 @@ Requieren el encabezado `Authorization: Bearer <accessToken>`.
 |---|---|---|
 | `GET /api/perfil/yo` | Mi perfil. | 200, 401 |
 | `PUT /api/perfil/yo` | Edita nombre, usuario, titular, biografía, sitio web y foto. | 200, 400, 401, 409 |
-| `POST /api/archivos/subir` | Sube una imagen (`multipart/form-data`: campo `archivo`, JPG, PNG o WEBP de máximo 5 MB, y campo `proposito`, `foto_perfil` por defecto o `publicacion`). Guarda el archivo en disco con nombre UUID y sus datos en la tabla `archivos`. | 201, 400, 401 |
+| `POST /api/archivos/subir` | Sube un archivo (`multipart/form-data`: campo `archivo`, JPG, PNG, WEBP o PDF de máximo 5 MB, y campo `proposito`: `foto_perfil` por defecto, `publicacion`, `producto` o `emprendimiento`; la foto y la portada solo aceptan imágenes). Guarda el archivo en Supabase Storage con nombre UUID y sus datos en la tabla `archivos`. | 201, 400, 401 |
+| `GET /api/archivos/mios?pagina=1&tamanoPagina=20` | Historial de archivos propios: nombre, peso, tipo, fecha, propósito y `url` completa. | 200, 400, 401 |
+| `DELETE /api/archivos/mios/{id}` | Borra el archivo del Storage y su registro. Responde 409 si sigue en uso en un perfil, una publicación o un producto. | 204, 401, 403, 404, 409 |
+| `PUT /api/mis-productos/{productoId}/archivos/{archivoId}` | Adjunta a un producto propio un archivo subido con `proposito=producto`. | 204, 400, 401, 403, 404 |
+| `DELETE /api/mis-productos/{productoId}/archivos/{archivoId}` | Quita ese archivo del producto (el archivo sigue en el historial). | 204, 401, 403, 404 |
+| `GET /uploads/{clave}` | Muestra el archivo (las imágenes se ven, los PDF se descargan). No pide sesión. | 200, 404 |
+
+## Mis emprendimientos
+
+Requieren sesión. Cada emprendimiento es un perfil de tipo emprendimiento con categoría, etapa (`idea`, `validacion`, `lanzamiento`, `crecimiento` o `consolidado`) y portada opcional.
+
+| Método y ruta | Qué hace | Respuestas |
+|---|---|---|
+| `GET /api/mis-emprendimientos/categorias` | Categorías activas `{ id, nombre, slug }`. | 200, 400, 401 |
+| `GET /api/mis-emprendimientos` | Lista de emprendimientos propios con `portadaUrl` completa. | 200, 400, 401 |
+| `GET /api/mis-emprendimientos/{id}` | Un emprendimiento propio. | 200, 401, 404 |
+| `POST /api/mis-emprendimientos` | Crea `{ nombre, categoriaId, etapa, portadaArchivoId }`. La portada se sube antes con `proposito=emprendimiento`. | 201, 400, 401 |
+| `PUT /api/mis-emprendimientos/{id}` | Edita los mismos datos. | 200, 400, 401, 404 |
+| `DELETE /api/mis-emprendimientos/{id}` | Borrado lógico del emprendimiento y su perfil. | 204, 401, 404 |
 
 ## Feed
 
@@ -29,8 +47,9 @@ Requieren sesión. Cualquiera ve las publicaciones; solo su autor las edita o el
 | Método y ruta | Qué hace | Respuestas |
 |---|---|---|
 | `GET /api/feed?pagina=1&tamanoPagina=20` | Publicaciones públicas, de la más nueva a la más antigua, con autor, imagen y `esMia`. | 200, 400, 401 |
+| `GET /api/feed/mias?pagina=1&tamanoPagina=20` | Historial de publicaciones propias, incluidas las no públicas. | 200, 400, 401 |
 | `GET /api/feed/{id}` | Una publicación. | 200, 401, 404 |
-| `POST /api/feed` | Publica `{ contenido, imagenArchivoId }`. La imagen se sube antes con `proposito=publicacion` y debe ser de quien publica. Suma 1 a `totalPublicaciones` del perfil. | 201, 400, 401 |
+| `POST /api/feed` | Publica `{ contenido, imagenArchivoId }`. El adjunto (imagen o PDF) se sube antes con `proposito=publicacion` y debe ser de quien publica; la respuesta trae `adjuntoTipoMime`. Suma 1 a `totalPublicaciones` del perfil. | 201, 400, 401 |
 | `PUT /api/feed/{id}` | Edita el texto y cambia o quita la imagen (`imagenArchivoId: null`). Marca `editadoEn`. | 200, 400, 401, 403, 404 |
 | `DELETE /api/feed/{id}` | Borrado lógico (llena `eliminado_en`) y resta 1 a `totalPublicaciones`. | 204, 401, 403, 404 |
 
