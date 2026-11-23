@@ -25,11 +25,17 @@
 .card {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 1rem;
   border: 1px solid var(--border);
   background: var(--surface);
   transition: border-color 0.2s ease;
+}
+
+@media (min-width: 40rem) {
+  .card {
+    padding: 1.5rem;
+  }
 }
 
 .card:hover {
@@ -62,12 +68,19 @@
 }
 
 .cardTitle {
-  margin-top: 2rem;
+  margin-top: 1rem;
   font-family: "Segoe UI", system-ui, sans-serif;
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--foreground);
+}
+
+@media (min-width: 40rem) {
+  .cardTitle {
+    margin-top: 2rem;
+    font-size: 1.25rem;
+  }
 }
 
 .cardText {
@@ -79,7 +92,13 @@
 }
 
 .cardBottom {
-  margin-top: 2rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 40rem) {
+  .cardBottom {
+    margin-top: 2rem;
+  }
 }
 
 .cardLink {
