@@ -12,6 +12,7 @@ export default function Button({
   fullWidth = false,
   type = "button",
   disabled,
+  className: extraClass,
   children,
   ...props
 }) {
@@ -20,6 +21,7 @@ export default function Button({
     styles[variant],
     styles[size],
     fullWidth && styles.fullWidth,
+    extraClass,
   );
 
   if (to) {

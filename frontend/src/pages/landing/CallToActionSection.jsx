@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { motion, useReducedMotion } from "motion/react";
 import styles from "./CallToActionSection.module.css";
 
 const IMAGES = [
@@ -14,7 +15,24 @@ const IMAGES = [
 
 const CAROUSEL_IMAGES = [...IMAGES, ...IMAGES];
 
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, filter: "blur(6px)", y: 24 },
+  show: {
+    opacity: 1,
+    filter: "blur(0px)",
+    y: 0,
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
 export default function CallToActionSection() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section aria-labelledby="llamado-titulo" className={styles.cta}>
       <svg
@@ -26,17 +44,32 @@ export default function CallToActionSection() {
         <path d="M0 70 C 240 130 480 10 720 45 C 960 80 1200 125 1440 50 V120 H0 Z" />
       </svg>
       <div className={styles.body}>
-        <div className={styles.content}>
-          <h2 id="llamado-titulo" className={styles.title}>
+        <motion.div
+          className={styles.content}
+          variants={stagger}
+          initial={reduceMotion ? false : "hidden"}
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+        >
+          <motion.h2
+            id="llamado-titulo"
+            className={styles.title}
+            variants={reduceMotion ? {} : fadeUp}
+          >
             Tu próximo socio puede estar a <em className={styles.emphasis}>una conexión</em>
-          </h2>
-          <p className={styles.lead}>
+          </motion.h2>
+          <motion.p
+            className={styles.lead}
+            variants={reduceMotion ? {} : fadeUp}
+          >
             Crea tu perfil y empieza a conectar con quienes pueden impulsar tu proyecto.
-          </p>
-          <Link to="/registro" className={styles.button}>
-            Crear mi perfil
-          </Link>
-        </div>
+          </motion.p>
+          <motion.div variants={reduceMotion ? {} : fadeUp}>
+            <Link to="/registro" className={styles.button}>
+              Crear mi perfil
+            </Link>
+          </motion.div>
+        </motion.div>
 
         <div className={styles.carousel} aria-hidden="true">
           <div className={styles.track}>

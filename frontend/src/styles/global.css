@@ -58,32 +58,32 @@
 .dark {
   color-scheme: dark;
 
-  --background: #121016;
-  --surface: #1a1720;
-  --surface-sunken: #16131b;
+  --background: #000000;
+  --surface: #111111;
+  --surface-sunken: #18152a;
 
-  --foreground: #edeaf2;
-  --foreground-muted: #aba3b8;
-  --heading: #b79bff;
+  --foreground: #f0ecff;
+  --foreground-muted: #8c83a0;
+  --heading: #c4a9ff;
 
-  --border: #332d3d;
-  --border-strong: #6a627a;
+  --border: #252525;
+  --border-strong: #555555;
 
-  --primary: #b79bff;
-  --primary-hover: #cbb6ff;
-  --primary-soft: #2a2240;
-  --primary-line: #b79bff;
-  --on-primary: #1a1225;
+  --primary: #a78bfa;
+  --primary-hover: #bba8ff;
+  --primary-soft: #1a0f2e;
+  --primary-line: #a78bfa;
+  --on-primary: #0f0023;
 
   --danger: #ff8a80;
-  --danger-soft: #3a1d1f;
+  --danger-soft: #2a0a08;
   --success: #6fd08c;
-  --success-soft: #17301f;
+  --success-soft: #0a1f10;
 
   --shadow-sm: none;
-  --shadow-md: 0 0 0 1px #332d3d;
+  --shadow-md: 0 0 0 1px #252525;
 
-  --shadow-button: 0 6px 18px -6px rgb(183 155 255 / 0.35);
+  --shadow-button: 0 6px 18px -6px rgb(167 139 250 / 0.4);
 }
 
 *,
@@ -233,6 +233,10 @@ code {
 
 .text-muted {
   color: var(--foreground-muted);
+}
+
+.dark .text-muted {
+  color: var(--foreground);
 }
 
 .text-sm {

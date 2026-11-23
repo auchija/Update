@@ -36,12 +36,12 @@ export default function Header({ showSectionLinks = false }) {
             </Button>
           ) : (
             <>
-              <Button to={ROUTES.login} variant="ghost" size="sm">
+              <Button to={ROUTES.login} variant="ghost" size="sm" className={styles.loginBtn}>
                 <span className="hide-from-sm">Entrar</span>
                 <span className="hide-below-sm">Iniciar sesión</span>
               </Button>
               <div className="hide-below-sm">
-                <Button to={ROUTES.register} size="sm">
+                <Button to={ROUTES.register} size="sm" className={styles.registerBtn}>
                   Crear cuenta
                 </Button>
               </div>

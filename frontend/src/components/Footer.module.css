@@ -12,10 +12,10 @@
 }
 
 :global(.dark) .footer {
-  --footer-bg: #1a1720;
+  --footer-bg: #0d0b18;
   --footer-text: #ffffff;
-  --footer-accent: #f2c230;
-  --footer-bar: rgb(242 194 48 / 0.25);
+  --footer-accent: #facc15;
+  --footer-bar: rgb(250 204 21 / 0.18);
 }
 
 .bars {
