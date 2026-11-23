@@ -18,3 +18,14 @@ export function clearSession() {
   accessToken = null;
   currentUser = null;
 }
+
+let sessionExpiredCallback = null;
+
+export function onSessionExpired(callback) {
+  sessionExpiredCallback = callback;
+}
+
+export function expireSession() {
+  clearSession();
+  sessionExpiredCallback?.();
+}
