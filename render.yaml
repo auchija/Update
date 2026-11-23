@@ -1,0 +1,25 @@
+# Blueprint de Render: describe el servicio de la API para crearlo desde el repositorio
+# (Render > New > Blueprint). Los secretos (sync: false) se piden en el panel al crearlo.
+services:
+  - type: web
+    name: update-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health/live
+    envVars:
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Jwt__Clave
+        generateValue: true
+      - key: Supabase__Url
+        sync: false
+      - key: Supabase__Bucket
+        value: archivos
+      - key: Supabase__ServiceRoleKey
+        sync: false
+      - key: Cors__Origenes__0
+        sync: false
+      - key: Swagger__Habilitado
+        value: "true"

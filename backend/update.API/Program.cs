@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 
 using Microsoft.IdentityModel.Tokens;
@@ -60,12 +61,18 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opciones =>
 {
+    // Los comentarios /// de los controladores y DTO aparecen en Swagger.
+    foreach (var proyecto in new[] { "update.API", "update.Application" })
+    {
+        var xml = Path.Combine(AppContext.BaseDirectory, $"{proyecto}.xml");
+        if (File.Exists(xml)) opciones.IncludeXmlComments(xml);
+    }
     opciones.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
-        Description = "JWT administrativo. Pega únicamente el token en Authorize."
+        Description = "Pega el accessToken que devuelve POST /api/auth/login o /api/auth/register (sin la palabra Bearer)."
     });
     opciones.AddSecurityRequirement(documento => new OpenApiSecurityRequirement
     {
@@ -95,15 +102,27 @@ builder.Services.AddAuthorization(opciones => opciones.AddPolicy("Administracion
 var origenes = builder.Configuration.GetSection("Cors:Origenes").Get<string[]>() ?? ["http://localhost:5173"];
 builder.Services.AddCors(opciones => opciones.AddPolicy("Frontend",
     politica => politica.WithOrigins(origenes).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+// En producción la API está detrás de proxies (Render y la reescritura de Vercel), que reciben HTTPS y le
+// reenvían HTTP. Sus encabezados X-Forwarded-* dan el esquema y el host públicos, con los que se arman
+// las URLs de los archivos; sin esto saldrían con http:// y el navegador las bloquearía.
+builder.Services.Configure<ForwardedHeadersOptions>(opciones =>
+{
+    opciones.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    // Render no publica las IP de sus proxies, así que se aceptan los encabezados de cualquiera.
+    opciones.KnownIPNetworks.Clear();
+    opciones.KnownProxies.Clear();
+});
 
 var app = builder.Build();
+app.UseForwardedHeaders();
 app.UseExceptionHandler();
-if (app.Environment.IsDevelopment())
+// Swagger siempre en desarrollo; en producción solo si Swagger:Habilitado es true.
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Habilitado"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-else app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();
 app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();

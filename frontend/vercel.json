@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/api/:ruta*", "destination": "https://update-api.onrender.com/api/:ruta*" },
+    {
+      "source": "/uploads/:ruta*",
+      "destination": "https://update-api.onrender.com/uploads/:ruta*"
+    },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
