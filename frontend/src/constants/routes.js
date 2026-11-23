@@ -4,6 +4,7 @@ export const ROUTES = {
   register: "/registro",
   feed: "/feed",
   myPosts: "/mis-publicaciones",
+  myFiles: "/mis-archivos",
   profile: "/perfil",
 };
 

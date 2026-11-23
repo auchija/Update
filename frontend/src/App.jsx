@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./constants/routes.js";
 import AppLayout from "./layouts/AppLayout.jsx";
 import FeedPage from "./pages/app/FeedPage.jsx";
+import MyFilesPage from "./pages/app/MyFilesPage.jsx";
 import MyPostsPage from "./pages/app/MyPostsPage.jsx";
 import ProfilePage from "./pages/app/ProfilePage.jsx";
 import Landing from "./pages/Landing.jsx";
@@ -24,6 +25,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path={ROUTES.feed} element={<FeedPage />} />
           <Route path={ROUTES.myPosts} element={<MyPostsPage />} />
+          <Route path={ROUTES.myFiles} element={<MyFilesPage />} />
           <Route path={ROUTES.profile} element={<ProfilePage />} />
         </Route>
       </Route>

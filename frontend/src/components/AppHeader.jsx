@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { House, LogOut, Newspaper, UserRound } from "lucide-react";
+import { FolderOpen, House, LogOut, Newspaper, UserRound } from "lucide-react";
 import { ROUTES } from "../constants/routes.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { classNames } from "../utils/classNames.js";
@@ -13,6 +13,7 @@ import styles from "./AppHeader.module.css";
 const APP_LINKS = [
   { to: ROUTES.feed, label: "Inicio", Icon: House },
   { to: ROUTES.myPosts, label: "Mis publicaciones", Icon: Newspaper },
+  { to: ROUTES.myFiles, label: "Mis archivos", Icon: FolderOpen },
   { to: ROUTES.profile, label: "Mi perfil", Icon: UserRound },
 ];
 
