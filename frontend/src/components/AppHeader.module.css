@@ -97,7 +97,8 @@
   }
 }
 
-@media (min-width: 40rem) {
+/* Con 4 enlaces, los textos solo caben desde ~830 px; antes se ven los íconos (con title). */
+@media (min-width: 52rem) {
   .navLabel {
     display: inline;
   }

@@ -56,6 +56,15 @@ export default function HowItWorksSection() {
   const scrollDistanceRef = useRef(0);
   const reduceMotion = useReducedMotion();
   const [scrollDistance, setScrollDistance] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+
+  useEffect(() => {
+    function checkMobile() {
+      setIsMobile(window.innerWidth < 640);
+    }
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: outerRef,
@@ -84,9 +93,12 @@ export default function HowItWorksSection() {
     <div
       ref={outerRef}
       className={styles.outerScroll}
-      style={reduceMotion ? {} : { height: `calc(100svh + ${scrollDistance}px)` }}
+      style={reduceMotion || isMobile ? {} : { height: `calc(100svh + ${scrollDistance}px)` }}
     >
-      <div ref={containerRef} className={reduceMotion ? styles.staticWrapper : styles.sticky}>
+      <div
+        ref={containerRef}
+        className={reduceMotion || isMobile ? styles.staticWrapper : styles.sticky}
+      >
         <svg
           className={styles.wave}
           viewBox="0 0 1440 120"
@@ -125,7 +137,11 @@ export default function HowItWorksSection() {
             </div>
 
             <div className={styles.trackOuter}>
-              <motion.div ref={trackRef} style={reduceMotion ? {} : { x }} className={styles.track}>
+              <motion.div
+                ref={trackRef}
+                style={reduceMotion || isMobile ? {} : { x }}
+                className={styles.track}
+              >
                 {STEPS.map((s, i) => (
                   <StepCard key={s.title} step={s} number={i + 1} reduceMotion={reduceMotion} />
                 ))}

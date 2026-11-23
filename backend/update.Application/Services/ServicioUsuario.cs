@@ -1,4 +1,5 @@
 using update.Domain.Entities;
+using update.Domain.Exceptions;
 using update.Domain.Interfaces;
 
 namespace update.Application.Services;
@@ -49,7 +50,7 @@ public sealed class ServicioUsuario : IServicioUsuario
         entrada.Correo = entrada.Correo.Trim();
 
         if (await _repositorio.CorreoExisteAsync(entrada.Correo, cancellationToken))
-            throw new InvalidOperationException("Ya existe un usuario con ese correo.");
+            throw new ExcepcionDominio("Ya existe un usuario con ese correo.");
 
         return await _crud.CrearAsync(entrada, cancellationToken);
     }
@@ -65,7 +66,7 @@ public sealed class ServicioUsuario : IServicioUsuario
 
         var existente = await ObtenerPorIdAsync(id, cancellationToken);
         if (existente is null)
-            throw new KeyNotFoundException($"No se encontró el usuario {id}.");
+            throw new ExcepcionDominio($"No se encontró el usuario {id}.");
 
         entrada.Correo = entrada.Correo.Trim();
 
@@ -74,7 +75,7 @@ public sealed class ServicioUsuario : IServicioUsuario
             cancellationToken);
 
         if (usuarioConCorreo is not null && usuarioConCorreo.Id != id)
-            throw new InvalidOperationException("Ya existe otro usuario con ese correo.");
+            throw new ExcepcionDominio("Ya existe otro usuario con ese correo.");
 
         // El ID de la ruta es la fuente de verdad.
         entrada.Id = id;
@@ -93,21 +94,21 @@ public sealed class ServicioUsuario : IServicioUsuario
     private static void ValidarId(Guid id)
     {
         if (id == Guid.Empty)
-            throw new ArgumentException("El id no puede estar vacío.", nameof(id));
+            throw new ExcepcionDominio("El id no puede estar vacío.");
     }
 
     private static void ValidarCorreo(string? correo)
     {
         if (string.IsNullOrWhiteSpace(correo))
-            throw new ArgumentException("El correo es obligatorio.", nameof(correo));
+            throw new ExcepcionDominio("El correo es obligatorio.");
     }
 
     private static void ValidarPaginacion(int pagina, int tamanoPagina)
     {
         if (pagina < 1)
-            throw new ArgumentOutOfRangeException(nameof(pagina), "La página debe ser mayor que cero.");
+            throw new ExcepcionDominio("La página debe ser mayor que cero.");
 
         if (tamanoPagina < 1)
-            throw new ArgumentOutOfRangeException(nameof(tamanoPagina), "El tamaño de página debe ser mayor que cero.");
+            throw new ExcepcionDominio("El tamaño de página debe ser mayor que cero.");
     }
 }
