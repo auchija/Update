@@ -62,11 +62,13 @@
 }
 
 :global(.dark) .button {
-  background: #ffffff;
+  background: #f2c230;
+  color: #000000;
 }
 
 :global(.dark) .button:hover {
-  background: #f2c230;
+  background: #ffffff;
+  color: #000000;
 }
 
 .button:focus-visible {

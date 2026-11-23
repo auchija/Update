@@ -1,5 +1,6 @@
+import { motion, useReducedMotion } from "motion/react";
 import {
-  Check,
+  ArrowRight,
   GraduationCap,
   Lightbulb,
   ShoppingBag,
@@ -7,12 +8,11 @@ import {
   Truck,
   UsersRound,
 } from "lucide-react";
-import Card from "../../components/Card.jsx";
 import { SITE_NAME } from "../../config.js";
 import { LANDING_SECTION_IDS } from "../../constants/pageAnchors.js";
 import { PERSONAS } from "../../data/personas.js";
-import styles from "./AudiencesSection.module.css";
 import LandingSection from "./LandingSection.jsx";
+import styles from "./AudiencesSection.module.css";
 
 const PERSONA_ICONS = {
   entrepreneur: Lightbulb,
@@ -23,42 +23,79 @@ const PERSONA_ICONS = {
   collaborator: UsersRound,
 };
 
+const PERSONA_LINKS = {
+  entrepreneur: "Publica tu emprendimiento",
+  buyer: "Descubre emprendimientos",
+  mentor: "Ofrece mentoría",
+  investor: "Encuentra proyectos",
+  supplier: "Conecta con clientes",
+  collaborator: "Únete a un equipo",
+};
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+};
+
+const fade = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+};
+
 export default function AudiencesSection() {
+  const reduce = useReducedMotion();
+  const rise = reduce ? fade : fadeUp;
+
   return (
     <LandingSection
       id={LANDING_SECTION_IDS.audiences}
-      title="Un lugar para cada lado del emprendimiento"
+      title={
+        <>
+          Un lugar para cada lado del{" "}
+          <em className={styles.accentWord}>emprendimiento</em>
+        </>
+      }
       description={`Al crear tu cuenta eliges cómo participas, y puedes marcar varias opciones. Cada una ve ${SITE_NAME} desde su necesidad.`}
     >
-      <div className={styles.audiences}>
+      <motion.div
+        className={styles.audiences}
+        variants={container}
+        initial={reduce ? false : "hidden"}
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+      >
         {PERSONAS.map((persona) => (
-          <AudienceCard key={persona.value} persona={persona} />
+          <AudienceCard key={persona.value} persona={persona} rise={rise} />
         ))}
-      </div>
+      </motion.div>
     </LandingSection>
   );
 }
 
-function AudienceCard({ persona }) {
+function AudienceCard({ persona, rise }) {
   const Icon = PERSONA_ICONS[persona.value];
+  const link = PERSONA_LINKS[persona.value];
 
   return (
-    <Card as="article" className={styles.audience}>
-      <span className={styles.iconSquare}>
-        <Icon aria-hidden="true" className="icon icon--lg" />
+    <motion.article variants={rise} className={styles.card}>
+      <span className={styles.iconWrap}>
+        <Icon size={20} strokeWidth={1.75} aria-hidden="true" className={styles.icon} />
       </span>
-      <div className="stack stack--xs">
-        <h3 className={styles.audienceTitle}>{persona.title}</h3>
-        <p className="text-muted">{persona.text}</p>
+
+      <h3 className={styles.cardTitle}>{persona.title}</h3>
+      <p className={styles.cardText}>{persona.text}</p>
+
+      <div className={styles.cardBottom}>
+        <span className={styles.cardLink}>
+          {link}
+          <ArrowRight size={16} strokeWidth={1.75} aria-hidden="true" className={styles.arrowIcon} />
+        </span>
       </div>
-      <ul className={styles.benefits}>
-        {persona.benefits.map((benefit) => (
-          <li key={benefit} className={styles.benefit}>
-            <Check aria-hidden="true" className={`icon icon--sm ${styles.check}`} />
-            {benefit}
-          </li>
-        ))}
-      </ul>
-    </Card>
+    </motion.article>
   );
 }
