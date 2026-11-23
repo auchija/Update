@@ -265,7 +265,7 @@ En el plan gratuito, Render apaga el servidor tras 15 minutos sin uso y tarda ce
 
 ### 3. Vercel (página web)
 
-1. Si la dirección de Render no es `https://update-api.onrender.com`, cambiarla en [`frontend/vercel.json`](frontend/vercel.json) (dos líneas) y subir el cambio.
+1. Poner la dirección del servicio de Render (hoy `https://update-rlrx.onrender.com`) en [`frontend/vercel.json`](frontend/vercel.json), en sus dos líneas, y subir el cambio.
 2. En Vercel: **Add New > Project**, elegir este repositorio y poner **Root Directory** en `frontend`. Vercel detecta Vite solo; no hace falta ninguna variable de entorno.
 3. Copiar la dirección que da Vercel (por ejemplo `https://update.vercel.app`) en la variable `Cors__Origenes__0` de Render.
 
