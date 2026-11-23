@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { ArrowUpRight } from "lucide-react";
 import Badge from "../../components/Badge.jsx";
 import { SITE_NAME } from "../../config.js";
 import { LANDING_SECTION_IDS } from "../../constants/pageAnchors.js";
@@ -168,15 +167,6 @@ function StepCard({ step, number, reduceMotion }) {
           </div>
           <p className={styles.cardText}>{step.text}</p>
         </div>
-        <span className={styles.arrowBtn} aria-hidden="true">
-          <motion.span
-            variants={{ hover: { x: reduceMotion ? 0 : 2, y: reduceMotion ? 0 : -2 } }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className={styles.arrowInner}
-          >
-            <ArrowUpRight size={16} strokeWidth={1.75} />
-          </motion.span>
-        </span>
       </div>
     </motion.article>
   );

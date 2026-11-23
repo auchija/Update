@@ -91,10 +91,10 @@ function AudienceCard({ persona, rise }) {
       <p className={styles.cardText}>{persona.text}</p>
 
       <div className={styles.cardBottom}>
-        <a href="#" className={styles.cardLink}>
+        <span className={styles.cardLink}>
           {link}
           <ArrowRight size={16} strokeWidth={1.75} aria-hidden="true" className={styles.arrowIcon} />
-        </a>
+        </span>
       </div>
     </motion.article>
   );
