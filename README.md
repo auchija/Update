@@ -80,7 +80,7 @@ Segunda entrega:
 
 - **Login y registro conectados a la base de datos:** [`AuthController.cs`](backend/update.API/Controllers/AuthController.cs) en el servidor y [`authService.js`](frontend/src/services/authService.js) en la página web.
 - **Rutas públicas y privadas:** [`PrivateRoute.jsx`](frontend/src/routes/PrivateRoute.jsx), [`PublicOnlyRoute.jsx`](frontend/src/routes/PublicOnlyRoute.jsx) y [`App.jsx`](frontend/src/App.jsx).
-- **CRUD de la API usado desde la página web:** las publicaciones (`GET`, `POST`, `PUT` y `DELETE` en `/api/feed`) en [`FeedController.cs`](backend/update.API/Controllers/FeedController.cs) y [`FeedPage.jsx`](frontend/src/pages/app/FeedPage.jsx), y el perfil (`GET` y `PUT /api/perfil/yo`) desde [`perfilService.js`](frontend/src/services/perfilService.js). El manejo de carga y errores está en [`api.js`](frontend/src/services/api.js). Todos los endpoints están documentados en [`backend/ENDPOINTS.md`](backend/ENDPOINTS.md).
+- **CRUD de la API usado desde la página web:** las publicaciones (`GET`, `POST`, `PUT` y `DELETE` en `/api/feed`) en [`FeedController.cs`](backend/update.API/Controllers/FeedController.cs) y [`FeedPage.jsx`](frontend/src/pages/app/FeedPage.jsx), y el perfil (`GET` y `PUT /api/perfil/yo`) desde [`perfilService.js`](frontend/src/services/perfilService.js). El manejo de carga y errores está en [`api.js`](frontend/src/services/api.js). Todos los endpoints están documentados en [Swagger](https://update-rlrx.onrender.com/swagger).
 - **Subida de archivos (`multipart/form-data`):** `POST /api/archivos/subir` en [`SubidaArchivosController.cs`](backend/update.API/Controllers/SubidaArchivosController.cs).
 
 Entrega final, según la rúbrica:
@@ -89,7 +89,7 @@ Entrega final, según la rúbrica:
 | --- | --- |
 | **Integración del flujo** | Landing → registro o login → rutas privadas ([`PrivateRoute.jsx`](frontend/src/routes/PrivateRoute.jsx)) → publicar con archivo ([`PostForm.jsx`](frontend/src/pages/app/PostForm.jsx)) → historial ([`MyPostsPage.jsx`](frontend/src/pages/app/MyPostsPage.jsx) y [`MyFilesPage.jsx`](frontend/src/pages/app/MyFilesPage.jsx)). La sesión se conserva al recargar. |
 | **Persistencia dual** | [`ServicioSubidaArchivos.cs`](backend/update.Application/Services/ServicioSubidaArchivos.cs): valida el contenido real del archivo, su extensión y su peso; guarda con nombre UUID en Storage y los metadatos en la base. Las imágenes se optimizan antes de subir y el navegador las guarda en caché. |
-| **Diseño de la API REST** | Controladores en [`update.API/Controllers`](backend/update.API/Controllers/), lógica en [`update.Application/Services`](backend/update.Application/Services/), validación de payloads en los DTO, índices en las migraciones. Documentada en [Swagger](https://update-rlrx.onrender.com/swagger) y en [`ENDPOINTS.md`](backend/ENDPOINTS.md). |
+| **Diseño de la API REST** | Controladores en [`update.API/Controllers`](backend/update.API/Controllers/), lógica en [`update.Application/Services`](backend/update.Application/Services/), validación de payloads en los DTO, índices en las migraciones. Documentada en [Swagger](https://update-rlrx.onrender.com/swagger). |
 | **Calidad y despliegue** | Arquitectura por capas, errores centralizados en [`ManejadorExcepciones.cs`](backend/update.API/Errors/ManejadorExcepciones.cs), secretos en variables de entorno ([`.env.example`](backend/.env.example)), CORS, límite de intentos en login y registro, despliegue en la nube y [seeds](#5-cargar-datos-de-demostración). |
 
 ## Arquitectura
@@ -157,7 +157,7 @@ El servidor está dividido en capas. Cada capa solo conoce a la de abajo:
 - **Dominio** (`update.Domain`): las entidades del negocio (usuario, perfil, publicación…) con sus reglas básicas.
 - **Infraestructura** (`update.Infrastructure`): cómo se guarda todo en PostgreSQL, con Entity Framework y las migraciones.
 
-La lista completa de direcciones del servidor está en [`backend/ENDPOINTS.md`](backend/ENDPOINTS.md).
+La lista completa de direcciones del servidor está en [Swagger](https://update-rlrx.onrender.com/swagger).
 
 **Base de datos** (carpeta [`bases-de-datos`](bases-de-datos/)): el diagrama y su diseño. Se explica en la siguiente sección.
 

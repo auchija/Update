@@ -1,6 +1,6 @@
 # Backend de UpDate
 
-API REST en .NET 10 (C#) con PostgreSQL y Entity Framework Core. Los pasos para encenderla junto con la página web están en el [README principal](../README.md#cómo-probarlo). La lista de endpoints está en [ENDPOINTS.md](ENDPOINTS.md).
+API REST en .NET 10 (C#) con PostgreSQL y Entity Framework Core. Los pasos para encenderla junto con la página web están en el [README principal](../README.md#cómo-probarlo). La lista de endpoints está en [Swagger](https://update-rlrx.onrender.com/swagger).
 
 ## Capas
 
