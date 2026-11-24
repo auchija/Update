@@ -40,7 +40,7 @@ builder.Services.AddScoped<IAlmacenObjetos>(sp =>
         || string.IsNullOrWhiteSpace(clave) || string.IsNullOrWhiteSpace(bucket))
         throw new InvalidOperationException("Configura Supabase:Url, Bucket y ServiceRoleKey en el servidor.");
     var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient("storage");
-    http.BaseAddress = new Uri(baseUri, "/storage/v1/");
+    http.BaseAddress = new Uri(baseUri!, "/storage/v1/");
     http.DefaultRequestHeaders.Add("apikey", clave);
     http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", clave);
     return new AlmacenSupabase(http, bucket);

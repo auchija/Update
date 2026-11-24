@@ -22,7 +22,7 @@ public sealed class PerfilRepository(ApplicationDbContext contexto) : GenericRep
         => await Conjunto.AsNoTracking()
             .Include(e => e.FotoArchivo)
             .Where(e => e.UsuarioId != excluirUsuarioId && e.Tipo == TipoPerfil.Persona && e.Estado == EstadoCuenta.Activo
-                && !e.EsPrivado && e.TotalPublicaciones > 0)
+                && e.TotalPublicaciones > 0)
             .OrderByDescending(e => e.TotalPublicaciones).ThenByDescending(e => e.TotalSeguidores).ThenBy(e => e.Id)
             .Take(Math.Clamp(cantidad, 1, 30))
             .ToListAsync(cancellationToken);

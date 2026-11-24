@@ -44,7 +44,10 @@ internal static class MapeoComunidad
         TotalSeguidores = vista.Perfil.TotalSeguidores,
         TotalSeguidos = vista.Perfil.TotalSeguidos,
         EsMio = vista.EsMio,
-        LoSigo = vista.LoSigo
+        LoSigo = vista.LoSigo,
+        SolicitudPendiente = vista.SolicitudPendiente,
+        EsPrivado = vista.Perfil.EsPrivado,
+        PuedeVerContenido = vista.PuedeVerContenido
     };
 
     private static AutorPublicacionDto Autor(Perfil perfil, string? claveFoto, Func<string?, string?> url) => new()

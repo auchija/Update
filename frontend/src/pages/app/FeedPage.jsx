@@ -143,8 +143,7 @@ export default function FeedPage() {
                       </span>
                     </Link>
                     <FollowButton
-                      handle={person.nombreUsuario}
-                      following={person.loSigo}
+                      person={person}
                       variant="link"
                       onChange={(changes) => updatePerson(person.nombreUsuario, changes)}
                       onError={(text) => setNotice({ variant: "danger", text })}

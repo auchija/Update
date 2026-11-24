@@ -19,20 +19,22 @@ public sealed class ServicioFeed(
     ITipoPublicacionRepository tiposPublicacion,
     IPerfilRepository perfiles,
     IReaccionPublicacionRepository reacciones,
+    ISeguimientoRepository seguimientos,
     ServicioMiPerfil miPerfil,
     IUnitOfWork unitOfWork)
 {
     private const string TipoGeneral = "general";
 
-    /// <param name="visorUsuarioId">Quien pide la lista: se usa para marcar sus "me gusta".</param>
-    /// <param name="soloMias">Solo las publicaciones del visor, incluidas las no públicas.</param>
-    /// <param name="perfilAutorId">Solo las públicas de ese perfil.</param>
+    /// <summary>
+    /// Publicaciones que puede ver <c>visorUsuarioId</c>, con sus "me gusta" marcados.
+    /// <c>soloMias</c>: solo las suyas, incluidas las no públicas. <c>perfilAutorId</c>: solo las de ese perfil.
+    /// </summary>
     public async Task<IReadOnlyList<PublicacionFeed>> ListarAsync(
         Guid visorUsuarioId, int pagina, int tamanoPagina, CancellationToken cancellationToken,
         bool soloMias = false, Guid? perfilAutorId = null)
     {
         var recientes = await publicaciones.ObtenerRecientesAsync(
-            pagina, tamanoPagina, cancellationToken, soloMias ? visorUsuarioId : null, perfilAutorId);
+            pagina, tamanoPagina, cancellationToken, soloMias ? visorUsuarioId : null, perfilAutorId, visorUsuarioId);
         var ids = recientes.Select(p => p.Id).ToList();
         var imagenes = (await publicacionArchivos.ObtenerPorPublicacionesAsync(ids, cancellationToken))
             .GroupBy(pa => pa.PublicacionId)
@@ -51,7 +53,12 @@ public sealed class ServicioFeed(
         var publicacion = await publicaciones.ObtenerPorClaveAsync([publicacionId], cancellationToken);
         if (publicacion is null || (publicacion.Visibilidad != VisibilidadPublicacion.Publico && publicacion.CreadoPorUsuarioId != usuarioId)) return null;
         var autor = await perfiles.ObtenerPorClaveAsync([publicacion.PerfilAutorId], cancellationToken);
-        if (autor is null || (autor.EsPrivado && publicacion.CreadoPorUsuarioId != usuarioId)) return null;
+        if (autor is null) return null;
+        if (autor.EsPrivado && autor.UsuarioId != usuarioId)
+        {
+            var estados = await seguimientos.ObtenerEstadosAsync(usuarioId, [autor.Id], cancellationToken);
+            if (estados.GetValueOrDefault(autor.Id, EstadoSeguimiento.Pendiente) != EstadoSeguimiento.Activo) return null;
+        }
 
         var fotoAutor = autor.FotoArchivoId is null ? null : await archivos.ObtenerPorClaveAsync([autor.FotoArchivoId.Value], cancellationToken);
         var imagen = (await publicacionArchivos.ObtenerPorPublicacionesAsync([publicacionId], cancellationToken)).FirstOrDefault()?.Archivo;

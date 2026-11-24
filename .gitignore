@@ -75,3 +75,6 @@ appsettings.Development.json
 secrets.json
 
 backend/update.API/uploads/
+
+# Datos locales que no se suben (por ejemplo, la clave de las cuentas demo)
+*.local.txt

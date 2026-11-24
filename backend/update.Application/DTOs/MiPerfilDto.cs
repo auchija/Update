@@ -28,6 +28,9 @@ public sealed class ActualizarMiPerfilDto
 
     [GuidNoVacio]
     public Guid? FotoArchivoId { get; set; }
+
+    /// <summary>Cuenta privada: quien quiera seguirla envía una solicitud. null deja el valor como está.</summary>
+    public bool? EsPrivado { get; set; }
 }
 
 public sealed class RespuestaMiPerfilDto
@@ -40,6 +43,7 @@ public sealed class RespuestaMiPerfilDto
     public string? SitioWeb { get; set; }
     public Guid? FotoArchivoId { get; set; }
     public string? FotoUrl { get; set; }
+    public bool EsPrivado { get; set; }
     public int TotalSeguidores { get; set; }
     public int TotalSeguidos { get; set; }
     public int TotalPublicaciones { get; set; }

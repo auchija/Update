@@ -44,12 +44,25 @@ public sealed class PerfilPublicoDto
     public int TotalSeguidos { get; set; }
     /// <summary>true si es el perfil de quien hace la petición.</summary>
     public bool EsMio { get; set; }
-    /// <summary>true si quien hace la petición lo sigue.</summary>
+    /// <summary>true si quien hace la petición lo sigue (seguimiento aceptado).</summary>
     public bool LoSigo { get; set; }
+    /// <summary>true si quien hace la petición envió una solicitud que aún no aceptan.</summary>
+    public bool SolicitudPendiente { get; set; }
+    public bool EsPrivado { get; set; }
+    /// <summary>false en una cuenta privada que quien hace la petición no sigue.</summary>
+    public bool PuedeVerContenido { get; set; }
 }
 
 public sealed class EstadoSeguimientoDto
 {
     public bool LoSigo { get; set; }
+    public bool SolicitudPendiente { get; set; }
     public int TotalSeguidores { get; set; }
+}
+
+/// <summary>Alguien que pidió seguir mi cuenta privada.</summary>
+public sealed class SolicitudSeguimientoDto
+{
+    public PerfilPublicoDto Perfil { get; set; } = new();
+    public DateTime CreadoEn { get; set; }
 }

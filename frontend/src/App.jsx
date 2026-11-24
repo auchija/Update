@@ -7,6 +7,7 @@ import MyFilesPage from "./pages/app/MyFilesPage.jsx";
 import MyPostsPage from "./pages/app/MyPostsPage.jsx";
 import PostPage from "./pages/app/PostPage.jsx";
 import ProfilePage from "./pages/app/ProfilePage.jsx";
+import RequestsPage from "./pages/app/RequestsPage.jsx";
 import UserProfilePage from "./pages/app/UserProfilePage.jsx";
 import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
@@ -30,6 +31,7 @@ export default function App() {
           <Route path={ROUTES.explore} element={<ExplorePage />} />
           <Route path={ROUTES.myPosts} element={<MyPostsPage />} />
           <Route path={ROUTES.myFiles} element={<MyFilesPage />} />
+          <Route path={ROUTES.requests} element={<RequestsPage />} />
           <Route path={ROUTES.profile} element={<ProfilePage />} />
           <Route path={ROUTES.userProfile} element={<UserProfilePage />} />
           <Route path={ROUTES.post} element={<PostPage />} />

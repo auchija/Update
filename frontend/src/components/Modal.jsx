@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { X } from "lucide-react";
 import styles from "./Modal.module.css";
 
@@ -8,6 +8,8 @@ import styles from "./Modal.module.css";
  */
 export default function Modal({ open, onClose, title, children }) {
   const dialogRef = useRef(null);
+  // Puede haber varias ventanas en la página: cada título necesita su propio id.
+  const titleId = useId();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -27,11 +29,11 @@ export default function Modal({ open, onClose, title, children }) {
       className={styles.dialog}
       onClose={onClose}
       onClick={handleClick}
-      aria-labelledby="modal-titulo"
+      aria-labelledby={titleId}
     >
       <div className={styles.panel}>
         <header className={styles.header}>
-          <h2 id="modal-titulo" className={styles.title}>
+          <h2 id={titleId} className={styles.title}>
             {title}
           </h2>
           <button type="button" onClick={onClose} className={styles.close} title="Cerrar">

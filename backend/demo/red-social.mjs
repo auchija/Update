@@ -149,7 +149,26 @@ const CUENTAS = [
       { foto: 192, texto: "Así se veía el coworking esta tarde: 15 emprendedores trabajando, compartiendo contactos y celebrando la primera venta de uno de ellos." },
     ],
   },
+  {
+    handle: "camila.torres",
+    nombre: "Camila Torres",
+    personas: ["investor", "collaborator"],
+    titular: "Consultora en finanzas para pymes",
+    bio: "Cuenta privada: comparto análisis y casos reales solo con mi red.\nEnvíame tu solicitud si tienes una pyme en crecimiento.",
+    foto: 832,
+    privada: true,
+    publicaciones: [
+      { foto: 668, texto: "Plantilla de flujo de caja que uso con mis clientes. Si la quieres, pídemela por aquí." },
+      { foto: 534, texto: "Oficina nueva para las asesorías de los viernes. Quedan dos espacios este mes." },
+      { texto: "El error más común que veo en pymes: mezclar las cuentas personales con las del negocio. Sepáralas desde el primer día." },
+    ],
+  },
 ];
+
+// Cuenta privada: quiénes ya fueron aceptados y quiénes siguen con la solicitud pendiente.
+const PRIVADA = "camila.torres";
+const SEGUIDORES_ACEPTADOS = ["valentina.rios", "laura.gomez", "sofia.cardenas"];
+const SOLICITUDES_PENDIENTES = ["andres.mejia", "cafe.origen", "mateo.londono"];
 
 // Quién sigue a quién (además, todos siguen a las cuentas de mentoría).
 const SEGUIMIENTOS = {
@@ -162,6 +181,7 @@ const SEGUIMIENTOS = {
   "dulce.antojo": ["valentina.rios", "huerta.viva", "cafe.origen", "sofia.cardenas"],
   "sofia.cardenas": ["cuero.artesanal", "dulce.antojo", "valentina.rios", "cafe.origen"],
   "mateo.londono": ["andres.mejia", "valentina.rios", "cafe.origen"],
+  "camila.torres": ["huerta.viva", "cuero.artesanal", "cafe.origen"],
 };
 const MENTORES = ["laura.gomez", "mateo.londono"];
 
@@ -283,6 +303,7 @@ for (const cuenta of CUENTAS) {
       biografia: cuenta.bio,
       sitioWeb: null,
       fotoArchivoId,
+      esPrivado: Boolean(cuenta.privada),
     },
   });
 
@@ -307,6 +328,19 @@ for (const [quien, aQuienes] of Object.entries(SEGUIMIENTOS)) {
   }
 }
 
+console.log("Solicitudes de seguimiento…");
+for (const handle of [...SEGUIDORES_ACEPTADOS, ...SOLICITUDES_PENDIENTES]) {
+  await api(`/comunidad/perfiles/${PRIVADA}/seguir`, { metodo: "POST", token: tokens[handle] });
+}
+for (const handle of SEGUIDORES_ACEPTADOS) {
+  try {
+    await api(`/comunidad/solicitudes/${handle}/aceptar`, { metodo: "POST", token: tokens[PRIVADA] });
+  } catch (error) {
+    // 404: ya estaba aceptada de una corrida anterior.
+    if (error.status !== 404) throw error;
+  }
+}
+
 console.log("Me gusta…");
 // Cada publicación recibe "me gusta" de una parte de las cuentas (siempre las mismas, para que
 // volver a correr el script no cambie nada).
@@ -314,7 +348,9 @@ const handles = CUENTAS.map((c) => c.handle);
 for (const [dueno, ids] of Object.entries(publicaciones)) {
   for (const [i, id] of ids.entries()) {
     const cantidad = 3 + ((dueno.length + i * 3) % (handles.length - 2));
-    const fans = handles.filter((h) => h !== dueno).slice(0, cantidad);
+    // Una cuenta privada solo recibe "me gusta" de sus seguidores aceptados.
+    const posibles = dueno === PRIVADA ? SEGUIDORES_ACEPTADOS : handles.filter((h) => h !== dueno);
+    const fans = posibles.slice(0, cantidad);
     for (const fan of fans) await api(`/feed/${id}/me-gusta`, { metodo: "POST", token: tokens[fan] });
   }
 }

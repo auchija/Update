@@ -41,6 +41,7 @@ public sealed class ServicioMiPerfil(
         perfil.Biografia = TextoOpcional(entrada.Biografia);
         perfil.SitioWeb = TextoOpcional(entrada.SitioWeb);
         perfil.FotoArchivoId = entrada.FotoArchivoId;
+        if (entrada.EsPrivado is bool esPrivado) perfil.EsPrivado = esPrivado;
         perfil.ActualizadoEn = DateTime.UtcNow;
 
         await perfiles.ActualizarAsync(perfil, cancellationToken);

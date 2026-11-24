@@ -64,7 +64,22 @@
   min-width: 0;
 }
 
+.statButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+.statButton:hover {
+  text-decoration: underline;
+}
+
 .handle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   max-width: 100%;
   overflow: hidden;
   color: var(--foreground);

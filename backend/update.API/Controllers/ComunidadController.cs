@@ -54,7 +54,74 @@ public sealed class ComunidadController(ServicioComunidad servicio) : Controller
             : Ok(publicaciones.Select(p => MapeoComunidad.Publicacion(p, usuarioId, UrlArchivo)).ToList());
     }
 
-    /// <summary>Sigue el perfil. Repetirlo no suma otra vez.</summary>
+    /// <summary>Quienes siguen al perfil. En una cuenta privada, solo para su dueño y sus seguidores.</summary>
+    [HttpGet("perfiles/{nombreUsuario}/seguidores")]
+    [ProducesResponseType<IReadOnlyList<PerfilPublicoDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<ActionResult<IReadOnlyList<PerfilPublicoDto>>> Seguidores(
+        string nombreUsuario,
+        [FromQuery] int pagina = 1,
+        [FromQuery] int tamanoPagina = 30,
+        CancellationToken cancellationToken = default)
+        => ListaDePerfiles((usuarioId) => servicio.ListarSeguidoresAsync(usuarioId, nombreUsuario, pagina, tamanoPagina, cancellationToken));
+
+    /// <summary>A quiénes sigue el perfil. En una cuenta privada, solo para su dueño y sus seguidores.</summary>
+    [HttpGet("perfiles/{nombreUsuario}/seguidos")]
+    [ProducesResponseType<IReadOnlyList<PerfilPublicoDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<ActionResult<IReadOnlyList<PerfilPublicoDto>>> Seguidos(
+        string nombreUsuario,
+        [FromQuery] int pagina = 1,
+        [FromQuery] int tamanoPagina = 30,
+        CancellationToken cancellationToken = default)
+        => ListaDePerfiles((usuarioId) => servicio.ListarSeguidosAsync(usuarioId, nombreUsuario, pagina, tamanoPagina, cancellationToken));
+
+    /// <summary>Perfiles relacionados: los que también siguen sus seguidores; se completa con los más activos.</summary>
+    [HttpGet("perfiles/{nombreUsuario}/relacionados")]
+    [ProducesResponseType<IReadOnlyList<PerfilPublicoDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<ActionResult<IReadOnlyList<PerfilPublicoDto>>> Relacionados(
+        string nombreUsuario,
+        [FromQuery] int cantidad = 8,
+        CancellationToken cancellationToken = default)
+        => ListaDePerfiles((usuarioId) => servicio.RelacionadosAsync(usuarioId, nombreUsuario, cantidad, cancellationToken));
+
+    /// <summary>Solicitudes pendientes para seguir mi cuenta, las más recientes primero.</summary>
+    [HttpGet("solicitudes")]
+    [ProducesResponseType<IReadOnlyList<SolicitudSeguimientoDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyList<SolicitudSeguimientoDto>>> Solicitudes(
+        [FromQuery] int pagina = 1,
+        [FromQuery] int tamanoPagina = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
+
+        var solicitudes = await servicio.ListarSolicitudesAsync(usuarioId, pagina, tamanoPagina, cancellationToken);
+        return Ok(solicitudes.Select(s => new SolicitudSeguimientoDto
+        {
+            Perfil = MapeoComunidad.Perfil(s, UrlArchivo),
+            CreadoEn = s.Fecha ?? DateTime.UtcNow
+        }).ToList());
+    }
+
+    /// <summary>Acepta la solicitud de ese @usuario: pasa a ser seguidor.</summary>
+    [HttpPost("solicitudes/{nombreUsuario}/aceptar")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<IActionResult> AceptarSolicitud(string nombreUsuario, CancellationToken cancellationToken)
+        => ResponderSolicitud(nombreUsuario, true, cancellationToken);
+
+    /// <summary>Rechaza la solicitud de ese @usuario.</summary>
+    [HttpDelete("solicitudes/{nombreUsuario}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<IActionResult> RechazarSolicitud(string nombreUsuario, CancellationToken cancellationToken)
+        => ResponderSolicitud(nombreUsuario, false, cancellationToken);
+
+    /// <summary>Sigue el perfil; si es privado, envía una solicitud. Repetirlo no suma otra vez.</summary>
     [HttpPost("perfiles/{nombreUsuario}/seguir")]
     [ProducesResponseType<EstadoSeguimientoDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
@@ -62,7 +129,7 @@ public sealed class ComunidadController(ServicioComunidad servicio) : Controller
     public Task<ActionResult<EstadoSeguimientoDto>> Seguir(string nombreUsuario, CancellationToken cancellationToken)
         => CambiarSeguimiento(nombreUsuario, true, cancellationToken);
 
-    /// <summary>Deja de seguir el perfil. Repetirlo no resta otra vez.</summary>
+    /// <summary>Deja de seguir el perfil o cancela la solicitud. Repetirlo no resta otra vez.</summary>
     [HttpDelete("perfiles/{nombreUsuario}/seguir")]
     [ProducesResponseType<EstadoSeguimientoDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -76,7 +143,37 @@ public sealed class ComunidadController(ServicioComunidad servicio) : Controller
         var resultado = await servicio.SeguirAsync(usuarioId, nombreUsuario, seguir, cancellationToken);
         return resultado is null
             ? NoEncontrado()
-            : Ok(new EstadoSeguimientoDto { LoSigo = resultado.LoSigo, TotalSeguidores = resultado.TotalSeguidores });
+            : Ok(new EstadoSeguimientoDto
+            {
+                LoSigo = resultado.LoSigo,
+                SolicitudPendiente = resultado.SolicitudPendiente,
+                TotalSeguidores = resultado.TotalSeguidores
+            });
+    }
+
+    private async Task<IActionResult> ResponderSolicitud(string nombreUsuario, bool aceptar, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
+
+        return await servicio.ResponderSolicitudAsync(usuarioId, nombreUsuario, aceptar, cancellationToken)
+            ? NoContent()
+            : NotFound(new ProblemDetails { Status = StatusCodes.Status404NotFound, Title = "Esa solicitud ya no existe." });
+    }
+
+    private async Task<ActionResult<IReadOnlyList<PerfilPublicoDto>>> ListaDePerfiles(
+        Func<Guid, Task<IReadOnlyList<PerfilVista>?>> consulta)
+    {
+        if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
+
+        try
+        {
+            var perfiles = await consulta(usuarioId);
+            return perfiles is null ? NoEncontrado() : Ok(perfiles.Select(p => MapeoComunidad.Perfil(p, UrlArchivo)).ToList());
+        }
+        catch (PerfilPrivadoException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails { Status = StatusCodes.Status403Forbidden, Title = ex.Message });
+        }
     }
 
     private ObjectResult NoEncontrado() => NotFound(new ProblemDetails

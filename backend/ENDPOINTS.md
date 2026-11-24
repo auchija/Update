@@ -67,10 +67,18 @@ Requieren sesión. `{handle}` es el @usuario, sin importar mayúsculas.
 | Método y ruta | Qué hace | Respuestas |
 |---|---|---|
 | `GET /api/comunidad/sugerencias?cantidad=10` | Perfiles activos para descubrir (los que más publican), sin el propio, con `loSigo`. | 200, 401 |
-| `GET /api/comunidad/perfiles/{handle}` | Perfil público: nombre, titular, biografía, foto, contadores, `esMio` y `loSigo`. | 200, 401, 404 |
-| `GET /api/comunidad/perfiles/{handle}/publicaciones?pagina=1&tamanoPagina=20` | Publicaciones públicas del perfil. | 200, 400, 401, 404 |
-| `POST /api/comunidad/perfiles/{handle}/seguir` | Sigue el perfil (suma seguidores y seguidos). Repetirlo no suma otra vez. | 200, 400, 401, 404 |
-| `DELETE /api/comunidad/perfiles/{handle}/seguir` | Deja de seguir. | 200, 401, 404 |
+| `GET /api/comunidad/perfiles/{handle}` | Perfil: nombre, titular, biografía, foto, contadores, `esMio`, `loSigo`, `solicitudPendiente`, `esPrivado` y `puedeVerContenido`. | 200, 401, 404 |
+| `GET /api/comunidad/perfiles/{handle}/publicaciones?pagina=1&tamanoPagina=20` | Publicaciones del perfil. En una cuenta privada que no sigues, lista vacía. | 200, 400, 401, 404 |
+| `GET /api/comunidad/perfiles/{handle}/seguidores?pagina=1&tamanoPagina=30` | Quienes lo siguen. En una cuenta privada, solo para su dueño y sus seguidores. | 200, 400, 401, 403, 404 |
+| `GET /api/comunidad/perfiles/{handle}/seguidos?pagina=1&tamanoPagina=30` | A quiénes sigue. Misma regla de privacidad. | 200, 400, 401, 403, 404 |
+| `GET /api/comunidad/perfiles/{handle}/relacionados?cantidad=8` | Perfiles que también siguen sus seguidores; se completa con los más activos. | 200, 401, 404 |
+| `POST /api/comunidad/perfiles/{handle}/seguir` | Sigue el perfil. Si es privado, envía una solicitud (`solicitudPendiente`) y no suma hasta que la acepten. Repetirlo no suma otra vez. | 200, 400, 401, 404 |
+| `DELETE /api/comunidad/perfiles/{handle}/seguir` | Deja de seguir o cancela la solicitud. | 200, 401, 404 |
+| `GET /api/comunidad/solicitudes?pagina=1&tamanoPagina=50` | Solicitudes pendientes para seguir mi cuenta. | 200, 400, 401 |
+| `POST /api/comunidad/solicitudes/{handle}/aceptar` | Acepta la solicitud: suma seguidor y seguido. | 204, 401, 404 |
+| `DELETE /api/comunidad/solicitudes/{handle}` | Rechaza la solicitud. | 204, 401, 404 |
+
+Una cuenta se vuelve privada con `esPrivado: true` en `PUT /api/perfil/yo`. Sus publicaciones solo las ven su dueño y sus seguidores aceptados.
 
 ## Salud
 

@@ -4,39 +4,60 @@ import { classNames } from "../../utils/classNames.js";
 import styles from "./FollowButton.module.css";
 
 /**
- * Botón Seguir / Siguiendo. Muestra el cambio al instante y lo deshace si el servidor falla.
- * `onChange({ loSigo, totalSeguidores })` avisa al padre.
+ * Botón Seguir / Solicitado / Siguiendo. `person` es un perfil de la API.
+ * Muestra el cambio al instante y lo deshace si el servidor falla.
+ * `onChange({ loSigo, solicitudPendiente, totalSeguidores? })` avisa al padre.
  */
-export default function FollowButton({ handle, following, onChange, variant = "solid", onError }) {
+export default function FollowButton({ person, onChange, variant = "solid", onError }) {
   const [isSending, setIsSending] = useState(false);
+  const { loSigo, solicitudPendiente, esPrivado, nombreUsuario } = person;
+  const isActive = loSigo || solicitudPendiente;
 
   async function toggle() {
-    const next = !following;
+    // Dejar de seguir una cuenta privada quita el acceso: para volver hay que pedirlo otra vez.
+    if (
+      loSigo &&
+      esPrivado &&
+      !window.confirm(`¿Dejar de seguir a @${nombreUsuario}? Tendrás que enviar otra solicitud.`)
+    ) {
+      return;
+    }
+
+    const previous = { loSigo, solicitudPendiente };
+    const follow = !isActive;
     setIsSending(true);
-    onChange?.({ loSigo: next });
+    onChange?.({
+      loSigo: follow && !esPrivado,
+      solicitudPendiente: follow && Boolean(esPrivado),
+    });
     try {
-      onChange?.(await seguirPerfil(handle, next));
+      onChange?.(await seguirPerfil(nombreUsuario, follow));
     } catch (error) {
-      onChange?.({ loSigo: !next });
+      onChange?.(previous);
       onError?.(error.message);
     } finally {
       setIsSending(false);
     }
   }
 
+  let label = "Seguir";
+  if (loSigo) label = "Siguiendo";
+  else if (solicitudPendiente) label = "Solicitado";
+
   return (
     <button
       type="button"
       onClick={toggle}
       disabled={isSending}
-      aria-pressed={following}
+      aria-pressed={isActive}
+      aria-label={`${label}: @${nombreUsuario}`}
       className={classNames(
         styles.button,
         variant === "link" ? styles.link : styles.solid,
-        following && styles.following,
+        isActive && styles.following,
       )}
     >
-      {following ? "Siguiendo" : "Seguir"}
+      {label}
     </button>
   );
 }

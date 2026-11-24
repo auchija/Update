@@ -1,0 +1,78 @@
+.section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.title {
+  padding-inline: 1rem;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.list {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0.125rem 1rem 0.5rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+@media (min-width: 48rem) {
+  .title,
+  .list {
+    padding-inline: 0;
+  }
+}
+
+.card {
+  display: grid;
+  flex: 0 0 10.5rem;
+  justify-items: center;
+  align-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  scroll-snap-align: start;
+}
+
+.person {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  min-width: 0;
+  color: var(--foreground);
+  text-align: center;
+  text-decoration: none;
+}
+
+.handle {
+  max-width: 100%;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.person:hover .handle {
+  text-decoration: underline;
+}
+
+.name {
+  display: -webkit-box;
+  min-height: 2.5em;
+  overflow: hidden;
+  color: var(--foreground-muted);
+  font-size: var(--text-xs);
+  line-height: 1.25;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}

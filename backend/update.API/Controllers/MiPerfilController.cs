@@ -59,6 +59,7 @@ public sealed class MiPerfilController(ServicioMiPerfil servicio) : ControllerBa
         SitioWeb = resultado.Perfil.SitioWeb,
         FotoArchivoId = resultado.Perfil.FotoArchivoId,
         FotoUrl = resultado.ClaveFoto is null ? null : $"{Request.Scheme}://{Request.Host}/uploads/{resultado.ClaveFoto}",
+        EsPrivado = resultado.Perfil.EsPrivado,
         TotalSeguidores = resultado.Perfil.TotalSeguidores,
         TotalSeguidos = resultado.Perfil.TotalSeguidos,
         TotalPublicaciones = resultado.Perfil.TotalPublicaciones

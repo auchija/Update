@@ -6,6 +6,7 @@ export const ROUTES = {
   explore: "/explorar",
   myPosts: "/mis-publicaciones",
   myFiles: "/mis-archivos",
+  requests: "/solicitudes",
   profile: "/perfil",
   userProfile: "/u/:handle",
   post: "/p/:id",

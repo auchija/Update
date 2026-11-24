@@ -1,17 +1,24 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
-import { Camera, Grid3x3, Link as LinkIcon } from "lucide-react";
+import { Camera, Grid3x3, Link as LinkIcon, Lock } from "lucide-react";
 import Alert from "../../components/Alert.jsx";
 import Avatar from "../../components/Avatar.jsx";
 import Button from "../../components/Button.jsx";
 import Spinner from "../../components/Spinner.jsx";
 import { ROUTES } from "../../constants/routes.js";
 import { usePaginatedList } from "../../hooks/usePaginatedList.js";
-import { getPerfilPublico, getPublicacionesDePerfil } from "../../services/comunidadService.js";
+import {
+  getPerfilPublico,
+  getPublicacionesDePerfil,
+  getSeguidores,
+  getSeguidos,
+} from "../../services/comunidadService.js";
 import { FEED_PAGE_SIZE } from "../../services/feedService.js";
 import { formatCount } from "../../utils/relativeTime.js";
 import FollowButton from "./FollowButton.jsx";
+import PeopleModal from "./PeopleModal.jsx";
 import PostGrid from "./PostGrid.jsx";
+import RelatedProfiles from "./RelatedProfiles.jsx";
 import styles from "./UserProfilePage.module.css";
 
 /** Perfil público (/u/:handle): cabecera con contadores, seguir y la cuadrícula de publicaciones. */
@@ -26,9 +33,19 @@ function ProfileView({ handle }) {
   const [profile, setProfile] = useState(null);
   const [loadError, setLoadError] = useState("");
   const [notice, setNotice] = useState("");
+  const [openList, setOpenList] = useState(null);
+  // Cambia al cerrar una lista: ahí se pudo seguir a alguien y los contadores ya no coinciden.
+  const [profileVersion, setProfileVersion] = useState(0);
 
   const fetchPosts = useCallback((pagina) => getPublicacionesDePerfil(handle, pagina), [handle]);
+  const fetchFollowers = useCallback((pagina) => getSeguidores(handle, pagina), [handle]);
+  const fetchFollowing = useCallback((pagina) => getSeguidos(handle, pagina), [handle]);
   const posts = usePaginatedList(fetchPosts, FEED_PAGE_SIZE, postsVersion);
+
+  function closeList() {
+    setOpenList(null);
+    setProfileVersion((current) => current + 1);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -42,7 +59,7 @@ function ProfileView({ handle }) {
     return () => {
       cancelled = true;
     };
-  }, [handle, postsVersion]);
+  }, [handle, postsVersion, profileVersion]);
 
   if (loadError) {
     return (
@@ -65,6 +82,9 @@ function ProfileView({ handle }) {
     );
   }
 
+  // Se calcula aquí (no con el dato del servidor) para que cambie apenas se deja de seguir.
+  const canSeeContent = !profile.esPrivado || profile.esMio || profile.loSigo;
+
   return (
     <>
       <title>{`${profile.nombreVisible} (@${profile.nombreUsuario}) · UpDate`}</title>
@@ -76,7 +96,12 @@ function ProfileView({ handle }) {
 
           <div className={styles.identity}>
             <div className={styles.topRow}>
-              <h1 className={styles.handle}>{profile.nombreUsuario}</h1>
+              <h1 className={styles.handle}>
+                {profile.esPrivado && (
+                  <Lock aria-label="Cuenta privada" className="icon icon--sm" />
+                )}
+                <span>{profile.nombreUsuario}</span>
+              </h1>
               {profile.esMio ? (
                 <div className={styles.buttons}>
                   <Button to={ROUTES.profile} variant="secondary" size="sm">
@@ -88,8 +113,7 @@ function ProfileView({ handle }) {
                 </div>
               ) : (
                 <FollowButton
-                  handle={profile.nombreUsuario}
-                  following={profile.loSigo}
+                  person={profile}
                   onChange={(changes) => setProfile((current) => ({ ...current, ...changes }))}
                   onError={setNotice}
                 />
@@ -101,11 +125,15 @@ function ProfileView({ handle }) {
                 <strong>{formatCount(profile.totalPublicaciones)}</strong> publicaciones
               </li>
               <li>
-                <strong>{formatCount(profile.totalSeguidores)}</strong>{" "}
-                {profile.totalSeguidores === 1 ? "seguidor" : "seguidores"}
+                <StatButton enabled={canSeeContent} onClick={() => setOpenList("seguidores")}>
+                  <strong>{formatCount(profile.totalSeguidores)}</strong>{" "}
+                  {profile.totalSeguidores === 1 ? "seguidor" : "seguidores"}
+                </StatButton>
               </li>
               <li>
-                <strong>{formatCount(profile.totalSeguidos)}</strong> seguidos
+                <StatButton enabled={canSeeContent} onClick={() => setOpenList("seguidos")}>
+                  <strong>{formatCount(profile.totalSeguidos)}</strong> seguidos
+                </StatButton>
               </li>
             </ul>
 
@@ -130,6 +158,8 @@ function ProfileView({ handle }) {
 
         {notice && <Alert variant="danger">{notice}</Alert>}
 
+        {!profile.esMio && <RelatedProfiles handle={profile.nombreUsuario} onError={setNotice} />}
+
         <div className={styles.tabs} role="presentation">
           <span className={styles.tab}>
             <Grid3x3 aria-hidden="true" className="icon icon--sm" />
@@ -137,13 +167,27 @@ function ProfileView({ handle }) {
           </span>
         </div>
 
-        {posts.loadError && <Alert variant="danger">{posts.loadError}</Alert>}
-        {!posts.loadError && !posts.items && (
+        {!canSeeContent && (
+          <div className={styles.empty}>
+            <span className={styles.emptyIcon}>
+              <Lock aria-hidden="true" className="icon icon--lg" />
+            </span>
+            <h2>Esta cuenta es privada</h2>
+            <p className="text-muted">
+              {profile.solicitudPendiente
+                ? `Enviaste una solicitud. Verás sus publicaciones cuando ${profile.nombreVisible} la acepte.`
+                : "Síguela para ver sus publicaciones, seguidores y seguidos."}
+            </p>
+          </div>
+        )}
+
+        {canSeeContent && posts.loadError && <Alert variant="danger">{posts.loadError}</Alert>}
+        {canSeeContent && !posts.loadError && !posts.items && (
           <div className={styles.state}>
             <Spinner label="Cargando publicaciones" />
           </div>
         )}
-        {posts.items?.length === 0 && (
+        {canSeeContent && posts.items?.length === 0 && (
           <div className={styles.empty}>
             <span className={styles.emptyIcon}>
               <Camera aria-hidden="true" className="icon icon--lg" />
@@ -163,9 +207,9 @@ function ProfileView({ handle }) {
             )}
           </div>
         )}
-        {posts.items?.length > 0 && <PostGrid posts={posts.items} />}
+        {canSeeContent && posts.items?.length > 0 && <PostGrid posts={posts.items} />}
 
-        {posts.hasMore && (
+        {canSeeContent && posts.hasMore && (
           <div className={styles.state}>
             <Button
               variant="secondary"
@@ -182,7 +226,34 @@ function ProfileView({ handle }) {
             ¿Buscas editar o borrar algo? Ve a <Link to={ROUTES.myPosts}>Mis publicaciones</Link>.
           </p>
         )}
+
+        {openList === "seguidores" && (
+          <PeopleModal
+            title="Seguidores"
+            fetchPage={fetchFollowers}
+            emptyText="Todavía no tiene seguidores."
+            onClose={closeList}
+          />
+        )}
+        {openList === "seguidos" && (
+          <PeopleModal
+            title="Seguidos"
+            fetchPage={fetchFollowing}
+            emptyText="Todavía no sigue a nadie."
+            onClose={closeList}
+          />
+        )}
       </div>
     </>
+  );
+}
+
+/** Contador que abre su lista; en una cuenta privada sin acceso es solo texto. */
+function StatButton({ enabled, onClick, children }) {
+  if (!enabled) return <span>{children}</span>;
+  return (
+    <button type="button" onClick={onClick} className={styles.statButton}>
+      {children}
+    </button>
   );
 }

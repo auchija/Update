@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Alert from "../../components/Alert.jsx";
 import Avatar from "../../components/Avatar.jsx";
 import Button from "../../components/Button.jsx";
+import Checkbox from "../../components/Checkbox.jsx";
 import Input from "../../components/Input.jsx";
 import Textarea from "../../components/Textarea.jsx";
 import { useForm } from "../../hooks/useForm.js";
@@ -27,6 +28,7 @@ export default function ProfileForm({ perfil, onCancel, onSaved }) {
       titular: perfil.titular ?? "",
       biografia: perfil.biografia ?? "",
       sitioWeb: perfil.sitioWeb ?? "",
+      esPrivado: Boolean(perfil.esPrivado),
     },
     validate: validateProfile,
     onSubmit: save,
@@ -64,6 +66,7 @@ export default function ProfileForm({ perfil, onCancel, onSaved }) {
       biografia: values.biografia.trim() || null,
       sitioWeb: values.sitioWeb.trim() || null,
       fotoArchivoId,
+      esPrivado: values.esPrivado,
     });
     onSaved(saved);
   }
@@ -150,6 +153,18 @@ export default function ProfileForm({ perfil, onCancel, onSaved }) {
         onChange={form.handleChange}
         error={form.errors.sitioWeb}
       />
+      <div className="stack stack--xs">
+        <Checkbox
+          label="Cuenta privada"
+          name="esPrivado"
+          checked={form.values.esPrivado}
+          onChange={form.handleChange}
+        />
+        <p className="text-muted text-sm">
+          Quien quiera seguirte te enviará una solicitud, y solo tus seguidores verán tus
+          publicaciones.
+        </p>
+      </div>
 
       <div className="cluster">
         <Button type="submit" isLoading={form.isSubmitting}>

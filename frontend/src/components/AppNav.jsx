@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Compass, FolderOpen, House, LogOut, Newspaper, SquarePlus } from "lucide-react";
+import { Compass, FolderOpen, House, LogOut, Newspaper, SquarePlus, UserPlus } from "lucide-react";
 import { ROUTES, userProfilePath } from "../constants/routes.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { classNames } from "../utils/classNames.js";
@@ -13,7 +13,7 @@ import styles from "./AppNav.module.css";
  * Navegación de la app: barra lateral desde tablet (solo íconos) y escritorio (con textos);
  * en móvil, barra superior con el logo y barra inferior con las secciones.
  */
-export default function AppNav({ onCreate }) {
+export default function AppNav({ onCreate, requestsCount = 0 }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -68,6 +68,7 @@ export default function AppNav({ onCreate }) {
               <span className={styles.label}>Crear</span>
             </button>
           </li>
+          <NavItem to={ROUTES.requests} label="Solicitudes" Icon={UserPlus} badge={requestsCount} />
           <NavItem to={ROUTES.myPosts} label="Mis publicaciones" Icon={Newspaper} />
           <NavItem to={ROUTES.myFiles} label="Mis archivos" Icon={FolderOpen} />
           {profileItem}
@@ -98,7 +99,13 @@ export default function AppNav({ onCreate }) {
               <span className="sr-only">Crear</span>
             </button>
           </li>
-          <NavItem to={ROUTES.myFiles} label="Mis archivos" Icon={FolderOpen} compact />
+          <NavItem
+            to={ROUTES.requests}
+            label="Solicitudes"
+            Icon={UserPlus}
+            badge={requestsCount}
+            compact
+          />
           {user && (
             <NavItem
               to={userProfilePath(user.handle)}
@@ -113,7 +120,7 @@ export default function AppNav({ onCreate }) {
   );
 }
 
-function NavItem({ to, label, Icon, icon, compact = false }) {
+function NavItem({ to, label, Icon, icon, badge = 0, compact = false }) {
   return (
     <li>
       <NavLink
@@ -123,8 +130,18 @@ function NavItem({ to, label, Icon, icon, compact = false }) {
           classNames(compact ? styles.bottomLink : styles.link, isActive && styles.active)
         }
       >
-        {icon ?? <Icon aria-hidden="true" className={styles.icon} />}
-        <span className={compact ? "sr-only" : styles.label}>{label}</span>
+        <span className={styles.iconWrap}>
+          {icon ?? <Icon aria-hidden="true" className={styles.icon} />}
+          {badge > 0 && (
+            <b className={styles.badge} aria-hidden="true">
+              {badge > 9 ? "9+" : badge}
+            </b>
+          )}
+        </span>
+        <span className={compact ? "sr-only" : styles.label}>
+          {label}
+          {badge > 0 && <span className="sr-only"> ({badge} pendientes)</span>}
+        </span>
       </NavLink>
     </li>
   );
