@@ -1,7 +1,6 @@
 import { FileText } from "lucide-react";
 import styles from "./Post.module.css";
 
-/** Muestra el adjunto de una publicación: la imagen, o un enlace si es PDF. */
 export default function PostAttachment({ url, mimeType, alt }) {
   if (!url) return null;
 

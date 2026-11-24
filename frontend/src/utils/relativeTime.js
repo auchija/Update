@@ -11,7 +11,6 @@ const UNITS = [
   ["minute", 60],
 ];
 
-/** "hace 5 minutos", "ayer", "hace 3 semanas"… Pasado un mes muestra la fecha corta. */
 export function timeAgo(date, now = Date.now()) {
   const value = new Date(date);
   const seconds = Math.round((value.getTime() - now) / 1000);
@@ -22,12 +21,10 @@ export function timeAgo(date, now = Date.now()) {
   return relative.format(Math.round(seconds / size), unit);
 }
 
-/** Fecha completa para el atributo title. */
 export function formatFullDate(date) {
   return fullDate.format(new Date(date));
 }
 
-/** 1234 → "1,2 mil"; los números pequeños quedan igual. */
 export function formatCount(value) {
   return new Intl.NumberFormat("es-CO", { notation: "compact", maximumFractionDigits: 1 }).format(
     value ?? 0,

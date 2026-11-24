@@ -3,10 +3,6 @@ import FullPageLoader from "../components/FullPageLoader.jsx";
 import { DEFAULT_PRIVATE_ROUTE } from "../constants/routes.js";
 import { useAuth } from "../hooks/useAuth.js";
 
-/**
- * Para login y registro: si ya hay sesión, envía a la app.
- * Si se llegó aquí desde una página privada, vuelve a esa página.
- */
 export default function PublicOnlyRoute() {
   const { status } = useAuth();
   const location = useLocation();

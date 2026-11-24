@@ -5,7 +5,6 @@
   background: var(--background);
 }
 
-/* ── Form side (left on desktop) ───────────────────────── */
 .formSide {
   width: 100%;
   display: flex;
@@ -48,7 +47,6 @@
   color: var(--foreground);
 }
 
-/* ── Heading ───────────────────────────────────────────── */
 .heading {
   display: grid;
   gap: 0.5rem;
@@ -63,7 +61,6 @@
   color: var(--foreground);
 }
 
-/* ── Form controls ─────────────────────────────────────── */
 .form {
   display: grid;
   gap: 1rem;
@@ -109,14 +106,12 @@
   }
 }
 
-/* ── Switch / footer link ──────────────────────────────── */
 .switch {
   font-size: var(--text-sm);
   text-align: center;
   color: var(--foreground-muted);
 }
 
-/* ── Testimonials side (right on desktop) ──────────────── */
 .panelSide {
   display: none;
   position: relative;
@@ -156,6 +151,7 @@
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-50%);
   }
@@ -246,7 +242,6 @@
   z-index: 10;
 }
 
-/* ── Responsive ────────────────────────────────────────── */
 @media (min-width: 64rem) {
   .formSide {
     width: 50%;

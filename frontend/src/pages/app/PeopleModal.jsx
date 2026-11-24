@@ -10,7 +10,6 @@ import { PEOPLE_PAGE_SIZE } from "../../services/comunidadService.js";
 import FollowButton from "./FollowButton.jsx";
 import styles from "./PeopleModal.module.css";
 
-/** Ventana con una lista de perfiles (seguidores o seguidos). `fetchPage(pagina)` la carga. */
 export default function PeopleModal({ title, fetchPage, emptyText, onClose }) {
   return (
     <Modal open onClose={onClose} title={title}>

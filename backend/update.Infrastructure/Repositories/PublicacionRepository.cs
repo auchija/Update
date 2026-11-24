@@ -6,7 +6,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de publicaciones.</summary>
 public sealed class PublicacionRepository(ApplicationDbContext contexto) : GenericRepository<Publicacion>(contexto), IPublicacionRepository
 {
     public async Task<IReadOnlyList<Publicacion>> ObtenerPorPerfilAutorIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)
@@ -16,11 +15,9 @@ public sealed class PublicacionRepository(ApplicationDbContext contexto) : Gener
     {
         if (pagina < 1 || pagina > 100000 || tamanoPagina < 1 || tamanoPagina > 100)
             throw new ExcepcionDominio("La página debe estar entre 1 y 100000; el tamaño, entre 1 y 100.");
-        // Las cuentas privadas solo se ven si son del visor o si el visor las sigue (seguimiento aceptado).
         var seguidas = Contexto.Set<Seguimiento>()
             .Where(s => s.UsuarioSeguidorId == visorUsuarioId && s.Estado == EstadoSeguimiento.Activo)
             .Select(s => s.PerfilSeguidoId);
-        // Una sola consulta trae el autor y su foto; el Id desempata publicaciones del mismo instante.
         return await Conjunto.AsNoTracking()
             .Include(e => e.PerfilAutor).ThenInclude(p => p.FotoArchivo)
             .Where(e => e.CreadoPorUsuarioId == usuarioId || (usuarioId == null && e.Visibilidad == VisibilidadPublicacion.Publico

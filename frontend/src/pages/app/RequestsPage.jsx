@@ -15,7 +15,6 @@ import { formatFullDate, timeAgo } from "../../utils/relativeTime.js";
 import FollowButton from "./FollowButton.jsx";
 import styles from "./RequestsPage.module.css";
 
-/** Solicitudes para seguir mi cuenta: confirmar o eliminar, y seguir de vuelta a quien acepté. */
 export default function RequestsPage() {
   const { refreshRequests } = useOutletContext();
   const [requests, setRequests] = useState(null);

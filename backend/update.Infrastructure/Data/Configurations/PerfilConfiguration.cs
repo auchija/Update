@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla perfiles y sus restricciones.</summary>
 public sealed class PerfilConfiguration : IEntityTypeConfiguration<Perfil>
 {
     public void Configure(EntityTypeBuilder<Perfil> builder)

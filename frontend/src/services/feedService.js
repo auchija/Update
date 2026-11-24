@@ -32,7 +32,6 @@ export function subirArchivoPublicacion(archivo) {
   return subirImagen(archivo, "publicacion");
 }
 
-/** Da o quita el "me gusta"; devuelve { meGusta, totalReacciones }. */
 export function marcarMeGusta(id, meGusta) {
   return apiRequest(`/feed/${id}/me-gusta`, { method: meGusta ? "POST" : "DELETE" });
 }

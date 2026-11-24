@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla conversaciones y sus restricciones.</summary>
 public sealed class ConversacionConfiguration : IEntityTypeConfiguration<Conversacion>
 {
     public void Configure(EntityTypeBuilder<Conversacion> builder)

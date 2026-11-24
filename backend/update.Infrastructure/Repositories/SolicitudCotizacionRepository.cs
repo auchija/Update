@@ -4,7 +4,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de solicitudes_cotizacion.</summary>
 public sealed class SolicitudCotizacionRepository(ApplicationDbContext contexto) : GenericRepository<SolicitudCotizacion>(contexto), ISolicitudCotizacionRepository
 {
     public async Task<IReadOnlyList<SolicitudCotizacion>> ObtenerPorEmprendimientoIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

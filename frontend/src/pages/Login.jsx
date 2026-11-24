@@ -22,7 +22,6 @@ export default function Login() {
 
   async function signIn({ identifier, password }) {
     try {
-      // Al iniciar sesión, PublicOnlyRoute redirige solo a la app.
       await login(identifier.trim(), password);
     } catch (error) {
       form.setFieldValue("password", "");

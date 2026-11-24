@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla historial_solicitudes y sus restricciones.</summary>
 public sealed class HistorialSolicitudConfiguration : IEntityTypeConfiguration<HistorialSolicitud>
 {
     public void Configure(EntityTypeBuilder<HistorialSolicitud> builder)

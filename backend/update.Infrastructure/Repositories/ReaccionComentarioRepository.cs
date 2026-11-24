@@ -4,7 +4,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de reacciones_comentario.</summary>
 public sealed class ReaccionComentarioRepository(ApplicationDbContext contexto) : GenericRepository<ReaccionComentario>(contexto), IReaccionComentarioRepository
 {
     public async Task<IReadOnlyList<ReaccionComentario>> ObtenerPorComentarioIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

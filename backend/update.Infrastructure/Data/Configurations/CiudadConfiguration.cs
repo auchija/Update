@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla ciudades y sus restricciones.</summary>
 public sealed class CiudadConfiguration : IEntityTypeConfiguration<Ciudad>
 {
     public void Configure(EntityTypeBuilder<Ciudad> builder)

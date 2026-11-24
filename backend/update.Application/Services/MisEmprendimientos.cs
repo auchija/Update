@@ -12,7 +12,6 @@ public sealed record DatosEmprendimiento(
     EtapaEmprendimiento Etapa,
     Guid? PortadaArchivoId);
 
-/// <summary>PortadaUrl sale como ruta relativa ("/uploads/..."); el controlador la completa con el host de la API.</summary>
 public sealed record VistaEmprendimiento(Guid Id, string Nombre, int CategoriaId, EtapaEmprendimiento Etapa, Guid? PortadaArchivoId, string? PortadaUrl);
 
 public sealed record CategoriaResumen(int Id, string Nombre, string Slug);

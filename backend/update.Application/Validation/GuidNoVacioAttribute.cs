@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 namespace update.Application.Validation;
 
-/// <summary>Impide UUID vacío en relaciones y claves asignadas por el cliente.</summary>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class GuidNoVacioAttribute : ValidationAttribute
 {

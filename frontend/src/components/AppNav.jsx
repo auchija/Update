@@ -9,10 +9,6 @@ import Logo from "./Logo.jsx";
 import ThemeToggle from "./ThemeToggle.jsx";
 import styles from "./AppNav.module.css";
 
-/**
- * Navegación de la app: barra lateral desde tablet (solo íconos) y escritorio (con textos);
- * en móvil, barra superior con el logo y barra inferior con las secciones.
- */
 export default function AppNav({ onCreate, requestsCount = 0 }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();

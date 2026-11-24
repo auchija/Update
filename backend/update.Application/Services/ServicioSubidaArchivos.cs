@@ -20,7 +20,6 @@ public sealed class ServicioSubidaArchivos(IArchivoRepository archivos, Opciones
     private static readonly FormatoImagen Png = new("image/png", "png", [".png"]);
     private static readonly FormatoImagen Webp = new("image/webp", "webp", [".webp"]);
 
-    // Lo que el cliente envía en el campo "proposito"; sin campo se asume foto de perfil.
     private static readonly Dictionary<string, PropositoArchivo> Propositos = new()
     {
         ["foto_perfil"] = PropositoArchivo.FotoPerfil,

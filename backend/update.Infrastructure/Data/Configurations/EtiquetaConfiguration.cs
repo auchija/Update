@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla etiquetas y sus restricciones.</summary>
 public sealed class EtiquetaConfiguration : IEntityTypeConfiguration<Etiqueta>
 {
     public void Configure(EntityTypeBuilder<Etiqueta> builder)

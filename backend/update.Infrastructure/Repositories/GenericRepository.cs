@@ -5,7 +5,6 @@ using update.Domain.Exceptions;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Acceso a datos genérico; no entrega IQueryable fuera de Infrastructure.</summary>
 public class GenericRepository<T>(ApplicationDbContext contexto) : IRepository<T> where T : class, IEntidadValidable
 {
     protected readonly ApplicationDbContext Contexto = contexto;
@@ -20,7 +19,6 @@ public class GenericRepository<T>(ApplicationDbContext contexto) : IRepository<T
             throw new ExcepcionDominio("La página debe estar entre 1 y 100000; el tamaño, entre 1 y 100.");
         IQueryable<T> consulta = Conjunto.AsNoTracking().Where(criterio);
         var clave = Contexto.Model.FindEntityType(typeof(T))!.FindPrimaryKey()!;
-        // Orden determinista por la PK completa; evita paginación sin ORDER BY.
         var primera = true;
         foreach (var propiedad in clave.Properties)
         {
@@ -49,7 +47,6 @@ public class GenericRepository<T>(ApplicationDbContext contexto) : IRepository<T
             condicion = condicion is null ? igualdad : Expression.AndAlso(condicion, igualdad);
         }
         var criterio = Expression.Lambda<Func<T, bool>>(condicion!, parametro);
-        // FindAsync puede devolver entidades rastreadas saltándose el filtro de borrado lógico.
         return await Conjunto.FirstOrDefaultAsync(criterio, cancellationToken);
     }
 

@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla paises y sus restricciones.</summary>
 public sealed class PaisConfiguration : IEntityTypeConfiguration<Pais>
 {
     public void Configure(EntityTypeBuilder<Pais> builder)

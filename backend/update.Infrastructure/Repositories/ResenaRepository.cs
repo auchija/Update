@@ -4,7 +4,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de resenas.</summary>
 public sealed class ResenaRepository(ApplicationDbContext contexto) : GenericRepository<Resena>(contexto), IResenaRepository
 {
     public async Task<IReadOnlyList<Resena>> ObtenerPorUsuarioResenadorIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

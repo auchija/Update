@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla usuario_tipos_persona y sus restricciones.</summary>
 public sealed class UsuarioTipoPersonaConfiguration : IEntityTypeConfiguration<UsuarioTipoPersona>
 {
     public void Configure(EntityTypeBuilder<UsuarioTipoPersona> builder)

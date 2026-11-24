@@ -31,7 +31,6 @@ export function getRelacionados(handle, cantidad = 8) {
   return apiRequest(`/comunidad/perfiles/${enRuta(handle)}/relacionados?cantidad=${cantidad}`);
 }
 
-/** Sigue (o envía solicitud) o deja de seguir; devuelve { loSigo, solicitudPendiente, totalSeguidores }. */
 export function seguirPerfil(handle, seguir) {
   return apiRequest(`/comunidad/perfiles/${enRuta(handle)}/seguir`, {
     method: seguir ? "POST" : "DELETE",
@@ -42,7 +41,6 @@ export function getSugerencias(cantidad = 10) {
   return apiRequest(`/comunidad/sugerencias?cantidad=${cantidad}`);
 }
 
-/** Solicitudes para seguir mi cuenta: [{ perfil, creadoEn }]. */
 export function getSolicitudes() {
   return apiRequest("/comunidad/solicitudes");
 }

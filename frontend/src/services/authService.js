@@ -15,11 +15,6 @@ export async function register(form) {
   return data.user;
 }
 
-/**
- * Recupera la sesión al abrir o recargar la página.
- * El backend lee la cookie de renovación y responde con un token nuevo.
- * Devuelve el usuario si había sesión, o null si no la había.
- */
 export async function restoreSession() {
   try {
     const data = await apiRequest("/auth/refresh", { method: "POST", retryOnExpiredToken: false });

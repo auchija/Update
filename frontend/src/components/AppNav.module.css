@@ -1,5 +1,3 @@
-/* Móvil: barra superior + barra inferior. Desde 48rem: barra lateral de íconos; desde 80rem, con textos. */
-
 .topBar {
   position: sticky;
   top: 0;
@@ -130,7 +128,6 @@
     padding-inline: 0.5rem;
   }
 
-  /* Con la barra estrecha solo se ve el símbolo del logo. */
   .brand :global(a) span {
     display: none;
   }
@@ -197,7 +194,6 @@
     margin-top: auto;
   }
 
-  /* El selector de tema no cabe en la barra estrecha; vuelve con los textos. */
   .footer > :first-child {
     display: none;
   }

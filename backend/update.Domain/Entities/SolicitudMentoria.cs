@@ -6,38 +6,24 @@ using update.Domain.Enums;
 using update.Domain.Interfaces;
 namespace update.Domain.Entities;
 
-/// <summary>Representa un registro de la tabla solicitudes_mentoria.</summary>
 public sealed class SolicitudMentoria : BaseEntity, IEntidadValidable
 {
-    /// <summary>Columna oferta_id (uuid); obligatoria.</summary>
     public Guid OfertaId { get; set; }
-    /// <summary>Columna perfil_mentoreado_id (uuid); obligatoria.</summary>
     public Guid PerfilMentoreadoId { get; set; }
-    /// <summary>Columna creado_por_usuario_id (uuid); obligatoria.</summary>
     public Guid CreadoPorUsuarioId { get; set; }
-    /// <summary>Columna mensaje (text); obligatoria.</summary>
     public string Mensaje { get; set; } = string.Empty;
-    /// <summary>Columna estado (estado_mentoria); obligatoria.</summary>
     public EstadoMentoria Estado { get; set; } = EstadoMentoria.Solicitado;
-    /// <summary>Columna agendado_en (timestamptz); opcional.</summary>
     public DateTime? AgendadoEn { get; set; }
-    /// <summary>Columna url_reunion (text); opcional.</summary>
     public string? UrlReunion { get; set; }
-    /// <summary>Columna calificacion_mentoreado (smallint); opcional.</summary>
     public short? CalificacionMentoreado { get; set; }
-    /// <summary>Columna comentario_mentoreado (text); opcional.</summary>
     public string? ComentarioMentoreado { get; set; }
-    /// <summary>Relación hacia ofertas_mentoria mediante oferta_id.</summary>
     [JsonIgnore]
     public OfertaMentoria Oferta { get; set; } = null!;
-    /// <summary>Relación hacia perfiles mediante perfil_mentoreado_id.</summary>
     [JsonIgnore]
     public Perfil PerfilMentoreado { get; set; } = null!;
-    /// <summary>Relación hacia usuarios mediante creado_por_usuario_id.</summary>
     [JsonIgnore]
     public Usuario CreadoPorUsuario { get; set; } = null!;
 
-    /// <summary>Comprueba las reglas de entrada antes de guardar.</summary>
     public void Validar()
     {
         Reglas.Exigir(OfertaId != Guid.Empty, "OfertaId es obligatorio.");

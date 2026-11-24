@@ -6,7 +6,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de usuarios.</summary>
 public sealed class UsuarioRepository(ApplicationDbContext contexto) : GenericRepository<Usuario>(contexto), IUsuarioRepository
 {
     public async Task<IReadOnlyList<Usuario>> ObtenerPorIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

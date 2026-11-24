@@ -4,7 +4,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de productos.</summary>
 public sealed class ProductoRepository(ApplicationDbContext contexto) : GenericRepository<Producto>(contexto), IProductoRepository
 {
     public async Task<IReadOnlyList<Producto>> ObtenerPorEmprendimientoIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

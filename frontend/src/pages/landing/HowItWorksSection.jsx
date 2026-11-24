@@ -71,7 +71,6 @@ export default function HowItWorksSection() {
     offset: ["start start", "end end"],
   });
 
-  // useTransform with function form reads from ref each tick — no stale closure
   const x = useTransform(scrollYProgress, (p) => -p * scrollDistanceRef.current);
 
   useEffect(() => {

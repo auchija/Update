@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla monedas y sus restricciones.</summary>
 public sealed class MonedaConfiguration : IEntityTypeConfiguration<Moneda>
 {
     public void Configure(EntityTypeBuilder<Moneda> builder)

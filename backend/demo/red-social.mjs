@@ -1,15 +1,3 @@
-// Llena la red social con cuentas de ejemplo: perfiles con foto, publicaciones con imágenes,
-// "me gusta", comentarios y seguidores. Pasa por la API (respeta todas las validaciones)
-// y se puede correr varias veces: lo que ya existe no se duplica.
-//
-// Las fotos se descargan de picsum.photos (catálogo libre de fotos de Unsplash) por su id.
-//
-// Uso:
-//   UPDATE_DEMO_CLAVE=<clave de las cuentas demo> node backend/demo/red-social.mjs
-// Variables:
-//   UPDATE_API          por defecto http://localhost:5195
-//   UPDATE_DEMO_CLAVE   clave de todas las cuentas demo (mínimo 8 caracteres, letra y número)
-//   UPDATE_DEMO_CONFIRMAR=si   obligatorio si la API no es local (para no llenar otra base por error)
 
 const base = (process.env.UPDATE_API ?? "http://localhost:5195").replace(/\/$/, "");
 const clave = process.env.UPDATE_DEMO_CLAVE;
@@ -24,8 +12,6 @@ if (!esLocal && process.env.UPDATE_DEMO_CONFIRMAR !== "si") {
   process.exit(1);
 }
 
-// ---------- Datos ----------
-// foto: id de picsum. Las publicaciones sin foto son de solo texto.
 
 const CUENTAS = [
   {
@@ -165,12 +151,10 @@ const CUENTAS = [
   },
 ];
 
-// Cuenta privada: quiénes ya fueron aceptados y quiénes siguen con la solicitud pendiente.
 const PRIVADA = "camila.torres";
 const SEGUIDORES_ACEPTADOS = ["valentina.rios", "laura.gomez", "sofia.cardenas"];
 const SOLICITUDES_PENDIENTES = ["andres.mejia", "cafe.origen", "mateo.londono"];
 
-// Quién sigue a quién (además, todos siguen a las cuentas de mentoría).
 const SEGUIMIENTOS = {
   "cafe.origen": ["huerta.viva", "dulce.antojo", "andres.mejia", "sofia.cardenas"],
   "valentina.rios": ["dulce.antojo", "cuero.artesanal", "sofia.cardenas", "cafe.origen"],
@@ -185,7 +169,6 @@ const SEGUIMIENTOS = {
 };
 const MENTORES = ["laura.gomez", "mateo.londono"];
 
-// Comentarios: [cuenta dueña, índice de su publicación, quién comenta, texto]
 const COMENTARIOS = [
   ["cafe.origen", 0, "dulce.antojo", "¡Yo voy a la cata! ¿Puedo llevar postres para maridar? 🍰"],
   ["cafe.origen", 0, "andres.mejia", "Ese lote de Trujillo es otra cosa."],
@@ -214,8 +197,6 @@ const COMENTARIOS = [
   ["mateo.londono", 2, "andres.mejia", "¡Gran tarde! Gracias por el espacio."],
 ];
 
-// ---------- API ----------
-
 async function api(ruta, { metodo = "GET", json, form, token } = {}) {
   const headers = {};
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -228,7 +209,6 @@ async function api(ruta, { metodo = "GET", json, form, token } = {}) {
   }
   for (let intento = 1; ; intento++) {
     const respuesta = await fetch(`${base}/api${ruta}`, { method: metodo, headers, body });
-    // Render (plan gratis) puede tardar en despertar: se reintenta un par de veces.
     if (respuesta.status >= 502 && intento < 4) {
       await new Promise((r) => setTimeout(r, 5000 * intento));
       continue;
@@ -278,8 +258,6 @@ async function sesion(cuenta) {
   console.log(`  cuenta creada: @${cuenta.handle}`);
   return r.accessToken;
 }
-
-// ---------- Sembrar ----------
 
 const tokens = {};
 const publicaciones = {};
@@ -336,19 +314,15 @@ for (const handle of SEGUIDORES_ACEPTADOS) {
   try {
     await api(`/comunidad/solicitudes/${handle}/aceptar`, { metodo: "POST", token: tokens[PRIVADA] });
   } catch (error) {
-    // 404: ya estaba aceptada de una corrida anterior.
     if (error.status !== 404) throw error;
   }
 }
 
 console.log("Me gusta…");
-// Cada publicación recibe "me gusta" de una parte de las cuentas (siempre las mismas, para que
-// volver a correr el script no cambie nada).
 const handles = CUENTAS.map((c) => c.handle);
 for (const [dueno, ids] of Object.entries(publicaciones)) {
   for (const [i, id] of ids.entries()) {
     const cantidad = 3 + ((dueno.length + i * 3) % (handles.length - 2));
-    // Una cuenta privada solo recibe "me gusta" de sus seguidores aceptados.
     const posibles = dueno === PRIVADA ? SEGUIDORES_ACEPTADOS : handles.filter((h) => h !== dueno);
     const fans = posibles.slice(0, cantidad);
     for (const fan of fans) await api(`/feed/${id}/me-gusta`, { metodo: "POST", token: tokens[fan] });

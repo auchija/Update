@@ -6,7 +6,6 @@
 
 .feed {
   display: grid;
-  /* minmax(0, 1fr): la fila deslizable de perfiles no debe ensanchar la columna. */
   grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 1rem;
@@ -14,8 +13,6 @@
   max-width: 30rem;
   min-width: 0;
 }
-
-/* ---------- Emprendedores destacados (fila deslizable) ---------- */
 
 .highlights {
   margin-inline: -0.25rem;
@@ -66,8 +63,6 @@
   white-space: nowrap;
 }
 
-/* ---------- Caja para publicar ---------- */
-
 .composer {
   display: flex;
   align-items: center;
@@ -116,8 +111,6 @@
 .composerIcon:hover {
   background: var(--primary-soft);
 }
-
-/* ---------- Columna derecha: mi cuenta y sugerencias ---------- */
 
 .aside {
   display: none;

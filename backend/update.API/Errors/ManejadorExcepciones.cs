@@ -5,7 +5,6 @@ using Npgsql;
 using update.Domain.Exceptions;
 namespace update.API.Errors;
 
-/// <summary>Respuestas ProblemDetails sin divulgar SQL, credenciales o detalles internos.</summary>
 public sealed class ManejadorExcepciones(IProblemDetailsService problemas, ILogger<ManejadorExcepciones> logger) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext contexto, Exception excepcion, CancellationToken cancellationToken)

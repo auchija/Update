@@ -31,10 +31,6 @@ const TYPE_LABELS = {
 
 const dateFormat = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
 
-/**
- * Historial de archivos: los metadatos vienen de la BD (nombre, peso, tipo, fecha)
- * y el archivo físico se abre desde el Storage con su URL.
- */
 export default function MyFilesPage() {
   const list = usePaginatedList(getMisArchivos, ARCHIVOS_PAGE_SIZE);
   const [notice, setNotice] = useState(null);

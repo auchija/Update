@@ -3,18 +3,12 @@ import { seguirPerfil } from "../../services/comunidadService.js";
 import { classNames } from "../../utils/classNames.js";
 import styles from "./FollowButton.module.css";
 
-/**
- * Botón Seguir / Solicitado / Siguiendo. `person` es un perfil de la API.
- * Muestra el cambio al instante y lo deshace si el servidor falla.
- * `onChange({ loSigo, solicitudPendiente, totalSeguidores? })` avisa al padre.
- */
 export default function FollowButton({ person, onChange, variant = "solid", onError }) {
   const [isSending, setIsSending] = useState(false);
   const { loSigo, solicitudPendiente, esPrivado, nombreUsuario } = person;
   const isActive = loSigo || solicitudPendiente;
 
   async function toggle() {
-    // Dejar de seguir una cuenta privada quita el acceso: para volver hay que pedirlo otra vez.
     if (
       loSigo &&
       esPrivado &&

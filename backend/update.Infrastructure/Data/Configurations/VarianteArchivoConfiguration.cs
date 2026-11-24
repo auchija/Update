@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla variantes_archivo y sus restricciones.</summary>
 public sealed class VarianteArchivoConfiguration : IEntityTypeConfiguration<VarianteArchivo>
 {
     public void Configure(EntityTypeBuilder<VarianteArchivo> builder)

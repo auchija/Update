@@ -2,13 +2,8 @@ import { useEffect, useId, useRef } from "react";
 import { X } from "lucide-react";
 import styles from "./Modal.module.css";
 
-/**
- * Ventana modal con <dialog>: el navegador se encarga del foco, de Escape y del fondo inerte.
- * Se cierra con la X, con Escape o haciendo clic fuera del contenido.
- */
 export default function Modal({ open, onClose, title, children }) {
   const dialogRef = useRef(null);
-  // Puede haber varias ventanas en la página: cada título necesita su propio id.
   const titleId = useId();
 
   useEffect(() => {
@@ -19,7 +14,6 @@ export default function Modal({ open, onClose, title, children }) {
   }, [open]);
 
   function handleClick(event) {
-    // El clic en el fondo llega al propio <dialog>; dentro del contenido llega a sus hijos.
     if (event.target === dialogRef.current) onClose();
   }
 

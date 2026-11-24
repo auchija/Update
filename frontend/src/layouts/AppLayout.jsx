@@ -8,12 +8,6 @@ import PostForm from "../pages/app/PostForm.jsx";
 import { getSolicitudes } from "../services/comunidadService.js";
 import styles from "./AppLayout.module.css";
 
-/**
- * Estructura común de las páginas privadas: navegación, contenido en <Outlet />
- * y la ventana "Nueva publicación", que se abre desde cualquier página.
- * Las páginas reciben por useOutletContext: openComposer(), postsVersion (cambia
- * cada vez que se publica algo) y refreshRequests() (actualiza el contador de solicitudes).
- */
 export default function AppLayout() {
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [postsVersion, setPostsVersion] = useState(0);
@@ -24,7 +18,6 @@ export default function AppLayout() {
   const refreshRequests = useCallback(() => {
     getSolicitudes()
       .then((data) => setRequestsCount(data.length))
-      // El contador es un extra: si falla, la navegación sigue funcionando.
       .catch(() => {});
   }, []);
 

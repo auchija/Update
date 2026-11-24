@@ -13,11 +13,6 @@ import { POST_MAX_LENGTH, validatePost } from "../../utils/postValidation.js";
 import PostAttachment from "./PostAttachment.jsx";
 import styles from "./Post.module.css";
 
-/**
- * Crea una publicación o, si recibe `post`, la edita.
- * Persistencia dual: primero se sube el archivo (Storage + metadatos en BD)
- * y luego se guarda la publicación con el id de ese archivo.
- */
 export default function PostForm({ post, onSaved, onCancel }) {
   const isEditing = Boolean(post);
   const [file, setFile] = useState(null);
@@ -38,7 +33,6 @@ export default function PostForm({ post, onSaved, onCancel }) {
   async function save(values) {
     let imagenArchivoId = keepCurrentFile ? post.imagenArchivoId : null;
     if (file) {
-      // Si falla el segundo paso, al reintentar no se vuelve a subir el mismo archivo.
       uploadedFileId.current ??= (await subirArchivoPublicacion(file)).id;
       imagenArchivoId = uploadedFileId.current;
     }

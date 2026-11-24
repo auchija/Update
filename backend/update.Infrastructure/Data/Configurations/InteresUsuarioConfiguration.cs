@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla intereses_usuario y sus restricciones.</summary>
 public sealed class InteresUsuarioConfiguration : IEntityTypeConfiguration<InteresUsuario>
 {
     public void Configure(EntityTypeBuilder<InteresUsuario> builder)

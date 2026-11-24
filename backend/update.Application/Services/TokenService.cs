@@ -26,7 +26,6 @@ public sealed class TokenService(IConfiguration configuration)
     {
         new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, usuario.Correo),
-        // Mismo formato que el JSON y la base ("administrador"); la política de roles distingue mayúsculas.
         new Claim("rol", JsonNamingPolicy.SnakeCaseLower.ConvertName(usuario.RolPlataforma.ToString()))
     };
 

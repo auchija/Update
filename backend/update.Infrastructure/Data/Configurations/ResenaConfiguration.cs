@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla resenas y sus restricciones.</summary>
 public sealed class ResenaConfiguration : IEntityTypeConfiguration<Resena>
 {
     public void Configure(EntityTypeBuilder<Resena> builder)

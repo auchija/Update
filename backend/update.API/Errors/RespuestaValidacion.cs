@@ -2,10 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace update.API.Errors;
 
-/// <summary>
-/// Respuesta 400 con el mismo formato que los 409: un mensaje general y un mensaje por campo
-/// ({ "password": "..." }), que es lo que el frontend pinta debajo de cada input.
-/// </summary>
 public static class RespuestaValidacion
 {
     public static IActionResult Crear(ActionContext contexto)
@@ -35,7 +31,6 @@ public static class RespuestaValidacion
         return new BadRequestObjectResult(problema) { ContentTypes = { "application/problem+json" } };
     }
 
-    // Las claves llegan como "password" o, si falla la lectura del JSON, como "$.password" o "$".
     private static string? NombreCampo(string clave)
     {
         var limpia = clave.StartsWith("$.") ? clave[2..] : clave;

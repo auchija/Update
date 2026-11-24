@@ -8,7 +8,6 @@ using update.Infrastructure.Repositories;
 using update.Application.Services;
 namespace update.Infrastructure;
 
-/// <summary>Registro explícito de repositorios y contexto, sin reflexión ni paquetes auxiliares.</summary>
 public static class DependencyInjection
 {
     public static IServiceCollection AgregarInfraestructura(this IServiceCollection servicios, string cadenaConexion)

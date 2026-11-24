@@ -21,10 +21,8 @@ import PostGrid from "./PostGrid.jsx";
 import RelatedProfiles from "./RelatedProfiles.jsx";
 import styles from "./UserProfilePage.module.css";
 
-/** Perfil público (/u/:handle): cabecera con contadores, seguir y la cuadrícula de publicaciones. */
 export default function UserProfilePage() {
   const { handle } = useParams();
-  // `key` reinicia el estado al pasar de un perfil a otro.
   return <ProfileView key={handle} handle={handle} />;
 }
 
@@ -34,7 +32,6 @@ function ProfileView({ handle }) {
   const [loadError, setLoadError] = useState("");
   const [notice, setNotice] = useState("");
   const [openList, setOpenList] = useState(null);
-  // Cambia al cerrar una lista: ahí se pudo seguir a alguien y los contadores ya no coinciden.
   const [profileVersion, setProfileVersion] = useState(0);
 
   const fetchPosts = useCallback((pagina) => getPublicacionesDePerfil(handle, pagina), [handle]);
@@ -82,7 +79,6 @@ function ProfileView({ handle }) {
     );
   }
 
-  // Se calcula aquí (no con el dato del servidor) para que cambie apenas se deja de seguir.
   const canSeeContent = !profile.esPrivado || profile.esMio || profile.loSigo;
 
   return (
@@ -248,7 +244,6 @@ function ProfileView({ handle }) {
   );
 }
 
-/** Contador que abre su lista; en una cuenta privada sin acceso es solo texto. */
 function StatButton({ enabled, onClick, children }) {
   if (!enabled) return <span>{children}</span>;
   return (

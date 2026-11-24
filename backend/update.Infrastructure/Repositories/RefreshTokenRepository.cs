@@ -5,7 +5,6 @@ using update.Infrastructure.Data;
 
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de tokens de actualización.</summary>
 public sealed class RefreshTokenRepository(ApplicationDbContext contexto)
     : IRefreshTokenRepository
 {

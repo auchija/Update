@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla tipos_reaccion y sus restricciones.</summary>
 public sealed class TipoReaccionConfiguration : IEntityTypeConfiguration<TipoReaccion>
 {
     public void Configure(EntityTypeBuilder<TipoReaccion> builder)

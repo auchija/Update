@@ -12,11 +12,6 @@ import styles from "./Post.module.css";
 
 const LONG_CAPTION = 140;
 
-/**
- * Publicación al estilo de una red social: autor, foto, acciones ("me gusta", comentar,
- * compartir), contador, texto y comentarios. Doble clic en la foto también da "me gusta".
- * `onChange(post)` avisa a la lista cuando cambian los contadores.
- */
 export default function PostCard({
   post,
   onChange,
@@ -41,7 +36,6 @@ export default function PostCard({
     if (nextValue === post.meGusta) return;
     setLikeError("");
     const previous = post;
-    // Se muestra el cambio al instante y se corrige con lo que responda el servidor.
     onChange({
       ...post,
       meGusta: nextValue,
@@ -75,7 +69,6 @@ export default function PostCard({
       await navigator.clipboard.writeText(url);
       setShareStatus("Enlace copiado");
     } catch (error) {
-      // Cancelar el menú de compartir no es un error que haya que mostrar.
       if (error?.name !== "AbortError") setShareStatus("No pudimos copiar el enlace");
     }
     window.setTimeout(() => setShareStatus(""), 2500);
@@ -207,7 +200,6 @@ export default function PostCard({
   );
 }
 
-/** Menú "⋯" con Editar y Eliminar, solo en las publicaciones propias. */
 function PostMenu({ onEdit, onDelete, isDeleting }) {
   const menuRef = useRef(null);
 

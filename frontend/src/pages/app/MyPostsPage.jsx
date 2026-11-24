@@ -7,7 +7,6 @@ import { FEED_PAGE_SIZE, getMisPublicaciones } from "../../services/feedService.
 import PostList from "./PostList.jsx";
 import styles from "./MyPostsPage.module.css";
 
-/** Historial: solo las publicaciones del usuario con sesión, con editar y eliminar. */
 export default function MyPostsPage() {
   const { openComposer, postsVersion } = useOutletContext();
   const list = usePaginatedList(getMisPublicaciones, FEED_PAGE_SIZE, postsVersion);

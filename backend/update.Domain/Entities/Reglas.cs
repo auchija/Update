@@ -1,7 +1,6 @@
 using update.Domain.Exceptions;
 namespace update.Domain.Entities;
 
-/// <summary>Validaciones compartidas, independientes de Entity Framework.</summary>
 public static class Reglas
 {
     public static void Exigir(bool condicion, string mensaje)

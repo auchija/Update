@@ -4,11 +4,6 @@ import { postPath } from "../../constants/routes.js";
 import { formatCount } from "../../utils/relativeTime.js";
 import styles from "./PostGrid.module.css";
 
-/**
- * Cuadrícula de publicaciones (Explorar y perfiles). Cada celda lleva a la publicación;
- * al pasar el mouse se ven los "me gusta" y comentarios. Las publicaciones de solo texto
- * se muestran como una tarjeta con el inicio del texto.
- */
 export default function PostGrid({ posts }) {
   return (
     <ul className={styles.grid}>

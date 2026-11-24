@@ -6,7 +6,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de seguimientos.</summary>
 public sealed class SeguimientoRepository(ApplicationDbContext contexto) : GenericRepository<Seguimiento>(contexto), ISeguimientoRepository
 {
     public async Task<IReadOnlyList<Seguimiento>> ObtenerPorUsuarioSeguidorIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)
@@ -25,7 +24,6 @@ public sealed class SeguimientoRepository(ApplicationDbContext contexto) : Gener
     public async Task<IReadOnlyList<PerfilRelacion>> ObtenerSeguidoresAsync(Guid perfilId, EstadoSeguimiento estado, int pagina, int tamanoPagina, CancellationToken cancellationToken = default)
     {
         ValidarPagina(pagina, tamanoPagina);
-        // Quien sigue es un usuario; se muestra su perfil de persona.
         return await Conjunto.AsNoTracking()
             .Where(s => s.PerfilSeguidoId == perfilId && s.Estado == estado)
             .Join(PerfilesVisibles(), s => s.UsuarioSeguidorId, p => p.UsuarioId, (s, p) => new { s, p })

@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla tipos_publicacion y sus restricciones.</summary>
 public sealed class TipoPublicacionConfiguration : IEntityTypeConfiguration<TipoPublicacion>
 {
     public void Configure(EntityTypeBuilder<TipoPublicacion> builder)

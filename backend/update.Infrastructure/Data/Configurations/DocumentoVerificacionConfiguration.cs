@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla documentos_verificacion y sus restricciones.</summary>
 public sealed class DocumentoVerificacionConfiguration : IEntityTypeConfiguration<DocumentoVerificacion>
 {
     public void Configure(EntityTypeBuilder<DocumentoVerificacion> builder)

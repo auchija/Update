@@ -7,7 +7,6 @@ import { FEED_PAGE_SIZE, getFeed } from "../../services/feedService.js";
 import PostGrid from "./PostGrid.jsx";
 import styles from "./ExplorePage.module.css";
 
-/** Explorar: todas las publicaciones recientes en cuadrícula; las fotos primero en el ojo. */
 export default function ExplorePage() {
   const { postsVersion } = useOutletContext();
   const list = usePaginatedList(getFeed, FEED_PAGE_SIZE, postsVersion);

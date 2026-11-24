@@ -1,10 +1,6 @@
 import { classNames } from "../utils/classNames.js";
 import styles from "./Avatar.module.css";
 
-/**
- * Foto de perfil o, si no hay, las iniciales.
- * `ring` dibuja el aro con los colores de la marca (perfiles destacados y cabeceras).
- */
 export default function Avatar({ name, src, size = "md", decorative = false, ring = false }) {
   const className = classNames(styles.avatar, styles[size]);
 

@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla reacciones_publicacion y sus restricciones.</summary>
 public sealed class ReaccionPublicacionConfiguration : IEntityTypeConfiguration<ReaccionPublicacion>
 {
     public void Configure(EntityTypeBuilder<ReaccionPublicacion> builder)

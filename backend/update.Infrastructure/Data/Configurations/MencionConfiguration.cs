@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla menciones y sus restricciones.</summary>
 public sealed class MencionConfiguration : IEntityTypeConfiguration<Mencion>
 {
     public void Configure(EntityTypeBuilder<Mencion> builder)

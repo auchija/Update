@@ -23,7 +23,6 @@ public sealed class UnitOfWork(ApplicationDbContext contexto) : IUnitOfWork
 
             await transaccion.CommitAsync(cancellationToken);
             return resultado;
-            // Si ocurre una excepción antes del Commit, DisposeAsync hace rollback.
         });
     }
 }

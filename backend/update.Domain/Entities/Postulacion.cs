@@ -6,30 +6,20 @@ using update.Domain.Enums;
 using update.Domain.Interfaces;
 namespace update.Domain.Entities;
 
-/// <summary>Representa un registro de la tabla postulaciones.</summary>
 public sealed class Postulacion : BaseEntity, IEntidadValidable
 {
-    /// <summary>Columna oportunidad_id (uuid); obligatoria.</summary>
     public Guid OportunidadId { get; set; }
-    /// <summary>Columna perfil_postulante_id (uuid); obligatoria.</summary>
     public Guid PerfilPostulanteId { get; set; }
-    /// <summary>Columna creado_por_usuario_id (uuid); obligatoria.</summary>
     public Guid CreadoPorUsuarioId { get; set; }
-    /// <summary>Columna mensaje (text); obligatoria.</summary>
     public string Mensaje { get; set; } = string.Empty;
-    /// <summary>Columna estado (estado_postulacion); obligatoria.</summary>
     public EstadoPostulacion Estado { get; set; } = EstadoPostulacion.Pendiente;
-    /// <summary>Relación hacia oportunidades mediante oportunidad_id.</summary>
     [JsonIgnore]
     public Oportunidad Oportunidad { get; set; } = null!;
-    /// <summary>Relación hacia perfiles mediante perfil_postulante_id.</summary>
     [JsonIgnore]
     public Perfil PerfilPostulante { get; set; } = null!;
-    /// <summary>Relación hacia usuarios mediante creado_por_usuario_id.</summary>
     [JsonIgnore]
     public Usuario CreadoPorUsuario { get; set; } = null!;
 
-    /// <summary>Comprueba las reglas de entrada antes de guardar.</summary>
     public void Validar()
     {
         Reglas.Exigir(OportunidadId != Guid.Empty, "OportunidadId es obligatorio.");

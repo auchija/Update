@@ -14,10 +14,6 @@
   text-align: center;
 }
 
-/* ---------- Cabecera ---------- */
-
-/* Móvil: foto a la izquierda de usuario y contadores; la biografía abajo a todo el ancho.
-   Desde tablet: la biografía pasa a la columna derecha. */
 .header {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -149,8 +145,6 @@
 .website:hover {
   text-decoration: underline;
 }
-
-/* ---------- Pestaña y contenido ---------- */
 
 .tabs {
   display: flex;

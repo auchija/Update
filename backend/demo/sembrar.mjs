@@ -1,11 +1,3 @@
-// Datos de demostración: dos cuentas, cada una con una publicación y un emprendimiento.
-// Pasa por la API (no escribe en la base directo), así que respeta todas las validaciones.
-// Se puede correr varias veces: lo que ya existe no se duplica.
-//
-// Uso (con la API encendida y las migraciones aplicadas):
-//   node backend/demo/sembrar.mjs
-// Variables opcionales: UPDATE_API (por defecto http://localhost:5195),
-// UPDATE_DEMO_CLAVE_1 y UPDATE_DEMO_CLAVE_2 (si no están, se piden por consola).
 import { stdin, stdout } from "node:process";
 import { createInterface } from "node:readline/promises";
 
@@ -80,7 +72,6 @@ for (const indice of [1, 2]) {
   }
   const token = sesion.accessToken;
 
-  // Las categorías base las crea la migración IndicesHistorialYCategorias.
   const categoria = await buscar("/api/mis-emprendimientos/categorias", token, () => true);
   if (!categoria) {
     console.error("No hay categorías. Aplica las migraciones: dotnet ef database update.");

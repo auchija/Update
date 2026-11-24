@@ -10,10 +10,6 @@ import styles from "./Post.module.css";
 
 const COMMENT_MAX_LENGTH = 1000;
 
-/**
- * Comentarios de una publicación: "Ver los N comentarios" los carga,
- * y el campo de abajo permite comentar sin abrir la lista.
- */
 export default function CommentsSection({ postId, total, defaultOpen, inputRef, onCountChange }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [comments, setComments] = useState(null);
@@ -47,7 +43,6 @@ export default function CommentsSection({ postId, total, defaultOpen, inputRef, 
     try {
       const created = await comentar(postId, contenido);
       setText("");
-      // Si la lista no está abierta, el comentario nuevo se muestra solo debajo.
       setComments((current) => [...(current ?? []), created]);
       onCountChange(1);
     } catch (error) {

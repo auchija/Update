@@ -4,7 +4,6 @@ using update.Domain.Entities;
 
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla refresh_tokens y sus restricciones.</summary>
 public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
     public void Configure(EntityTypeBuilder<RefreshToken> builder)

@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 namespace update.Domain.Interfaces;
 
-/// <summary>CRUD asíncrono; admite UUID, claves numéricas, texto y claves compuestas.</summary>
 public interface IRepository<T> where T : class, IEntidadValidable
 {
     Task<IReadOnlyList<T>> ListarAsync(int pagina, int tamanoPagina, CancellationToken cancellationToken = default);

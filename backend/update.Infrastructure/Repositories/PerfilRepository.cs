@@ -5,7 +5,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de perfiles.</summary>
 public sealed class PerfilRepository(ApplicationDbContext contexto) : GenericRepository<Perfil>(contexto), IPerfilRepository
 {
     public async Task<IReadOnlyList<Perfil>> ObtenerPorCiudadIdAsync(int? valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

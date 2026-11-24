@@ -33,7 +33,6 @@ export default function Registro() {
   });
 
   async function createAccount(values) {
-    // Al crear la cuenta, PublicOnlyRoute redirige solo a la app.
     await register({
       displayName: values.displayName.trim(),
       handle: values.handle,

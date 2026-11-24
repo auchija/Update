@@ -4,7 +4,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de tipos_persona.</summary>
 public sealed class TipoPersonaRepository(ApplicationDbContext contexto) : GenericRepository<TipoPersona>(contexto), ITipoPersonaRepository
 {
     public async Task<IReadOnlyList<TipoPersona>> ObtenerPorCodigoAsync(string valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

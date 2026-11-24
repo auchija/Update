@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla miembros_emprendimiento y sus restricciones.</summary>
 public sealed class MiembroEmprendimientoConfiguration : IEntityTypeConfiguration<MiembroEmprendimiento>
 {
     public void Configure(EntityTypeBuilder<MiembroEmprendimiento> builder)

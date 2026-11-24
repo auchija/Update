@@ -1,5 +1,3 @@
-// Mismas reglas que el backend: el front avisa antes de enviar
-// y el backend vuelve a validar (nunca confiar solo en el front).
 export const MAX_FILE_SIZE_MB = 5;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
@@ -12,7 +10,6 @@ const ALLOWED_TYPES = {
 
 export const FILE_ACCEPT = ".jpg,.jpeg,.png,.webp,.pdf";
 
-/** Devuelve el mensaje de error o "" si el archivo es válido. */
 export function validateFile(file) {
   if (!file) return "";
 

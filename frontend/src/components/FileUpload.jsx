@@ -13,10 +13,6 @@ import fieldStyles from "./Field.module.css";
 import { FieldError, FieldHint, RequiredMark } from "./FieldParts.jsx";
 import styles from "./FileUpload.module.css";
 
-/**
- * Selector de archivo con validación previa (tipo y peso) y vista previa.
- * Es controlado: el padre guarda el archivo y lo recibe en onChange(file | null).
- */
 export default function FileUpload({
   label = "Archivo adjunto",
   hint = `JPG, PNG, WEBP o PDF. Máximo ${MAX_FILE_SIZE_MB} MB.`,
@@ -32,8 +28,6 @@ export default function FileUpload({
   const shownError = localError || error;
   const { id, hintId, errorId, describedBy } = useFieldIds({ hint, error: shownError });
 
-  // Lee la imagen para la vista previa. El setState va dentro del callback
-  // (no directo en el efecto) y se guarda junto al archivo para no mostrar uno viejo.
   useEffect(() => {
     if (!file || !isImage(file.type)) return undefined;
     const reader = new FileReader();
@@ -53,7 +47,6 @@ export default function FileUpload({
 
   function handleInputChange(event) {
     selectFile(event.target.files?.[0]);
-    // Permite volver a elegir el mismo archivo después de quitarlo.
     event.target.value = "";
   }
 

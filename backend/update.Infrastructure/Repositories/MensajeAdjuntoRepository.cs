@@ -4,7 +4,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de mensajes_adjuntos.</summary>
 public sealed class MensajeAdjuntoRepository(ApplicationDbContext contexto) : GenericRepository<MensajeAdjunto>(contexto), IMensajeAdjuntoRepository
 {
     public async Task<IReadOnlyList<MensajeAdjunto>> ObtenerPorMensajeIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla productos_archivos y sus restricciones.</summary>
 public sealed class ProductoArchivoConfiguration : IEntityTypeConfiguration<ProductoArchivo>
 {
     public void Configure(EntityTypeBuilder<ProductoArchivo> builder)

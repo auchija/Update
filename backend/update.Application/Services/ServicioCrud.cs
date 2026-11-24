@@ -1,7 +1,6 @@
 using update.Domain.Interfaces;
 namespace update.Application.Services;
 
-/// <summary>Orquesta operaciones CRUD sin depender de EF Core.</summary>
 public sealed class ServicioCrud<T>(IRepository<T> repositorio) where T : class, IEntidadValidable
 {
     public async Task<IReadOnlyList<T>> ListarAsync(int pagina, int tamanoPagina, CancellationToken cancellationToken = default)

@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla emprendimientos y sus restricciones.</summary>
 public sealed class EmprendimientoConfiguration : IEntityTypeConfiguration<Emprendimiento>
 {
     public void Configure(EntityTypeBuilder<Emprendimiento> builder)
@@ -50,7 +49,6 @@ public sealed class EmprendimientoConfiguration : IEntityTypeConfiguration<Empre
         builder.HasIndex(e => e.CreadoPorUsuarioId).HasDatabaseName("ix_emprendimientos_creado_por_usuario_id");
         builder.HasOne(e => e.Perfil).WithOne().HasForeignKey<Emprendimiento>(e => new { e.Id, e.TipoPerfil }).HasPrincipalKey<Perfil>(e => new { e.Id, e.Tipo }).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_emprendimientos_id_tipo_perfil_perfiles");
         builder.HasIndex(e => new { e.Id, e.TipoPerfil }).HasDatabaseName("ix_emprendimientos_id_tipo_perfil");
-        // Índice de la lista paginada "Mis emprendimientos" (GET /api/mis-emprendimientos).
         builder.HasIndex(e => new { e.CreadoPorUsuarioId, e.Id }).HasDatabaseName("ix_emprendimientos_lista_usuario");
     }
 }

@@ -5,7 +5,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de archivos.</summary>
 public sealed class ArchivoRepository(ApplicationDbContext contexto) : GenericRepository<Archivo>(contexto), IArchivoRepository
 {
     public async Task<IReadOnlyList<Archivo>> ObtenerPorSubidoPorUsuarioIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Interfaces;
 namespace update.Infrastructure.Data;
 
-/// <summary>Contexto PostgreSQL; aplica configuraciones y auditoría UTC.</summary>
 public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> opciones) : DbContext(opciones)
 {
     public DbSet<Archivo> Archivos => Set<Archivo>();
@@ -86,7 +85,6 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     {
         ChangeTracker.DetectChanges();
         var ahora = DateTime.UtcNow;
-        // PostgreSQL conserva microsegundos; normalizar evita diferencias entre POST y GET.
         ahora = new DateTime(ahora.Ticks - ahora.Ticks % 10, DateTimeKind.Utc);
         foreach (var entrada in ChangeTracker.Entries().ToList())
         {

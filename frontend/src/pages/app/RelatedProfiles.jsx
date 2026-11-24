@@ -6,7 +6,6 @@ import { getRelacionados } from "../../services/comunidadService.js";
 import FollowButton from "./FollowButton.jsx";
 import styles from "./RelatedProfiles.module.css";
 
-/** Fila deslizable de perfiles relacionados con el perfil que se está viendo. */
 export default function RelatedProfiles({ handle, onError }) {
   const [people, setPeople] = useState([]);
 
@@ -16,7 +15,6 @@ export default function RelatedProfiles({ handle, onError }) {
       .then((data) => {
         if (!cancelled) setPeople(data);
       })
-      // Es un extra: si falla, el perfil sigue funcionando.
       .catch(() => {});
     return () => {
       cancelled = true;

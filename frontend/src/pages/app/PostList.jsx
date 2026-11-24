@@ -8,10 +8,6 @@ import PostCard from "./PostCard.jsx";
 import PostForm from "./PostForm.jsx";
 import styles from "./PostList.module.css";
 
-/**
- * Lista de publicaciones con carga, error, vacío, edición (en una ventana), eliminación y "Ver más".
- * La usan el feed y "Mis publicaciones". `list` viene de usePaginatedList.
- */
 export default function PostList({ list, label, emptyState, onNotice }) {
   const [editingPost, setEditingPost] = useState(null);
   const [deletingId, setDeletingId] = useState(null);

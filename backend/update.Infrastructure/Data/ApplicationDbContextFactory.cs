@@ -39,11 +39,9 @@ public sealed class ApplicationDbContextFactory
             }
             catch (IOException)
             {
-                // Se intentará usar una variable de entorno.
             }
             catch (FormatException)
             {
-                // JSON inválido; se intentará usar una variable de entorno.
             }
         }
 
@@ -78,7 +76,6 @@ public sealed class ApplicationDbContextFactory
 
         var finalConnectionString = builder.ConnectionString;
 
-        // No muestres la cadena completa: podría contener la contraseña.
         Console.WriteLine(
             $"Conexión configurada para el host: {builder.Host}");
 

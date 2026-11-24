@@ -50,7 +50,6 @@
   }
 }
 
-/* Aro degradado amarillo → morado, con un borde del color de fondo entre el aro y la foto. */
 .ring {
   display: inline-flex;
   flex-shrink: 0;

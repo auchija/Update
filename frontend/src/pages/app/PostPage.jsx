@@ -11,7 +11,6 @@ import PostCard from "./PostCard.jsx";
 import PostForm from "./PostForm.jsx";
 import styles from "./PostPage.module.css";
 
-/** Una publicación sola (/p/:id), con los comentarios abiertos. Es el enlace que se comparte. */
 export default function PostPage() {
   const { id } = useParams();
   return <PostView key={id} id={id} />;

@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla reportes y sus restricciones.</summary>
 public sealed class ReporteConfiguration : IEntityTypeConfiguration<Reporte>
 {
     public void Configure(EntityTypeBuilder<Reporte> builder)

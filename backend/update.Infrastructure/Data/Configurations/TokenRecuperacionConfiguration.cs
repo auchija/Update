@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla tokens_recuperacion y sus restricciones.</summary>
 public sealed class TokenRecuperacionConfiguration : IEntityTypeConfiguration<TokenRecuperacion>
 {
     public void Configure(EntityTypeBuilder<TokenRecuperacion> builder)

@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace update.API.Converters;
 
-/// <summary>Representa inet como una dirección textual IPv4 o IPv6 en los DTOs JSON.</summary>
 public sealed class DireccionIpConverter : JsonConverter<IPAddress>
 {
     public override IPAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

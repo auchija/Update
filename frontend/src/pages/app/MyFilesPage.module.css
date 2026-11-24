@@ -51,7 +51,6 @@
   white-space: nowrap;
 }
 
-/* En celular las acciones bajan a su propia fila, a todo el ancho. */
 .actions {
   display: flex;
   grid-column: 1 / -1;

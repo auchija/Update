@@ -2,7 +2,6 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Convierte PascalCase de C# a las etiquetas snake_case exactas del DBML.</summary>
 public sealed class ConversorEnumDbml<TEnum>() : ValueConverter<TEnum, string>(
     valor => ATexto(valor), texto => DesdeTexto(texto)) where TEnum : struct, Enum
 {

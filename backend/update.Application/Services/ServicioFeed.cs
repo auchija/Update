@@ -6,12 +6,10 @@ using update.Domain.Interfaces;
 
 namespace update.Application.Services;
 
-/// <summary>Publicación lista para responder: autor, clave de su foto y la imagen adjunta, si hay.</summary>
 public sealed record PublicacionFeed(Publicacion Publicacion, Perfil Autor, string? ClaveFotoAutor, Guid? ImagenArchivoId, string? ClaveImagen, string? TipoMime, bool MeGusta = false);
 
 public sealed class PublicacionAjenaException() : Exception("Solo puedes cambiar tus propias publicaciones.");
 
-/// <summary>Casos de uso del feed: listar, publicar, editar y eliminar las publicaciones propias.</summary>
 public sealed class ServicioFeed(
     IPublicacionRepository publicaciones,
     IPublicacionArchivoRepository publicacionArchivos,
@@ -25,10 +23,6 @@ public sealed class ServicioFeed(
 {
     private const string TipoGeneral = "general";
 
-    /// <summary>
-    /// Publicaciones que puede ver <c>visorUsuarioId</c>, con sus "me gusta" marcados.
-    /// <c>soloMias</c>: solo las suyas, incluidas las no públicas. <c>perfilAutorId</c>: solo las de ese perfil.
-    /// </summary>
     public async Task<IReadOnlyList<PublicacionFeed>> ListarAsync(
         Guid visorUsuarioId, int pagina, int tamanoPagina, CancellationToken cancellationToken,
         bool soloMias = false, Guid? perfilAutorId = null)
@@ -91,7 +85,6 @@ public sealed class ServicioFeed(
 
         await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
         {
-            // El catálogo puede estar vacío en una base nueva; se crea el tipo la primera vez, como los tipos de persona.
             if (await tiposPublicacion.ObtenerPorClaveAsync([TipoGeneral], ct) is null)
                 await tiposPublicacion.AgregarAsync(new TipoPublicacion { Codigo = TipoGeneral, Nombre = "General" }, ct);
 
@@ -121,7 +114,6 @@ public sealed class ServicioFeed(
         {
             await publicaciones.ActualizarAsync(publicacion, ct);
 
-            // Se reemplaza la imagen solo si cambió; quitarla borra el vínculo, no el archivo.
             var actuales = await publicacionArchivos.ObtenerPorPublicacionesAsync([publicacionId], ct);
             if (actuales.Select(pa => (Guid?)pa.ArchivoId).FirstOrDefault() != imagen?.Id)
             {
@@ -144,7 +136,6 @@ public sealed class ServicioFeed(
 
         await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
         {
-            // Borrado lógico: el contexto convierte el DELETE en eliminado_en = ahora.
             await publicaciones.EliminarAsync(publicacion, ct);
             autor.Perfil.TotalPublicaciones = Math.Max(0, autor.Perfil.TotalPublicaciones - 1);
             await perfiles.ActualizarAsync(autor.Perfil, ct);
@@ -153,7 +144,6 @@ public sealed class ServicioFeed(
         return true;
     }
 
-    /// <summary>null si no existe; PublicacionAjenaException si existe pero es de otra persona.</summary>
     private async Task<Publicacion?> ObtenerPropiaAsync(Guid usuarioId, Guid publicacionId, CancellationToken cancellationToken)
     {
         var publicacion = await publicaciones.ObtenerPorClaveAsync([publicacionId], cancellationToken);

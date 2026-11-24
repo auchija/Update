@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla oportunidades y sus restricciones.</summary>
 public sealed class OportunidadConfiguration : IEntityTypeConfiguration<Oportunidad>
 {
     public void Configure(EntityTypeBuilder<Oportunidad> builder)

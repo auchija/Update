@@ -77,7 +77,6 @@ public sealed class ServicioUsuario : IServicioUsuario
         if (usuarioConCorreo is not null && usuarioConCorreo.Id != id)
             throw new ExcepcionDominio("Ya existe otro usuario con ese correo.");
 
-        // El ID de la ruta es la fuente de verdad.
         entrada.Id = id;
 
         await _crud.ActualizarAsync(entrada, cancellationToken);

@@ -4,7 +4,6 @@ using update.Domain.Interfaces;
 using update.Infrastructure.Data;
 namespace update.Infrastructure.Repositories;
 
-/// <summary>Repositorio asíncrono de oportunidades.</summary>
 public sealed class OportunidadRepository(ApplicationDbContext contexto) : GenericRepository<Oportunidad>(contexto), IOportunidadRepository
 {
     public async Task<IReadOnlyList<Oportunidad>> ObtenerPorPerfilAutorIdAsync(Guid valor, int pagina = 1, int tamanoPagina = 20, CancellationToken cancellationToken = default)

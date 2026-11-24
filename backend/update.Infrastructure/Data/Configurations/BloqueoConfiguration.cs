@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla bloqueos y sus restricciones.</summary>
 public sealed class BloqueoConfiguration : IEntityTypeConfiguration<Bloqueo>
 {
     public void Configure(EntityTypeBuilder<Bloqueo> builder)

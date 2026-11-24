@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla ofertas_mentoria y sus restricciones.</summary>
 public sealed class OfertaMentoriaConfiguration : IEntityTypeConfiguration<OfertaMentoria>
 {
     public void Configure(EntityTypeBuilder<OfertaMentoria> builder)

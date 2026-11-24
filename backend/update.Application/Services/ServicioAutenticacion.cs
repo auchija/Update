@@ -96,9 +96,8 @@ public sealed class AuthService(
         var usuario = await BuscarPorIdentificadorAsync(request.Identifier, cancellationToken);
 
         if (usuario is null || string.IsNullOrWhiteSpace(usuario.HashContrasena))
-            return null; // 401
+            return null;
 
-        // Se comprueba antes de verificar el hash: no se gasta CPU ni se da pistas
         if (usuario.EstaBloqueada(ahora))
             throw new CuentaBloqueadaException(usuario.BloqueadoHasta!.Value);
 
@@ -110,14 +109,12 @@ public sealed class AuthService(
             usuario.RegistrarIntentoFallido(ahora);
             await usuarios.ActualizarAsync(usuario, cancellationToken);
 
-            // El intento que dispara el bloqueo ya responde 423
             if (usuario.EstaBloqueada(ahora))
                 throw new CuentaBloqueadaException(usuario.BloqueadoHasta!.Value);
 
-            return null; // 401
+            return null;
         }
 
-        // Hash de contraseñas: si Identity cambió sus parámetros, se re-hashea
         if (resultado == PasswordVerificationResult.SuccessRehashNeeded)
             usuario.HashContrasena = passwordHasher.HashPassword(usuario, request.Password);
 
@@ -138,7 +135,6 @@ public sealed class AuthService(
         if (almacenado is null || !almacenado.EstaActivo(ahora))
             return null;
 
-        // Revoca el token anterior antes de emitir uno nuevo.
         almacenado.RevocadoEn = ahora;
         await refreshTokens.ActualizarAsync(almacenado, cancellationToken);
 

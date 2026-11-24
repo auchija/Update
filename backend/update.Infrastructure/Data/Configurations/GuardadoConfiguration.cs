@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla guardados y sus restricciones.</summary>
 public sealed class GuardadoConfiguration : IEntityTypeConfiguration<Guardado>
 {
     public void Configure(EntityTypeBuilder<Guardado> builder)

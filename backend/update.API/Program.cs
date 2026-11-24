@@ -31,8 +31,6 @@ builder.Services.AddScoped<IAlmacenObjetos>(sp =>
     var url = builder.Configuration["Supabase:Url"];
     var clave = builder.Configuration["Supabase:ServiceRoleKey"];
     var bucket = builder.Configuration["Supabase:Bucket"];
-    // En desarrollo también se acepta http en la propia máquina, para Supabase local
-    // (`supabase start` corre en http://127.0.0.1:54321).
     var urlValida = Uri.TryCreate(url, UriKind.Absolute, out var baseUri)
         && (baseUri.Scheme == "https"
             || (builder.Environment.IsDevelopment() && baseUri.Scheme == "http" && baseUri.IsLoopback));
@@ -52,7 +50,6 @@ builder.Services.AddScoped<ServicioFeed>();
 builder.Services.AddScoped<ServicioComunidad>();
 builder.Services.AddScoped<MisEmprendimientos>();
 builder.Services.AddControllers(opciones =>
-    // Los errores de validación usan el nombre del campo en el JSON ("password"), no el de C# ("Password").
     opciones.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider()))
 .AddJsonOptions(opciones =>
 {
@@ -67,7 +64,6 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opciones =>
 {
-    // Los comentarios /// de los controladores y DTO aparecen en Swagger.
     foreach (var proyecto in new[] { "update.API", "update.Application" })
     {
         var xml = Path.Combine(AppContext.BaseDirectory, $"{proyecto}.xml");
@@ -102,19 +98,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ClockSkew = TimeSpan.FromSeconds(30)
     };
 });
-// Este CRUD es administrativo. Los casos de uso de usuario final necesitan reglas de propiedad.
 builder.Services.AddAuthorization(opciones => opciones.AddPolicy("Administracion",
     politica => politica.RequireAuthenticatedUser().RequireRole("administrador")));
 var origenes = builder.Configuration.GetSection("Cors:Origenes").Get<string[]>() ?? ["http://localhost:5173"];
 builder.Services.AddCors(opciones => opciones.AddPolicy("Frontend",
     politica => politica.WithOrigins(origenes).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
-// En producción la API está detrás de proxies (Render y la reescritura de Vercel), que reciben HTTPS y le
-// reenvían HTTP. Sus encabezados X-Forwarded-* dan el esquema y el host públicos, con los que se arman
-// las URLs de los archivos; sin esto saldrían con http:// y el navegador las bloquearía.
 builder.Services.Configure<ForwardedHeadersOptions>(opciones =>
 {
     opciones.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
-    // Render no publica las IP de sus proxies, así que se aceptan los encabezados de cualquiera.
     opciones.KnownIPNetworks.Clear();
     opciones.KnownProxies.Clear();
 });
@@ -122,7 +113,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(opciones =>
 var app = builder.Build();
 app.UseForwardedHeaders();
 app.UseExceptionHandler();
-// Swagger siempre en desarrollo; en producción solo si Swagger:Habilitado es true.
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Habilitado"))
 {
     app.UseSwagger();
@@ -135,5 +125,4 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapApplicationHealthChecks();
 app.MapOpenApi().RequireAuthorization("Administracion");
-// Las migraciones se ejecutan mediante dotnet ef; no se modifica la base al iniciar la API.
 app.Run();

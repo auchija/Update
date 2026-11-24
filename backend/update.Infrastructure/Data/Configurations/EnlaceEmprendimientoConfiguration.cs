@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla enlaces_emprendimiento y sus restricciones.</summary>
 public sealed class EnlaceEmprendimientoConfiguration : IEntityTypeConfiguration<EnlaceEmprendimiento>
 {
     public void Configure(EntityTypeBuilder<EnlaceEmprendimiento> builder)

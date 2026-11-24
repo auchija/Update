@@ -79,13 +79,12 @@ function MetricCard({ value, label }) {
 
     function tick(now) {
       const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      const eased = 1 - Math.pow(1 - progress, 3);
       setDisplay(`${prefix}${(target * eased).toFixed(decimals)}${suffix}`);
       if (progress < 1) frame = requestAnimationFrame(tick);
     }
 
     frame = requestAnimationFrame(tick);
-    // Si la tarjeta se desmonta a mitad de la animación, no seguir actualizando el estado.
     return () => cancelAnimationFrame(frame);
   }, [isInView, prefix, target, decimals, suffix]);
 

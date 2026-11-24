@@ -73,7 +73,6 @@ public sealed class MisEmprendimientosController(MisEmprendimientos servicio) : 
         return await servicio.Eliminar(u, id, ct) ? NoContent() : NotFound();
     }
 
-    // Igual que el resto de la API: la URL de la portada sale completa, con el host de la API.
     private VistaEmprendimiento ConUrlCompleta(VistaEmprendimiento e) => e.PortadaUrl is null
         ? e
         : e with { PortadaUrl = $"{Request.Scheme}://{Request.Host}{e.PortadaUrl}" };

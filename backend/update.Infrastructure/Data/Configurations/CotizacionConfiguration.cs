@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla cotizaciones y sus restricciones.</summary>
 public sealed class CotizacionConfiguration : IEntityTypeConfiguration<Cotizacion>
 {
     public void Configure(EntityTypeBuilder<Cotizacion> builder)

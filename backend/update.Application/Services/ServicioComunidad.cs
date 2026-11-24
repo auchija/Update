@@ -7,10 +7,8 @@ using update.Domain.Interfaces;
 namespace update.Application.Services;
 
 public sealed record ComentarioVista(Comentario Comentario, Perfil Autor, string? ClaveFotoAutor, bool PuedeEliminar);
-/// <summary>Un perfil visto por alguien: si es suyo, si lo sigue y si tiene una solicitud pendiente.</summary>
 public sealed record PerfilVista(Perfil Perfil, string? ClaveFoto, bool EsMio, bool LoSigo, bool SolicitudPendiente, DateTime? Fecha = null)
 {
-    /// <summary>Las cuentas privadas solo muestran publicaciones y listas a su dueño y a quien la sigue.</summary>
     public bool PuedeVerContenido => !Perfil.EsPrivado || EsMio || LoSigo;
 }
 public sealed record ResultadoMeGusta(bool MeGusta, int TotalReacciones);
@@ -19,10 +17,6 @@ public sealed record ResultadoSeguimiento(bool LoSigo, bool SolicitudPendiente, 
 public sealed class ComentarioAjenoException() : Exception("Solo puedes borrar tus comentarios o los de tus publicaciones.");
 public sealed class PerfilPrivadoException() : Exception("Esta cuenta es privada. Síguela para ver su contenido.");
 
-/// <summary>
-/// Interacción entre usuarios: "me gusta", comentarios, seguir perfiles (con solicitud si la cuenta
-/// es privada), listas de seguidores y seguidos, perfiles relacionados y sugerencias.
-/// </summary>
 public sealed class ServicioComunidad(
     ServicioFeed feed,
     ServicioMiPerfil miPerfil,
@@ -36,9 +30,6 @@ public sealed class ServicioComunidad(
 {
     private const string TipoMeGusta = "me_gusta";
 
-    // ---------- Me gusta ----------
-
-    /// <summary>Da o quita el "me gusta". Repetir la misma acción no cambia nada. null si la publicación no se puede ver.</summary>
     public async Task<ResultadoMeGusta?> MarcarMeGustaAsync(Guid usuarioId, Guid publicacionId, bool meGusta, CancellationToken cancellationToken)
     {
         var visible = await feed.ObtenerAsync(publicacionId, usuarioId, cancellationToken);
@@ -52,7 +43,6 @@ public sealed class ServicioComunidad(
         {
             if (meGusta)
             {
-                // El catálogo puede estar vacío en una base nueva; se crea el tipo la primera vez.
                 if (await tiposReaccion.ObtenerPorClaveAsync([TipoMeGusta], ct) is null)
                     await tiposReaccion.AgregarAsync(new TipoReaccion { Codigo = TipoMeGusta, Nombre = "Me gusta", Emoji = "❤️", Orden = 1 }, ct);
                 await reacciones.AgregarAsync(new ReaccionPublicacion { PublicacionId = publicacionId, PerfilId = visor.Perfil.Id, TipoReaccionCodigo = TipoMeGusta }, ct);
@@ -69,9 +59,6 @@ public sealed class ServicioComunidad(
         return new ResultadoMeGusta(meGusta, Math.Max(0, total + (meGusta ? 1 : -1)));
     }
 
-    // ---------- Comentarios ----------
-
-    /// <summary>null si la publicación no se puede ver.</summary>
     public async Task<IReadOnlyList<ComentarioVista>?> ListarComentariosAsync(Guid usuarioId, Guid publicacionId, int pagina, int tamanoPagina, CancellationToken cancellationToken)
     {
         var visible = await feed.ObtenerAsync(publicacionId, usuarioId, cancellationToken);
@@ -84,7 +71,6 @@ public sealed class ServicioComunidad(
             esAutorDeLaPublicacion || c.CreadoPorUsuarioId == usuarioId)).ToList();
     }
 
-    /// <summary>null si la publicación no se puede ver.</summary>
     public async Task<ComentarioVista?> ComentarAsync(Guid usuarioId, Guid publicacionId, ComentarDto entrada, CancellationToken cancellationToken)
     {
         var contenido = entrada.Contenido.Trim();
@@ -113,7 +99,6 @@ public sealed class ServicioComunidad(
         return new ComentarioVista(comentario, autor.Perfil, autor.ClaveFoto, true);
     }
 
-    /// <summary>false si no existe; ComentarioAjenoException si no es suyo ni de su publicación.</summary>
     public async Task<bool> EliminarComentarioAsync(Guid usuarioId, Guid publicacionId, Guid comentarioId, CancellationToken cancellationToken)
     {
         var comentario = await comentarios.ObtenerPorClaveAsync([comentarioId], cancellationToken);
@@ -125,7 +110,6 @@ public sealed class ServicioComunidad(
 
         await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
         {
-            // Borrado lógico: el contexto convierte el DELETE en eliminado_en = ahora.
             await comentarios.EliminarAsync(comentario, ct);
             await publicaciones.AjustarContadoresAsync(publicacionId, 0, -1, ct);
             return true;
@@ -133,9 +117,6 @@ public sealed class ServicioComunidad(
         return true;
     }
 
-    // ---------- Perfiles ----------
-
-    /// <summary>null si no hay un perfil activo con ese @usuario.</summary>
     public async Task<PerfilVista?> ObtenerPerfilAsync(Guid usuarioId, string nombreUsuario, CancellationToken cancellationToken)
     {
         var perfil = await perfiles.ObtenerActivoPorNombreUsuarioAsync(Normalizar(nombreUsuario), cancellationToken);
@@ -143,10 +124,6 @@ public sealed class ServicioComunidad(
         return (await VistasAsync(usuarioId, [new PerfilRelacion(perfil, perfil.FotoArchivo?.ClaveObjeto, perfil.CreadoEn)], cancellationToken))[0];
     }
 
-    /// <summary>
-    /// Publicaciones del perfil; null si el perfil no existe.
-    /// En una cuenta privada que no sigue, devuelve una lista vacía.
-    /// </summary>
     public async Task<IReadOnlyList<PublicacionFeed>?> ListarPublicacionesDePerfilAsync(Guid usuarioId, string nombreUsuario, int pagina, int tamanoPagina, CancellationToken cancellationToken)
     {
         var vista = await ObtenerPerfilAsync(usuarioId, nombreUsuario, cancellationToken);
@@ -155,7 +132,6 @@ public sealed class ServicioComunidad(
         return await feed.ListarAsync(usuarioId, pagina, tamanoPagina, cancellationToken, perfilAutorId: vista.Perfil.Id);
     }
 
-    /// <summary>Quienes siguen al perfil. null si no existe; PerfilPrivadoException si es privado y no lo sigue.</summary>
     public async Task<IReadOnlyList<PerfilVista>?> ListarSeguidoresAsync(Guid usuarioId, string nombreUsuario, int pagina, int tamanoPagina, CancellationToken cancellationToken)
     {
         var vista = await ObtenerPerfilVisibleAsync(usuarioId, nombreUsuario, cancellationToken);
@@ -164,7 +140,6 @@ public sealed class ServicioComunidad(
         return await VistasAsync(usuarioId, lista, cancellationToken);
     }
 
-    /// <summary>A quiénes sigue el perfil. null si no existe; PerfilPrivadoException si es privado y no lo sigue.</summary>
     public async Task<IReadOnlyList<PerfilVista>?> ListarSeguidosAsync(Guid usuarioId, string nombreUsuario, int pagina, int tamanoPagina, CancellationToken cancellationToken)
     {
         var vista = await ObtenerPerfilVisibleAsync(usuarioId, nombreUsuario, cancellationToken);
@@ -173,10 +148,6 @@ public sealed class ServicioComunidad(
         return await VistasAsync(usuarioId, lista, cancellationToken);
     }
 
-    /// <summary>
-    /// Perfiles relacionados: los que también siguen sus seguidores; si son pocos, se completa con
-    /// los más activos. Nunca incluye el propio perfil ni el de quien pregunta. null si no existe.
-    /// </summary>
     public async Task<IReadOnlyList<PerfilVista>?> RelacionadosAsync(Guid usuarioId, string nombreUsuario, int cantidad, CancellationToken cancellationToken)
     {
         var vista = await ObtenerPerfilAsync(usuarioId, nombreUsuario, cancellationToken);
@@ -184,7 +155,6 @@ public sealed class ServicioComunidad(
         var perfil = vista.Perfil;
         cantidad = Math.Clamp(cantidad, 1, 20);
 
-        // En una cuenta privada sin acceso no se usan sus seguidores: revelaría a quién siguen.
         var lista = vista.PuedeVerContenido
             ? (await seguimientos.ObtenerRelacionadosAsync(perfil.Id, usuarioId, cantidad, cancellationToken)).ToList()
             : [];
@@ -200,20 +170,12 @@ public sealed class ServicioComunidad(
         return await VistasAsync(usuarioId, lista, cancellationToken);
     }
 
-    /// <summary>Perfiles activos para descubrir, con la marca de si ya los sigue.</summary>
     public async Task<IReadOnlyList<PerfilVista>> SugerenciasAsync(Guid usuarioId, int cantidad, CancellationToken cancellationToken)
     {
         var candidatos = await perfiles.ObtenerSugeridosAsync(usuarioId, cantidad, cancellationToken);
         return await VistasAsync(usuarioId, candidatos.Select(p => new PerfilRelacion(p, p.FotoArchivo?.ClaveObjeto, p.CreadoEn)).ToList(), cancellationToken);
     }
 
-    // ---------- Seguir y solicitudes ----------
-
-    /// <summary>
-    /// Sigue o deja de seguir. En una cuenta privada, seguir envía una solicitud (pendiente hasta que
-    /// la acepten) y dejar de seguir también cancela la solicitud. Repetir la acción no cambia nada.
-    /// null si el perfil no existe.
-    /// </summary>
     public async Task<ResultadoSeguimiento?> SeguirAsync(Guid usuarioId, string nombreUsuario, bool seguir, CancellationToken cancellationToken)
     {
         var perfil = await perfiles.ObtenerActivoPorNombreUsuarioAsync(Normalizar(nombreUsuario), cancellationToken);
@@ -228,7 +190,6 @@ public sealed class ServicioComunidad(
             return new ResultadoSeguimiento(false, false, perfil.TotalSeguidores);
 
         var estadoNuevo = perfil.EsPrivado ? EstadoSeguimiento.Pendiente : EstadoSeguimiento.Activo;
-        // Los contadores solo cuentan seguimientos aceptados.
         var cambio = seguir
             ? (estadoNuevo == EstadoSeguimiento.Activo ? 1 : 0)
             : (existente!.Estado == EstadoSeguimiento.Activo ? -1 : 0);
@@ -258,7 +219,6 @@ public sealed class ServicioComunidad(
         return seguir ? Resultado(estadoNuevo, total) : new ResultadoSeguimiento(false, false, total);
     }
 
-    /// <summary>Solicitudes pendientes para seguir mi cuenta, las más recientes primero.</summary>
     public async Task<IReadOnlyList<PerfilVista>> ListarSolicitudesAsync(Guid usuarioId, int pagina, int tamanoPagina, CancellationToken cancellationToken)
     {
         var propio = await miPerfil.ObtenerAsync(usuarioId, cancellationToken);
@@ -267,7 +227,6 @@ public sealed class ServicioComunidad(
         return await VistasAsync(usuarioId, lista, cancellationToken);
     }
 
-    /// <summary>Acepta o rechaza la solicitud de ese @usuario. false si no hay una solicitud pendiente.</summary>
     public async Task<bool> ResponderSolicitudAsync(Guid usuarioId, string nombreUsuarioSolicitante, bool aceptar, CancellationToken cancellationToken)
     {
         var propio = await miPerfil.ObtenerAsync(usuarioId, cancellationToken);
@@ -277,7 +236,6 @@ public sealed class ServicioComunidad(
         var solicitud = await seguimientos.ObtenerPorClaveAsync([solicitante.UsuarioId, propio.Perfil.Id], cancellationToken);
         if (solicitud is not { Estado: EstadoSeguimiento.Pendiente }) return false;
 
-        // Quien pidió seguir puede tener otro perfil (de emprendimiento): sus "seguidos" van en el de persona.
         var perfilSolicitante = (await perfiles.BuscarAsync(
             p => p.UsuarioId == solicitante.UsuarioId && p.Tipo == TipoPerfil.Persona, 1, 1, cancellationToken)).FirstOrDefault() ?? solicitante;
 
@@ -299,8 +257,6 @@ public sealed class ServicioComunidad(
         return true;
     }
 
-    // ---------- Apoyo ----------
-
     private async Task<PerfilVista?> ObtenerPerfilVisibleAsync(Guid usuarioId, string nombreUsuario, CancellationToken cancellationToken)
     {
         var vista = await ObtenerPerfilAsync(usuarioId, nombreUsuario, cancellationToken);
@@ -308,7 +264,6 @@ public sealed class ServicioComunidad(
         return vista;
     }
 
-    /// <summary>Agrega a cada perfil si es del usuario y su estado de seguimiento, con una sola consulta.</summary>
     private async Task<IReadOnlyList<PerfilVista>> VistasAsync(Guid usuarioId, IReadOnlyList<PerfilRelacion> lista, CancellationToken cancellationToken)
     {
         var estados = await seguimientos.ObtenerEstadosAsync(usuarioId, lista.Select(r => r.Perfil.Id).Distinct().ToList(), cancellationToken);

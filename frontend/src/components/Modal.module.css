@@ -1,5 +1,4 @@
 .dialog {
-  /* El reset global (* { margin: 0 }) quita el margin: auto que centra el <dialog>. */
   margin: auto;
   width: min(36rem, calc(100% - 2rem));
   max-height: calc(100dvh - 2rem);

@@ -37,7 +37,6 @@
   transform: scale(1.03);
 }
 
-/* Tarjeta para publicaciones sin foto: degradado suave de la marca con el texto. */
 .textTile {
   display: grid;
   align-content: center;

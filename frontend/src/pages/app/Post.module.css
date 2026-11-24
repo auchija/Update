@@ -1,5 +1,3 @@
-/* ---------- Tarjeta de publicación ---------- */
-
 .post {
   border-bottom: 1px solid var(--border);
   padding-bottom: 1rem;
@@ -70,8 +68,6 @@
   text-decoration: underline;
 }
 
-/* ---------- Menú ⋯ ---------- */
-
 .menu {
   position: relative;
   margin-left: auto;
@@ -129,8 +125,6 @@
   color: var(--danger);
 }
 
-/* ---------- Foto ---------- */
-
 .media {
   position: relative;
   display: grid;
@@ -162,26 +156,30 @@
     opacity: 0;
     transform: scale(0.3);
   }
+
   20% {
     opacity: 1;
     transform: scale(1.15);
   }
+
   35% {
     transform: scale(0.95);
   }
+
   50% {
     transform: scale(1);
   }
+
   80% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
     transform: scale(1);
   }
 }
 
-/* Publicación solo de texto: el texto ocupa el lugar de la foto. */
 .textBody {
   display: grid;
   gap: 0.875rem;
@@ -217,8 +215,6 @@
 .document:hover {
   background: var(--primary-soft);
 }
-
-/* ---------- Acciones ---------- */
 
 .actions {
   display: flex;
@@ -275,8 +271,6 @@
   color: var(--foreground-muted);
   font-size: var(--text-sm);
 }
-
-/* ---------- Detalles: contador, texto, comentarios ---------- */
 
 .details {
   display: grid;
@@ -424,8 +418,6 @@
 .commentSubmit:disabled {
   opacity: 0.6;
 }
-
-/* ---------- Formulario de publicación ---------- */
 
 .formActions {
   display: flex;

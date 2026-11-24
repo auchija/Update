@@ -4,7 +4,6 @@ using update.Domain.Entities;
 using update.Domain.Enums;
 namespace update.Infrastructure.Data.Configurations;
 
-/// <summary>Mapea la tabla categorias y sus restricciones.</summary>
 public sealed class CategoriaConfiguration : IEntityTypeConfiguration<Categoria>
 {
     public void Configure(EntityTypeBuilder<Categoria> builder)

@@ -24,11 +24,9 @@ export default function FeedPage() {
     let cancelled = false;
     getSugerencias(12)
       .then((data) => {
-        // Se recuerda a quién seguía al cargar, para que la sugerencia no desaparezca al seguirla.
         if (!cancelled)
           setPeople(data.map((person) => ({ ...person, seguiaAlCargar: person.loSigo })));
       })
-      // Las sugerencias son un extra: si fallan, el feed sigue funcionando.
       .catch(() => {});
     return () => {
       cancelled = true;
