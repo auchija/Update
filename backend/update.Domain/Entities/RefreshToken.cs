@@ -15,4 +15,11 @@ public sealed class RefreshToken
 
     public bool EstaActivo(DateTime ahora) =>
         RevocadoEn is null && ExpiraEn > ahora;
+
+    /// <summary>Tras renovar, el token anterior solo sirve durante la gracia: cubre recargas dobles y pestañas simultáneas.</summary>
+    public void Rotar(DateTime ahora, TimeSpan gracia)
+    {
+        var limite = ahora.Add(gracia);
+        if (limite < ExpiraEn) ExpiraEn = limite;
+    }
 }

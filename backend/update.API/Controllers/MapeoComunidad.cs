@@ -4,16 +4,25 @@ using update.Domain.Entities;
 
 namespace update.API.Controllers;
 
+internal static class UrlsArchivo
+{
+    public static string? Publica(this HttpRequest peticion, string? clave)
+        => clave is null ? null : $"{peticion.Scheme}://{peticion.Host}/uploads/{clave}";
+
+    public static string? Firmada(this HttpRequest peticion, string? clave, FirmaArchivos firmas)
+        => clave is null ? null : $"{peticion.Publica(clave)}?{firmas.Firmar(clave)}";
+}
+
 /// <summary>Convierte los resultados del feed y de la comunidad en las respuestas JSON; `url` arma la URL pública de un archivo.</summary>
 internal static class MapeoComunidad
 {
-    public static RespuestaPublicacionFeedDto Publicacion(PublicacionFeed resultado, Guid usuarioId, Func<string?, string?> url) => new()
+    public static RespuestaPublicacionFeedDto Publicacion(PublicacionFeed resultado, Guid usuarioId, Func<string?, string?> url, Func<string?, string?> urlFirmada) => new()
     {
         Id = resultado.Publicacion.Id,
         Contenido = resultado.Publicacion.Contenido,
         ImagenArchivoId = resultado.ImagenArchivoId,
         AdjuntoTipoMime = resultado.TipoMime,
-        ImagenUrl = url(resultado.ClaveImagen),
+        ImagenUrl = resultado.Autor.EsPrivado ? urlFirmada(resultado.ClaveImagen) : url(resultado.ClaveImagen),
         Autor = Autor(resultado.Autor, resultado.ClaveFotoAutor, url),
         EsMia = resultado.Publicacion.CreadoPorUsuarioId == usuarioId,
         TotalReacciones = resultado.Publicacion.TotalReacciones,

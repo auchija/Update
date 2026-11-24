@@ -11,6 +11,7 @@ namespace update.API.Controllers;
 public sealed class MiPerfilController(ServicioMiPerfil servicio) : ControllerBase
 {
     [HttpGet]
+    [EndpointSummary("Devuelve mi perfil.")]
     [ProducesResponseType<RespuestaMiPerfilDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<RespuestaMiPerfilDto>> Obtener(CancellationToken cancellationToken)
     {
@@ -21,6 +22,7 @@ public sealed class MiPerfilController(ServicioMiPerfil servicio) : ControllerBa
     }
 
     [HttpPut]
+    [EndpointSummary("Edita mi perfil, mi foto y si la cuenta es privada.")]
     [ProducesResponseType<RespuestaMiPerfilDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<RespuestaMiPerfilDto>> Actualizar(
@@ -29,24 +31,8 @@ public sealed class MiPerfilController(ServicioMiPerfil servicio) : ControllerBa
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
 
-        try
-        {
-            var resultado = await servicio.ActualizarAsync(usuarioId, entrada, cancellationToken);
-            return resultado is null ? NotFound() : Ok(ARespuesta(resultado));
-        }
-        catch (NombreUsuarioNoDisponibleException ex)
-        {
-            return Conflict(new ProblemDetails
-            {
-                Status = StatusCodes.Status409Conflict,
-                Title = ex.Message,
-                Extensions =
-                {
-                    ["message"] = "Revisa los datos marcados.",
-                    ["errors"] = new Dictionary<string, string> { ["nombreUsuario"] = ex.Message }
-                }
-            });
-        }
+        var resultado = await servicio.ActualizarAsync(usuarioId, entrada, cancellationToken);
+        return resultado is null ? NotFound() : Ok(ARespuesta(resultado));
     }
 
     private RespuestaMiPerfilDto ARespuesta(MiPerfilResultado resultado) => new()

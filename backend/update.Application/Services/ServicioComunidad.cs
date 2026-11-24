@@ -14,8 +14,6 @@ public sealed record PerfilVista(Perfil Perfil, string? ClaveFoto, bool EsMio, b
 public sealed record ResultadoMeGusta(bool MeGusta, int TotalReacciones);
 public sealed record ResultadoSeguimiento(bool LoSigo, bool SolicitudPendiente, int TotalSeguidores);
 
-public sealed class ComentarioAjenoException() : Exception("Solo puedes borrar tus comentarios o los de tus publicaciones.");
-public sealed class PerfilPrivadoException() : Exception("Esta cuenta es privada. Síguela para ver su contenido.");
 
 public sealed class ServicioComunidad(
     ServicioFeed feed,
@@ -36,27 +34,26 @@ public sealed class ServicioComunidad(
         var visor = await miPerfil.ObtenerAsync(usuarioId, cancellationToken);
         if (visible is null || visor is null) return null;
 
-        var total = visible.Publicacion.TotalReacciones;
-        if (visible.MeGusta == meGusta) return new ResultadoMeGusta(meGusta, total);
+        if (visible.MeGusta == meGusta) return new ResultadoMeGusta(meGusta, visible.Publicacion.TotalReacciones);
 
         await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
         {
+            bool cambio;
             if (meGusta)
             {
                 if (await tiposReaccion.ObtenerPorClaveAsync([TipoMeGusta], ct) is null)
-                    await tiposReaccion.AgregarAsync(new TipoReaccion { Codigo = TipoMeGusta, Nombre = "Me gusta", Emoji = "❤️", Orden = 1 }, ct);
-                await reacciones.AgregarAsync(new ReaccionPublicacion { PublicacionId = publicacionId, PerfilId = visor.Perfil.Id, TipoReaccionCodigo = TipoMeGusta }, ct);
+                    await reacciones.AsegurarTipoAsync(TipoMeGusta, "Me gusta", "❤️", 1, ct);
+                cambio = await reacciones.AgregarSiNoExisteAsync(publicacionId, visor.Perfil.Id, TipoMeGusta, ct);
             }
             else
             {
-                var existente = await reacciones.ObtenerPorClaveAsync([publicacionId, visor.Perfil.Id], ct);
-                if (existente is not null) await reacciones.EliminarAsync(existente, ct);
+                cambio = await reacciones.QuitarAsync(publicacionId, visor.Perfil.Id, ct);
             }
-            await publicaciones.AjustarContadoresAsync(publicacionId, meGusta ? 1 : -1, 0, ct);
+            if (cambio) await publicaciones.AjustarContadoresAsync(publicacionId, meGusta ? 1 : -1, 0, ct);
             return true;
         }, cancellationToken);
 
-        return new ResultadoMeGusta(meGusta, Math.Max(0, total + (meGusta ? 1 : -1)));
+        return new ResultadoMeGusta(meGusta, await publicaciones.ObtenerTotalReaccionesAsync(publicacionId, cancellationToken));
     }
 
     public async Task<IReadOnlyList<ComentarioVista>?> ListarComentariosAsync(Guid usuarioId, Guid publicacionId, int pagina, int tamanoPagina, CancellationToken cancellationToken)
@@ -106,7 +103,7 @@ public sealed class ServicioComunidad(
         var publicacion = await publicaciones.ObtenerPorClaveAsync([publicacionId], cancellationToken);
         if (publicacion is null) return false;
         if (comentario.CreadoPorUsuarioId != usuarioId && publicacion.CreadoPorUsuarioId != usuarioId)
-            throw new ComentarioAjenoException();
+            throw new AccesoDenegadoException("Solo puedes borrar tus comentarios o los de tus publicaciones.");
 
         await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
         {
@@ -260,7 +257,7 @@ public sealed class ServicioComunidad(
     private async Task<PerfilVista?> ObtenerPerfilVisibleAsync(Guid usuarioId, string nombreUsuario, CancellationToken cancellationToken)
     {
         var vista = await ObtenerPerfilAsync(usuarioId, nombreUsuario, cancellationToken);
-        if (vista is not null && !vista.PuedeVerContenido) throw new PerfilPrivadoException();
+        if (vista is not null && !vista.PuedeVerContenido) throw new AccesoDenegadoException("Esta cuenta es privada. Síguela para ver su contenido.");
         return vista;
     }
 

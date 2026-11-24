@@ -32,4 +32,25 @@ public sealed class PublicacionRepository(ApplicationDbContext contexto) : Gener
         => await Conjunto.Where(e => e.Id == publicacionId).ExecuteUpdateAsync(s => s
             .SetProperty(e => e.TotalReacciones, e => Math.Max(0, e.TotalReacciones + reacciones))
             .SetProperty(e => e.TotalComentarios, e => Math.Max(0, e.TotalComentarios + comentarios)), cancellationToken);
+
+    public async Task<int> ObtenerTotalReaccionesAsync(Guid publicacionId, CancellationToken cancellationToken = default)
+        => await Conjunto.AsNoTracking().Where(e => e.Id == publicacionId).Select(e => e.TotalReacciones).FirstOrDefaultAsync(cancellationToken);
+
+    public async Task ActualizarContenidoAsync(Publicacion publicacion, CancellationToken cancellationToken = default)
+    {
+        publicacion.Validar();
+        var entrada = Contexto.Entry(publicacion);
+        entrada.State = EntityState.Modified;
+        entrada.Property(e => e.TotalReacciones).IsModified = false;
+        entrada.Property(e => e.TotalComentarios).IsModified = false;
+        await Contexto.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<bool> MarcarEliminadaAsync(Guid publicacionId, CancellationToken cancellationToken = default)
+    {
+        var ahora = DateTime.UtcNow;
+        return await Conjunto.Where(e => e.Id == publicacionId).ExecuteUpdateAsync(s => s
+            .SetProperty(e => e.EliminadoEn, ahora)
+            .SetProperty(e => e.ActualizadoEn, ahora), cancellationToken) > 0;
+    }
 }

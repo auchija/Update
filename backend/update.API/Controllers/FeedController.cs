@@ -9,9 +9,10 @@ namespace update.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/feed")]
-public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comunidad) : ControllerBase
+public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comunidad, FirmaArchivos firmas) : ControllerBase
 {
     [HttpGet]
+    [EndpointSummary("Lista las publicaciones que puedo ver, de la más nueva a la más antigua.")]
     [ProducesResponseType<IReadOnlyList<RespuestaPublicacionFeedDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RespuestaPublicacionFeedDto>>> Listar(
         [FromQuery] int pagina = 1,
@@ -37,6 +38,7 @@ public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comu
     }
 
     [HttpGet("{id:guid}")]
+    [EndpointSummary("Devuelve una publicación.")]
     [ProducesResponseType<RespuestaPublicacionFeedDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RespuestaPublicacionFeedDto>> Obtener(Guid id, CancellationToken cancellationToken)
@@ -48,6 +50,7 @@ public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comu
     }
 
     [HttpPost]
+    [EndpointSummary("Publica un texto con un archivo opcional.")]
     [ProducesResponseType<RespuestaPublicacionFeedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<RespuestaPublicacionFeedDto>> Crear(
@@ -62,6 +65,7 @@ public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comu
     }
 
     [HttpPut("{id:guid}")]
+    [EndpointSummary("Edita una publicación propia.")]
     [ProducesResponseType<RespuestaPublicacionFeedDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -72,18 +76,12 @@ public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comu
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
 
-        try
-        {
-            var resultado = await servicio.ActualizarAsync(usuarioId, id, entrada, cancellationToken);
-            return resultado is null ? NoEncontrada() : Ok(ARespuesta(resultado, usuarioId));
-        }
-        catch (PublicacionAjenaException ex)
-        {
-            return Prohibido(ex);
-        }
+        var resultado = await servicio.ActualizarAsync(usuarioId, id, entrada, cancellationToken);
+        return resultado is null ? NoEncontrada() : Ok(ARespuesta(resultado, usuarioId));
     }
 
     [HttpDelete("{id:guid}")]
+    [EndpointSummary("Elimina (borrado lógico) una publicación propia.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -91,26 +89,13 @@ public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comu
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
 
-        try
-        {
-            return await servicio.EliminarAsync(usuarioId, id, cancellationToken) ? NoContent() : NoEncontrada();
-        }
-        catch (PublicacionAjenaException ex)
-        {
-            return Prohibido(ex);
-        }
+        return await servicio.EliminarAsync(usuarioId, id, cancellationToken) ? NoContent() : NoEncontrada();
     }
 
     private ObjectResult NoEncontrada() => NotFound(new ProblemDetails
     {
         Status = StatusCodes.Status404NotFound,
         Title = "La publicación no existe o fue eliminada."
-    });
-
-    private ObjectResult Prohibido(PublicacionAjenaException ex) => StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails
-    {
-        Status = StatusCodes.Status403Forbidden,
-        Title = ex.Message
     });
 
     /// <summary>Da "me gusta" a la publicación. Repetirlo no suma otra vez.</summary>
@@ -145,6 +130,7 @@ public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comu
     }
 
     [HttpPost("{id:guid}/comentarios")]
+    [EndpointSummary("Comenta una publicación.")]
     [ProducesResponseType<RespuestaComentarioFeedDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -170,16 +156,9 @@ public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comu
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
 
-        try
-        {
-            return await comunidad.EliminarComentarioAsync(usuarioId, id, comentarioId, cancellationToken)
-                ? NoContent()
-                : NotFound(new ProblemDetails { Status = StatusCodes.Status404NotFound, Title = "El comentario no existe o fue eliminado." });
-        }
-        catch (ComentarioAjenoException ex)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails { Status = StatusCodes.Status403Forbidden, Title = ex.Message });
-        }
+        return await comunidad.EliminarComentarioAsync(usuarioId, id, comentarioId, cancellationToken)
+            ? NoContent()
+            : NotFound(new ProblemDetails { Status = StatusCodes.Status404NotFound, Title = "El comentario no existe o fue eliminado." });
     }
 
     private async Task<ActionResult<EstadoMeGustaDto>> MarcarMeGusta(Guid id, bool meGusta, CancellationToken cancellationToken)
@@ -193,7 +172,7 @@ public sealed class FeedController(ServicioFeed servicio, ServicioComunidad comu
     }
 
     private RespuestaPublicacionFeedDto ARespuesta(PublicacionFeed resultado, Guid usuarioId)
-        => MapeoComunidad.Publicacion(resultado, usuarioId, UrlArchivo);
+        => MapeoComunidad.Publicacion(resultado, usuarioId, UrlArchivo, clave => Request.Firmada(clave, firmas));
 
-    private string? UrlArchivo(string? clave) => clave is null ? null : $"{Request.Scheme}://{Request.Host}/uploads/{clave}";
+    private string? UrlArchivo(string? clave) => Request.Publica(clave);
 }

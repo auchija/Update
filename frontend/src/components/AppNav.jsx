@@ -16,11 +16,8 @@ export default function AppNav({ onCreate, requestsCount = 0 }) {
 
   async function handleLogout() {
     setIsLoggingOut(true);
-    try {
-      await logout();
-    } finally {
-      navigate(ROUTES.home, { replace: true });
-    }
+    navigate(ROUTES.home, { replace: true });
+    await logout().catch(() => {});
   }
 
   const profileItem = user && (

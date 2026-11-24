@@ -52,8 +52,13 @@ node backend/demo/sembrar.mjs
 # Recorre los endpoints de archivos, historiales y emprendimientos con esas dos cuentas.
 # Necesita Supabase Storage configurado. Lo que crea lo borra al final.
 node backend/demo/verificar.mjs
+
+# Llena la red social: 10 cuentas con fotos, publicaciones, comentarios, "me gusta",
+# seguidores, una cuenta privada y solicitudes pendientes. Las fotos vienen de picsum.photos.
+$env:UPDATE_DEMO_CLAVE = "<clave-de-prueba-con-letras-y-numeros>"
+node backend/demo/red-social.mjs
 ```
 
-Para probar también los archivos de producto, ejecuta `backend/demo/producto.sql` en la base (crea un producto de muestra e imprime su id) y define `UPDATE_DEMO_PRODUCTO_ID` con ese id antes de `verificar.mjs`. Los dos scripts solo aceptan una API local, para no tocar producción por error.
+Para probar también los archivos de producto, ejecuta `backend/demo/producto.sql` en la base (crea un producto de muestra e imprime su id) y define `UPDATE_DEMO_PRODUCTO_ID` con ese id antes de `verificar.mjs`. `sembrar.mjs` y `verificar.mjs` solo aceptan una API local. `red-social.mjs` usa `UPDATE_API` para elegir el servidor y, si no es local, exige `UPDATE_DEMO_CONFIRMAR=si`.
 
 `backend/demo/modelo.svg` es el diagrama de las tablas de archivos, publicaciones y emprendimientos (su fuente es `modelo.dot`).

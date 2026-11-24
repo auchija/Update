@@ -1,11 +1,12 @@
 import { API_URL } from "../config.js";
+import { optimizeImage } from "../utils/imageOptimization.js";
 import { apiRequest } from "./api.js";
 
 export const ARCHIVOS_PAGE_SIZE = 20;
 
-export function subirImagen(archivo, proposito) {
+export async function subirImagen(archivo, proposito) {
   const body = new FormData();
-  body.append("archivo", archivo);
+  body.append("archivo", await optimizeImage(archivo));
   body.append("proposito", proposito);
   return apiRequest("/archivos/subir", { method: "POST", body });
 }

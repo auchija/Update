@@ -8,8 +8,6 @@ namespace update.Application.Services;
 
 public sealed record PublicacionFeed(Publicacion Publicacion, Perfil Autor, string? ClaveFotoAutor, Guid? ImagenArchivoId, string? ClaveImagen, string? TipoMime, bool MeGusta = false);
 
-public sealed class PublicacionAjenaException() : Exception("Solo puedes cambiar tus propias publicaciones.");
-
 public sealed class ServicioFeed(
     IPublicacionRepository publicaciones,
     IPublicacionArchivoRepository publicacionArchivos,
@@ -86,14 +84,13 @@ public sealed class ServicioFeed(
         await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
         {
             if (await tiposPublicacion.ObtenerPorClaveAsync([TipoGeneral], ct) is null)
-                await tiposPublicacion.AgregarAsync(new TipoPublicacion { Codigo = TipoGeneral, Nombre = "General" }, ct);
+                await tiposPublicacion.AsegurarAsync(TipoGeneral, "General", ct);
 
             await publicaciones.AgregarAsync(publicacion, ct);
             if (imagen is not null)
                 await publicacionArchivos.AgregarAsync(new PublicacionArchivo { PublicacionId = publicacion.Id, ArchivoId = imagen.Id }, ct);
 
-            autor.Perfil.TotalPublicaciones++;
-            await perfiles.ActualizarAsync(autor.Perfil, ct);
+            await perfiles.AjustarPublicacionesAsync(autor.Perfil.Id, 1, ct);
             return true;
         }, cancellationToken);
 
@@ -112,7 +109,7 @@ public sealed class ServicioFeed(
 
         await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
         {
-            await publicaciones.ActualizarAsync(publicacion, ct);
+            await publicaciones.ActualizarContenidoAsync(publicacion, ct);
 
             var actuales = await publicacionArchivos.ObtenerPorPublicacionesAsync([publicacionId], ct);
             if (actuales.Select(pa => (Guid?)pa.ArchivoId).FirstOrDefault() != imagen?.Id)
@@ -132,13 +129,11 @@ public sealed class ServicioFeed(
     {
         var publicacion = await ObtenerPropiaAsync(usuarioId, publicacionId, cancellationToken);
         if (publicacion is null) return false;
-        var autor = (await miPerfil.ObtenerAsync(usuarioId, cancellationToken))!;
 
         await unitOfWork.EjecutarEnTransaccionAsync(async ct =>
         {
-            await publicaciones.EliminarAsync(publicacion, ct);
-            autor.Perfil.TotalPublicaciones = Math.Max(0, autor.Perfil.TotalPublicaciones - 1);
-            await perfiles.ActualizarAsync(autor.Perfil, ct);
+            if (await publicaciones.MarcarEliminadaAsync(publicacionId, ct))
+                await perfiles.AjustarPublicacionesAsync(publicacion.PerfilAutorId, -1, ct);
             return true;
         }, cancellationToken);
         return true;
@@ -148,7 +143,7 @@ public sealed class ServicioFeed(
     {
         var publicacion = await publicaciones.ObtenerPorClaveAsync([publicacionId], cancellationToken);
         if (publicacion is null) return null;
-        if (publicacion.CreadoPorUsuarioId != usuarioId) throw new PublicacionAjenaException();
+        if (publicacion.CreadoPorUsuarioId != usuarioId) throw new AccesoDenegadoException("Solo puedes cambiar tus propias publicaciones.");
         return publicacion;
     }
 

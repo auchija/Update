@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import FullPageLoader from "../components/FullPageLoader.jsx";
+import SessionUnavailable from "../components/SessionUnavailable.jsx";
 import { ROUTES } from "../constants/routes.js";
 import { useAuth } from "../hooks/useAuth.js";
 
@@ -9,6 +10,10 @@ export default function PrivateRoute() {
 
   if (status === "checking") {
     return <FullPageLoader label="Verificando tu sesión" />;
+  }
+
+  if (status === "unavailable") {
+    return <SessionUnavailable />;
   }
 
   if (status === "anonymous") {

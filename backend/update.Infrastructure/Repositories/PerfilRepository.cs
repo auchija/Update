@@ -30,4 +30,19 @@ public sealed class PerfilRepository(ApplicationDbContext contexto) : GenericRep
         => await Conjunto.Where(e => e.Id == perfilId).ExecuteUpdateAsync(s => s
             .SetProperty(e => e.TotalSeguidores, e => Math.Max(0, e.TotalSeguidores + seguidores))
             .SetProperty(e => e.TotalSeguidos, e => Math.Max(0, e.TotalSeguidos + seguidos)), cancellationToken);
+
+    public async Task AjustarPublicacionesAsync(Guid perfilId, int cambio, CancellationToken cancellationToken = default)
+        => await Conjunto.Where(e => e.Id == perfilId).ExecuteUpdateAsync(s => s
+            .SetProperty(e => e.TotalPublicaciones, e => Math.Max(0, e.TotalPublicaciones + cambio)), cancellationToken);
+
+    public async Task ActualizarDatosAsync(Perfil perfil, CancellationToken cancellationToken = default)
+    {
+        perfil.Validar();
+        var entrada = Contexto.Entry(perfil);
+        entrada.State = EntityState.Modified;
+        entrada.Property(e => e.TotalSeguidores).IsModified = false;
+        entrada.Property(e => e.TotalSeguidos).IsModified = false;
+        entrada.Property(e => e.TotalPublicaciones).IsModified = false;
+        await Contexto.SaveChangesAsync(cancellationToken);
+    }
 }

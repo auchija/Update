@@ -29,6 +29,7 @@ public sealed class ComentarioConfiguration : IEntityTypeConfiguration<Comentari
         builder.Property(e => e.EliminadoEn).HasColumnName("eliminado_en").HasColumnType("timestamptz");
         builder.HasOne(e => e.Publicacion).WithMany().HasForeignKey(e => e.PublicacionId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_comentarios_publicacion_id_publicaciones");
         builder.HasIndex(e => e.PublicacionId).HasDatabaseName("ix_comentarios_publicacion_id");
+        builder.HasIndex(e => new { e.PublicacionId, e.CreadoEn, e.Id }).HasFilter("eliminado_en IS NULL").HasDatabaseName("ix_comentarios_hilo");
         builder.HasOne(e => e.PerfilAutor).WithMany().HasForeignKey(e => e.PerfilAutorId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_comentarios_perfil_autor_id_perfiles");
         builder.HasIndex(e => e.PerfilAutorId).HasDatabaseName("ix_comentarios_perfil_autor_id");
         builder.HasOne(e => e.CreadoPorUsuario).WithMany().HasForeignKey(e => e.CreadoPorUsuarioId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_comentarios_creado_por_usuario_id_usuarios");

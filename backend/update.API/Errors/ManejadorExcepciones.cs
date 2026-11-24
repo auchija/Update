@@ -16,6 +16,26 @@ public sealed class ManejadorExcepciones(IProblemDetailsService problemas, ILogg
             estado = StatusCodes.Status400BadRequest;
             titulo = excepcion.Message;
         }
+        else if (excepcion is RecursoNoEncontradoException)
+        {
+            estado = StatusCodes.Status404NotFound;
+            titulo = excepcion.Message;
+        }
+        else if (excepcion is AccesoDenegadoException)
+        {
+            estado = StatusCodes.Status403Forbidden;
+            titulo = excepcion.Message;
+        }
+        else if (excepcion is ConflictoException)
+        {
+            estado = StatusCodes.Status409Conflict;
+            titulo = excepcion.Message;
+        }
+        else if (excepcion is DatosEnConflictoException conflicto)
+        {
+            estado = StatusCodes.Status409Conflict;
+            titulo = conflicto.Titulo;
+        }
         else if (excepcion is CuentaBloqueadaException)
         {
             estado = StatusCodes.Status423Locked;
@@ -41,11 +61,13 @@ public sealed class ManejadorExcepciones(IProblemDetailsService problemas, ILogg
         }
         if (estado >= 500) logger.LogError(excepcion, "Error en {Ruta}", contexto.Request.Path);
         contexto.Response.StatusCode = estado;
-        await problemas.WriteAsync(new ProblemDetailsContext
+        var detalle = new ProblemDetails { Status = estado, Title = titulo, Instance = contexto.Request.Path };
+        if (excepcion is DatosEnConflictoException datos)
         {
-            HttpContext = contexto,
-            ProblemDetails = new ProblemDetails { Status = estado, Title = titulo, Instance = contexto.Request.Path }
-        });
+            detalle.Extensions["message"] = datos.Message;
+            detalle.Extensions["errors"] = datos.Errores;
+        }
+        await problemas.WriteAsync(new ProblemDetailsContext { HttpContext = contexto, ProblemDetails = detalle });
         return true;
     }
 }

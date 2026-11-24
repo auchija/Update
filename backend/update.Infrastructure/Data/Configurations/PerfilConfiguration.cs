@@ -46,6 +46,8 @@ public sealed class PerfilConfiguration : IEntityTypeConfiguration<Perfil>
         builder.HasOne(e => e.PortadaArchivo).WithMany().HasForeignKey(e => e.PortadaArchivoId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_perfiles_portada_archivo_id_archivos");
         builder.HasOne(p => p.Usuario).WithMany(u => u.Perfiles).HasForeignKey(p => p.UsuarioId).IsRequired().OnDelete(DeleteBehavior.Cascade).HasConstraintName("fk_perfiles_usuario_id_usuarios");
         builder.HasIndex(e => e.UsuarioId).HasDatabaseName("ix_perfiles_usuario_id");
+        builder.HasIndex(e => e.NombreUsuario).IsUnique().HasFilter("eliminado_en IS NULL").HasDatabaseName("ux_perfiles_nombre_usuario_activo");
+        builder.HasIndex(e => new { e.Tipo, e.Estado, e.TotalPublicaciones, e.TotalSeguidores, e.Id }).IsDescending(false, false, true, true, false).HasFilter("eliminado_en IS NULL").HasDatabaseName("ix_perfiles_sugeridos");
         builder.HasIndex(e => e.PortadaArchivoId).HasDatabaseName("ix_perfiles_portada_archivo_id");
         builder.HasIndex(e => new { e.Estado, e.CreadoEn }).HasDatabaseName("ix_perfiles_estado_creado_en");
         builder.HasQueryFilter(e => e.EliminadoEn == null);

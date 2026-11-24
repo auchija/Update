@@ -9,7 +9,7 @@ namespace update.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/comunidad")]
-public sealed class ComunidadController(ServicioComunidad servicio) : ControllerBase
+public sealed class ComunidadController(ServicioComunidad servicio, FirmaArchivos firmas) : ControllerBase
 {
     /// <summary>Perfiles activos para descubrir (los que más publican), con la marca <c>loSigo</c>.</summary>
     [HttpGet("sugerencias")]
@@ -25,6 +25,7 @@ public sealed class ComunidadController(ServicioComunidad servicio) : Controller
     }
 
     [HttpGet("perfiles/{nombreUsuario}")]
+    [EndpointSummary("Devuelve un perfil por su @usuario.")]
     [ProducesResponseType<PerfilPublicoDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PerfilPublicoDto>> Perfil(string nombreUsuario, CancellationToken cancellationToken)
@@ -51,7 +52,7 @@ public sealed class ComunidadController(ServicioComunidad servicio) : Controller
         var publicaciones = await servicio.ListarPublicacionesDePerfilAsync(usuarioId, nombreUsuario, pagina, tamanoPagina, cancellationToken);
         return publicaciones is null
             ? NoEncontrado()
-            : Ok(publicaciones.Select(p => MapeoComunidad.Publicacion(p, usuarioId, UrlArchivo)).ToList());
+            : Ok(publicaciones.Select(p => MapeoComunidad.Publicacion(p, usuarioId, UrlArchivo, clave => Request.Firmada(clave, firmas))).ToList());
     }
 
     /// <summary>Quienes siguen al perfil. En una cuenta privada, solo para su dueño y sus seguidores.</summary>
@@ -165,15 +166,8 @@ public sealed class ComunidadController(ServicioComunidad servicio) : Controller
     {
         if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var usuarioId)) return Unauthorized();
 
-        try
-        {
-            var perfiles = await consulta(usuarioId);
-            return perfiles is null ? NoEncontrado() : Ok(perfiles.Select(p => MapeoComunidad.Perfil(p, UrlArchivo)).ToList());
-        }
-        catch (PerfilPrivadoException ex)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails { Status = StatusCodes.Status403Forbidden, Title = ex.Message });
-        }
+        var perfiles = await consulta(usuarioId);
+        return perfiles is null ? NoEncontrado() : Ok(perfiles.Select(p => MapeoComunidad.Perfil(p, UrlArchivo)).ToList());
     }
 
     private ObjectResult NoEncontrado() => NotFound(new ProblemDetails
@@ -182,5 +176,5 @@ public sealed class ComunidadController(ServicioComunidad servicio) : Controller
         Title = "Ese perfil no existe."
     });
 
-    private string? UrlArchivo(string? clave) => clave is null ? null : $"{Request.Scheme}://{Request.Host}/uploads/{clave}";
+    private string? UrlArchivo(string? clave) => Request.Publica(clave);
 }

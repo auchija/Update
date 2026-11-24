@@ -23,5 +23,7 @@ public sealed class SeguimientoConfiguration : IEntityTypeConfiguration<Seguimie
         builder.HasOne(e => e.PerfilSeguido).WithMany().HasForeignKey(e => e.PerfilSeguidoId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_seguimientos_perfil_seguido_id_perfiles");
         builder.HasIndex(e => e.PerfilSeguidoId).HasDatabaseName("ix_seguimientos_perfil_seguido_id");
         builder.HasIndex(e => new { e.Estado, e.CreadoEn }).HasDatabaseName("ix_seguimientos_estado_creado_en");
+        builder.HasIndex(e => new { e.PerfilSeguidoId, e.Estado, e.CreadoEn }).IsDescending(false, false, true).HasDatabaseName("ix_seguimientos_lista_seguidores");
+        builder.HasIndex(e => new { e.UsuarioSeguidorId, e.Estado, e.CreadoEn }).IsDescending(false, false, true).HasDatabaseName("ix_seguimientos_lista_seguidos");
     }
 }

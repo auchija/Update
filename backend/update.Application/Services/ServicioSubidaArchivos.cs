@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Microsoft.Extensions.Logging;
 using update.Domain.Entities;
 using update.Domain.Enums;
 using update.Domain.Exceptions;
@@ -9,7 +10,7 @@ namespace update.Application.Services;
 public sealed record OpcionesSubida(string Carpeta);
 
 public sealed class ServicioSubidaArchivos(IArchivoRepository archivos, OpcionesSubida opciones, Lazy<IAlmacenObjetos> almacenRemoto,
-    IProductoRepository productos, IProductoArchivoRepository adjuntos)
+    IProductoRepository productos, IProductoArchivoRepository adjuntos, FirmaArchivos firmas, ILogger<ServicioSubidaArchivos> logger)
 {
     private IAlmacenObjetos Almacen => almacenRemoto.Value;
     public const long TamanoMaximoBytes = 5 * 1024 * 1024;
@@ -88,14 +89,17 @@ public sealed class ServicioSubidaArchivos(IArchivoRepository archivos, Opciones
     }
 
     public async Task<IReadOnlyList<Archivo>> HistorialAsync(Guid usuario, int pagina, int tamano, CancellationToken ct)
-        => await archivos.ObtenerPorSubidoPorUsuarioIdAsync(usuario, pagina, tamano, ct);
+        => await archivos.ObtenerHistorialAsync(usuario, pagina, tamano, ct);
 
-    public async Task<(Archivo Archivo, byte[] Datos)?> AbrirAsync(string clave, CancellationToken ct)
+    public async Task<(Archivo Archivo, byte[] Datos, bool Restringido)?> AbrirAsync(string clave, long? expira, string? firma, CancellationToken ct)
     {
         if (!ClaveValida(clave)) return null;
         var archivo = (await archivos.BuscarAsync(a => a.ClaveObjeto == clave && a.Estado == EstadoArchivo.Listo
             && a.Visibilidad == VisibilidadArchivo.Publico, 1, 1, ct)).FirstOrDefault();
         if (archivo is null) return null;
+        var restringido = archivo.Proposito == PropositoArchivo.Publicacion
+            && await archivos.EsDeCuentaPrivadaAsync(archivo.SubidoPorUsuarioId, ct);
+        if (restringido && !firmas.EsValida(clave, expira, firma)) return null;
         byte[]? datos;
         if (archivo.ProveedorAlmacenamiento == "local")
         {
@@ -105,43 +109,51 @@ public sealed class ServicioSubidaArchivos(IArchivoRepository archivos, Opciones
         else if (archivo.ProveedorAlmacenamiento == "supabase" && archivo.Bucket == Almacen.Bucket)
             datos = await Almacen.LeerAsync(clave, ct);
         else return null;
-        return datos is null ? null : (archivo, datos);
+        return datos is null ? null : (archivo, datos, restringido);
     }
 
-    public async Task<int> EliminarPropioAsync(Guid usuario, Guid id, CancellationToken ct)
+    public async Task EliminarPropioAsync(Guid usuario, Guid id, CancellationToken ct)
     {
-        var a = await archivos.ObtenerPorClaveAsync([id], ct);
-        if (a is null) return 404;
-        if (a.SubidoPorUsuarioId != usuario) return 403;
-        if (await archivos.EnUsoAsync(id, ct) || !ClaveValida(a.ClaveObjeto)) return 409;
-        if (a.ProveedorAlmacenamiento == "local") File.Delete(Path.Combine(opciones.Carpeta, a.ClaveObjeto));
-        else if (a.ProveedorAlmacenamiento == "supabase" && a.Bucket == Almacen.Bucket)
-            await Almacen.BorrarAsync(a.ClaveObjeto, ct);
-        else return 409;
+        var a = await archivos.ObtenerPorClaveAsync([id], ct)
+            ?? throw new RecursoNoEncontradoException("El archivo no existe o ya fue eliminado.");
+        if (a.SubidoPorUsuarioId != usuario) throw new AccesoDenegadoException("Solo puedes eliminar tus propios archivos.");
+        if (await archivos.EnUsoAsync(id, ct))
+            throw new ConflictoException("Este archivo está en uso. Quítalo primero de la publicación, el perfil o el producto.");
+        var esLocal = a.ProveedorAlmacenamiento == "local";
+        if (!ClaveValida(a.ClaveObjeto) || (!esLocal && (a.ProveedorAlmacenamiento != "supabase" || a.Bucket != Almacen.Bucket)))
+            throw new ConflictoException("Este archivo no se puede eliminar desde aquí.");
         await archivos.EliminarAsync(a, CancellationToken.None);
-        return 204;
+        try
+        {
+            if (esLocal) File.Delete(Path.Combine(opciones.Carpeta, a.ClaveObjeto));
+            else await Almacen.BorrarAsync(a.ClaveObjeto, CancellationToken.None);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or HttpRequestException or TaskCanceledException)
+        {
+            logger.LogWarning(ex, "El archivo {Clave} se quitó de la base pero quedó en el almacenamiento.", a.ClaveObjeto);
+        }
     }
 
-    public async Task<int> AdjuntarProductoAsync(Guid usuario, Guid productoId, Guid archivoId, CancellationToken ct)
+    public async Task AdjuntarProductoAsync(Guid usuario, Guid productoId, Guid archivoId, CancellationToken ct)
     {
         var producto = await productos.ObtenerPorClaveAsync([productoId], ct);
         var archivo = await archivos.ObtenerPorClaveAsync([archivoId], ct);
-        if (producto is null || archivo is null) return 404;
-        if (producto.CreadoPorUsuarioId != usuario || archivo.SubidoPorUsuarioId != usuario) return 403;
-        if (archivo.Proposito != PropositoArchivo.Producto || archivo.Estado != EstadoArchivo.Listo) return 400;
+        if (producto is null || archivo is null) throw new RecursoNoEncontradoException("El producto o el archivo no existe.");
+        if (producto.CreadoPorUsuarioId != usuario || archivo.SubidoPorUsuarioId != usuario)
+            throw new AccesoDenegadoException("Solo puedes usar tus propios productos y archivos.");
+        if (archivo.Proposito != PropositoArchivo.Producto || archivo.Estado != EstadoArchivo.Listo)
+            throw new ExcepcionDominio("Ese archivo no se puede adjuntar a un producto.");
         if (await adjuntos.ObtenerPorClaveAsync([productoId, archivoId], ct) is null)
             await adjuntos.AgregarAsync(new ProductoArchivo { ProductoId = productoId, ArchivoId = archivoId }, ct);
-        return 204;
     }
 
-    public async Task<int> DesvincularProductoAsync(Guid usuario, Guid productoId, Guid archivoId, CancellationToken ct)
+    public async Task DesvincularProductoAsync(Guid usuario, Guid productoId, Guid archivoId, CancellationToken ct)
     {
-        var producto = await productos.ObtenerPorClaveAsync([productoId], ct);
-        if (producto is null) return 404;
-        if (producto.CreadoPorUsuarioId != usuario) return 403;
+        var producto = await productos.ObtenerPorClaveAsync([productoId], ct)
+            ?? throw new RecursoNoEncontradoException("El producto no existe.");
+        if (producto.CreadoPorUsuarioId != usuario) throw new AccesoDenegadoException("Solo puedes cambiar tus propios productos.");
         var enlace = await adjuntos.ObtenerPorClaveAsync([productoId, archivoId], ct);
         if (enlace is not null) await adjuntos.EliminarAsync(enlace, ct);
-        return 204;
     }
 
     private static bool ClaveValida(string clave) =>

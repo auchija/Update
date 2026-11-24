@@ -1,5 +1,7 @@
-import { apiRequest } from "./api.js";
+import { apiRequest, isTemporaryError } from "./api.js";
 import { clearSession, setSession } from "./session.js";
+
+const RESTORE_RETRY_DELAYS_MS = [1000, 2000, 4000, 8000, 15000, 15000, 15000, 15000];
 
 export async function login(identifier, password) {
   const data = await apiRequest("/auth/login", { method: "POST", body: { identifier, password } });
@@ -16,17 +18,24 @@ export async function register(form) {
 }
 
 export async function restoreSession() {
-  try {
-    const data = await apiRequest("/auth/refresh", { method: "POST", retryOnExpiredToken: false });
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const data = await apiRequest("/auth/refresh", {
+        method: "POST",
+        retryOnExpiredToken: false,
+      });
 
-    setSession(data.accessToken, null);
+      setSession(data.accessToken, null);
 
-    const user = await apiRequest("/auth/me");
-    setSession(data.accessToken, user);
-    return user;
-  } catch {
-    clearSession();
-    return null;
+      const user = await apiRequest("/auth/me");
+      setSession(data.accessToken, user);
+      return user;
+    } catch (error) {
+      clearSession();
+      if (!isTemporaryError(error)) return null;
+      if (attempt >= RESTORE_RETRY_DELAYS_MS.length) throw error;
+      await new Promise((resolve) => setTimeout(resolve, RESTORE_RETRY_DELAYS_MS[attempt]));
+    }
   }
 }
 

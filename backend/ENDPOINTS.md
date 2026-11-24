@@ -12,6 +12,8 @@ Todas las rutas empiezan en `http://localhost:5195`. Las respuestas son JSON; lo
 | `POST /api/auth/logout` | Cierra la sesión y anula la cookie. | 204 |
 | `GET /api/auth/me` | Datos del usuario con sesión. | 200, 401 |
 
+`POST /api/auth/login` y `POST /api/auth/register` aceptan hasta 60 peticiones por minuto desde una misma IP; después responden 429.
+
 ## Usuario con sesión
 
 Requieren el encabezado `Authorization: Bearer <accessToken>`.
@@ -25,7 +27,7 @@ Requieren el encabezado `Authorization: Bearer <accessToken>`.
 | `DELETE /api/archivos/mios/{id}` | Borra el archivo del Storage y su registro. Responde 409 si sigue en uso en un perfil, una publicación o un producto. | 204, 401, 403, 404, 409 |
 | `PUT /api/mis-productos/{productoId}/archivos/{archivoId}` | Adjunta a un producto propio un archivo subido con `proposito=producto`. | 204, 400, 401, 403, 404 |
 | `DELETE /api/mis-productos/{productoId}/archivos/{archivoId}` | Quita ese archivo del producto (el archivo sigue en el historial). | 204, 401, 403, 404 |
-| `GET /uploads/{clave}` | Muestra el archivo (las imágenes se ven, los PDF se descargan). No pide sesión. | 200, 404 |
+| `GET /uploads/{clave}` | Muestra el archivo (las imágenes se ven, los PDF se descargan). No pide sesión; los archivos de publicaciones de cuentas privadas exigen el enlace firmado (`exp` y `firma`, vigente de 1 a 2 horas) que entrega la API a quien puede verlos. | 200, 404 |
 
 ## Mis emprendimientos
 

@@ -9,4 +9,6 @@ public interface IPerfilRepository : IRepository<Perfil>
     Task<Perfil?> ObtenerActivoPorNombreUsuarioAsync(string nombreUsuario, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Perfil>> ObtenerSugeridosAsync(Guid excluirUsuarioId, int cantidad, CancellationToken cancellationToken = default);
     Task AjustarSeguimientoAsync(Guid perfilId, int seguidores, int seguidos, CancellationToken cancellationToken = default);
+    Task AjustarPublicacionesAsync(Guid perfilId, int cambio, CancellationToken cancellationToken = default);
+    Task ActualizarDatosAsync(Perfil perfil, CancellationToken cancellationToken = default);
 }

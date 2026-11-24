@@ -40,6 +40,7 @@ public sealed class PublicacionConfiguration : IEntityTypeConfiguration<Publicac
         builder.Property(e => e.EliminadoEn).HasColumnName("eliminado_en").HasColumnType("timestamptz");
         builder.HasOne(e => e.PerfilAutor).WithMany().HasForeignKey(e => e.PerfilAutorId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_publicaciones_perfil_autor_id_perfiles");
         builder.HasIndex(e => e.PerfilAutorId).HasDatabaseName("ix_publicaciones_perfil_autor_id");
+        builder.HasIndex(e => new { e.PerfilAutorId, e.CreadoEn, e.Id }).IsDescending(false, true, true).HasFilter("eliminado_en IS NULL").HasDatabaseName("ix_publicaciones_perfil_pagina");
         builder.HasOne(e => e.CreadoPorUsuario).WithMany().HasForeignKey(e => e.CreadoPorUsuarioId).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_publicaciones_creado_por_usuario_id_usuarios");
         builder.HasIndex(e => e.CreadoPorUsuarioId).HasDatabaseName("ix_publicaciones_creado_por_usuario_id");
         builder.HasOne(e => e.TipoPublicacion).WithMany().HasForeignKey(e => e.TipoPublicacionCodigo).OnDelete(DeleteBehavior.Restrict).HasConstraintName("fk_publicaciones_tipo_publicacion_codigo_tipos_publicacion");

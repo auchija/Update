@@ -8,8 +8,6 @@ namespace update.Application.Services;
 
 public sealed record MiPerfilResultado(Perfil Perfil, string? ClaveFoto);
 
-public sealed class NombreUsuarioNoDisponibleException() : Exception("Ese usuario no está disponible.");
-
 public sealed class ServicioMiPerfil(
     IPerfilRepository perfiles,
     IArchivoRepository archivos,
@@ -32,7 +30,8 @@ public sealed class ServicioMiPerfil(
         if (perfil is null) return null;
 
         if (!await NombreUsuarioDisponibleAsync(entrada.NombreUsuario, perfil.Id, cancellationToken))
-            throw new NombreUsuarioNoDisponibleException();
+            throw new DatosEnConflictoException("Ese usuario no está disponible.", "Revisa los datos marcados.",
+                new Dictionary<string, string> { ["nombreUsuario"] = "Ese usuario no está disponible." });
         var claveFoto = await ObtenerClaveFotoPropiaAsync(entrada.FotoArchivoId, usuarioId, cancellationToken);
 
         perfil.NombreUsuario = entrada.NombreUsuario;
@@ -44,7 +43,7 @@ public sealed class ServicioMiPerfil(
         if (entrada.EsPrivado is bool esPrivado) perfil.EsPrivado = esPrivado;
         perfil.ActualizadoEn = DateTime.UtcNow;
 
-        await perfiles.ActualizarAsync(perfil, cancellationToken);
+        await perfiles.ActualizarDatosAsync(perfil, cancellationToken);
         return new MiPerfilResultado(perfil, claveFoto);
     }
 

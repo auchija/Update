@@ -152,7 +152,8 @@ namespace update.Infrastructure.Migrations
                     b.HasIndex("Estado", "CreadoEn")
                         .HasDatabaseName("ix_archivos_estado_creado_en");
 
-                    b.HasIndex("SubidoPorUsuarioId", "Id")
+                    b.HasIndex("SubidoPorUsuarioId", "CreadoEn", "Id")
+                        .IsDescending(false, true, true)
                         .HasDatabaseName("ix_archivos_historial_usuario")
                         .HasFilter("eliminado_en IS NULL");
 
@@ -398,6 +399,10 @@ namespace update.Infrastructure.Migrations
 
                     b.HasIndex("ComentarioPadreId", "PublicacionId")
                         .HasDatabaseName("ix_comentarios_comentario_padre_id_publicacion_id");
+
+                    b.HasIndex("PublicacionId", "CreadoEn", "Id")
+                        .HasDatabaseName("ix_comentarios_hilo")
+                        .HasFilter("eliminado_en IS NULL");
 
                     b.ToTable("comentarios", null, t =>
                         {
@@ -1848,6 +1853,11 @@ namespace update.Infrastructure.Migrations
                     b.HasIndex("FotoArchivoId")
                         .HasDatabaseName("ix_perfiles_foto_archivo_id");
 
+                    b.HasIndex("NombreUsuario")
+                        .IsUnique()
+                        .HasDatabaseName("ux_perfiles_nombre_usuario_activo")
+                        .HasFilter("eliminado_en IS NULL");
+
                     b.HasIndex("PortadaArchivoId")
                         .HasDatabaseName("ix_perfiles_portada_archivo_id");
 
@@ -1856,6 +1866,11 @@ namespace update.Infrastructure.Migrations
 
                     b.HasIndex("Estado", "CreadoEn")
                         .HasDatabaseName("ix_perfiles_estado_creado_en");
+
+                    b.HasIndex("Tipo", "Estado", "TotalPublicaciones", "TotalSeguidores", "Id")
+                        .IsDescending(false, false, true, true, false)
+                        .HasDatabaseName("ix_perfiles_sugeridos")
+                        .HasFilter("eliminado_en IS NULL");
 
                     b.ToTable("perfiles", null, t =>
                         {
@@ -2332,6 +2347,11 @@ namespace update.Infrastructure.Migrations
                         .HasDatabaseName("ix_publicaciones_historial_autor")
                         .HasFilter("eliminado_en IS NULL");
 
+                    b.HasIndex("PerfilAutorId", "CreadoEn", "Id")
+                        .IsDescending(false, true, true)
+                        .HasDatabaseName("ix_publicaciones_perfil_pagina")
+                        .HasFilter("eliminado_en IS NULL");
+
                     b.HasIndex("Visibilidad", "CreadoEn", "Id")
                         .IsDescending(false, true, true)
                         .HasDatabaseName("ix_publicaciones_feed_pagina")
@@ -2767,6 +2787,14 @@ namespace update.Infrastructure.Migrations
 
                     b.HasIndex("Estado", "CreadoEn")
                         .HasDatabaseName("ix_seguimientos_estado_creado_en");
+
+                    b.HasIndex("PerfilSeguidoId", "Estado", "CreadoEn")
+                        .IsDescending(false, false, true)
+                        .HasDatabaseName("ix_seguimientos_lista_seguidores");
+
+                    b.HasIndex("UsuarioSeguidorId", "Estado", "CreadoEn")
+                        .IsDescending(false, false, true)
+                        .HasDatabaseName("ix_seguimientos_lista_seguidos");
 
                     b.ToTable("seguimientos", null, t =>
                         {

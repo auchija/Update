@@ -13,19 +13,30 @@ function restoreSessionOnce() {
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("checking");
+  const [restoreAttempt, setRestoreAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
 
-    restoreSessionOnce().then((restoredUser) => {
-      if (cancelled) return;
-      setUser(restoredUser);
-      setStatus(restoredUser ? "authenticated" : "anonymous");
-    });
+    restoreSessionOnce()
+      .then((restoredUser) => {
+        if (cancelled) return;
+        setUser(restoredUser);
+        setStatus(restoredUser ? "authenticated" : "anonymous");
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("unavailable");
+      });
 
     return () => {
       cancelled = true;
     };
+  }, [restoreAttempt]);
+
+  const retrySession = useCallback(() => {
+    restoringSession = null;
+    setStatus("checking");
+    setRestoreAttempt((current) => current + 1);
   }, []);
 
   useEffect(() => {
@@ -63,8 +74,8 @@ export default function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, status, login, register, logout, updateUser }),
-    [user, status, login, register, logout, updateUser],
+    () => ({ user, status, login, register, logout, updateUser, retrySession }),
+    [user, status, login, register, logout, updateUser, retrySession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -15,10 +15,10 @@ const INDUSTRIES = [
 ];
 
 const METRICS = [
-  { value: "500+", label: "Emprendedores registrados" },
-  { value: "150+", label: "Conexiones realizadas" },
-  { value: "$2.5M", label: "En inversión conectada" },
-  { value: "4.8★", label: "Calificación promedio" },
+  { value: "6", label: "Papeles para conectar" },
+  { value: "8", label: "Categorías de emprendimiento" },
+  { value: "5", label: "Pasos para empezar" },
+  { value: "$0", label: "Para crear tu perfil" },
 ];
 
 const container = {

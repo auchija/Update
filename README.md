@@ -8,6 +8,16 @@ David Elias Castro
 
 UpDate es una red social para emprendedores. Es nuestro proyecto final de Desarrollo Web en la Universidad Autónoma de Occidente (UAO), en Cali.
 
+## Probarlo en línea
+
+| Parte | Dirección |
+| --- | --- |
+| Aplicación | https://update-amber-five.vercel.app |
+| API (Swagger) | https://update-rlrx.onrender.com/swagger |
+| Estado del servidor | https://update-rlrx.onrender.com/health |
+
+El servidor usa el plan gratuito de Render: si lleva 15 minutos sin uso, la primera petición puede tardar cerca de un minuto. Para probar la aplicación basta con crear una cuenta en **Crear mi perfil**.
+
 ## El problema
 
 Cuando alguien empieza un emprendimiento, casi siempre tiene la idea, pero le faltan las personas que lo pueden ayudar a crecer: un mentor que ya pasó por lo mismo, alguien que quiera invertir, un proveedor, un socio o simplemente sus primeros clientes.
@@ -43,11 +53,20 @@ En esta primera entrega el registro y el inicio de sesión funcionaban con cuent
 - **Registro e inicio de sesión de verdad.** Las cuentas se guardan en la base de datos y la contraseña nunca se guarda tal cual, sino cifrada (como un _hash_). Se puede entrar con el correo o con `@usuario`. Si alguien se equivoca 5 veces seguidas con la contraseña, la cuenta se bloquea 15 minutos.
 - **Páginas públicas y privadas.** La página de inicio, el registro y el inicio de sesión son públicas. El feed y el perfil son privados: si alguien escribe su dirección sin haber iniciado sesión, lo mandamos al inicio de sesión. La sesión se mantiene al recargar la página y se cierra con el botón **Cerrar sesión**.
 - **Mi perfil.** Cada persona puede ver y editar su nombre, su usuario, un titular, su biografía y su sitio web.
-- **Foto de perfil.** La foto se sube al servidor, que revisa que de verdad sea una imagen JPG, PNG o WEBP de máximo 5 MB, la guarda en disco con un nombre único y anota en la base de datos quién la subió, cuánto pesa y su tipo.
-- **Publicaciones.** En el feed cada persona puede publicar texto con una imagen opcional, ver lo que publican los demás (de lo más nuevo a lo más viejo) y editar o eliminar solo lo suyo. La imagen sigue el mismo camino que la foto de perfil: se guarda en disco y sus datos en la base de datos, enlazada a la publicación.
+- **Foto de perfil.** La foto se sube al servidor, que revisa que de verdad sea una imagen JPG, PNG o WEBP de máximo 5 MB, la guarda en Supabase Storage con un nombre único y anota en la base de datos quién la subió, cuánto pesa y su tipo.
+- **Publicaciones.** En el feed cada persona puede publicar texto con una imagen opcional, ver lo que publican los demás (de lo más nuevo a lo más viejo) y editar o eliminar solo lo suyo. La imagen sigue el mismo camino que la foto de perfil: el archivo va a Supabase Storage y sus datos a la base de datos, enlazados a la publicación.
 - **Mensajes claros cuando algo falla.** Mientras se espera al servidor se muestra que está cargando. Si hay un error, el formulario dice qué campo hay que corregir o qué pasó (sin conexión, cuenta bloqueada, usuario ocupado…).
 
-El chat y los eventos quedan para las siguientes entregas.
+## Qué trae la entrega final
+
+- **Red social completa.** Feed con fotos, "me gusta" (también con doble clic), comentarios, compartir por enlace, Explorar en cuadrícula y una página para cada publicación.
+- **Perfiles públicos.** Foto, biografía, contadores, cuadrícula de publicaciones, listas de seguidores y seguidos, y perfiles relacionados.
+- **Cuentas privadas y solicitudes de seguimiento.** Solo los seguidores aceptados ven el contenido de una cuenta privada. Las solicitudes se confirman o eliminan desde la página **Solicitudes**.
+- **Persistencia dual.** Cada archivo se guarda en Supabase Storage con un nombre UUID, y sus metadatos (nombre original, tipo, peso y checksum SHA-256) en PostgreSQL. Se puede ver, descargar y eliminar desde **Mis archivos**.
+- **Historial.** **Mis publicaciones** y **Mis archivos** muestran todo lo que la persona ha creado.
+- **Despliegue en la nube.** Vercel, Render y Supabase, con datos de ejemplo cargados.
+
+El chat y los eventos quedan como trabajo futuro.
 
 ## Dónde está cada punto que se pidió
 
@@ -63,6 +82,15 @@ Segunda entrega:
 - **Rutas públicas y privadas:** [`PrivateRoute.jsx`](frontend/src/routes/PrivateRoute.jsx), [`PublicOnlyRoute.jsx`](frontend/src/routes/PublicOnlyRoute.jsx) y [`App.jsx`](frontend/src/App.jsx).
 - **CRUD de la API usado desde la página web:** las publicaciones (`GET`, `POST`, `PUT` y `DELETE` en `/api/feed`) en [`FeedController.cs`](backend/update.API/Controllers/FeedController.cs) y [`FeedPage.jsx`](frontend/src/pages/app/FeedPage.jsx), y el perfil (`GET` y `PUT /api/perfil/yo`) desde [`perfilService.js`](frontend/src/services/perfilService.js). El manejo de carga y errores está en [`api.js`](frontend/src/services/api.js). Todos los endpoints están documentados en [`backend/ENDPOINTS.md`](backend/ENDPOINTS.md).
 - **Subida de archivos (`multipart/form-data`):** `POST /api/archivos/subir` en [`SubidaArchivosController.cs`](backend/update.API/Controllers/SubidaArchivosController.cs).
+
+Entrega final, según la rúbrica:
+
+| Criterio | Dónde se ve |
+| --- | --- |
+| **Integración del flujo** | Landing → registro o login → rutas privadas ([`PrivateRoute.jsx`](frontend/src/routes/PrivateRoute.jsx)) → publicar con archivo ([`PostForm.jsx`](frontend/src/pages/app/PostForm.jsx)) → historial ([`MyPostsPage.jsx`](frontend/src/pages/app/MyPostsPage.jsx) y [`MyFilesPage.jsx`](frontend/src/pages/app/MyFilesPage.jsx)). La sesión se conserva al recargar. |
+| **Persistencia dual** | [`ServicioSubidaArchivos.cs`](backend/update.Application/Services/ServicioSubidaArchivos.cs): valida el contenido real del archivo, su extensión y su peso; guarda con nombre UUID en Storage y los metadatos en la base. Las imágenes se optimizan antes de subir y el navegador las guarda en caché. |
+| **Diseño de la API REST** | Controladores en [`update.API/Controllers`](backend/update.API/Controllers/), lógica en [`update.Application/Services`](backend/update.Application/Services/), validación de payloads en los DTO, índices en las migraciones. Documentada en [Swagger](https://update-rlrx.onrender.com/swagger) y en [`ENDPOINTS.md`](backend/ENDPOINTS.md). |
+| **Calidad y despliegue** | Arquitectura por capas, errores centralizados en [`ManejadorExcepciones.cs`](backend/update.API/Errors/ManejadorExcepciones.cs), secretos en variables de entorno ([`.env.example`](backend/.env.example)), CORS, límite de intentos en login y registro, despliegue en la nube y [seeds](#5-cargar-datos-de-demostración). |
 
 ## Arquitectura
 
@@ -135,19 +163,18 @@ La lista completa de direcciones del servidor está en [`backend/ENDPOINTS.md`](
 
 ### Dónde funciona cada parte
 
-Por ahora todo funciona en un solo computador y nada está publicado en internet. Cada parte usa su propia dirección:
+| Parte | En producción | En local |
+| --- | --- | --- |
+| Página web | Vercel | `http://localhost:5173` |
+| Servidor | Render (Docker) | `http://localhost:5195` |
+| Base de datos | Supabase (PostgreSQL) | PostgreSQL local o Supabase |
+| Archivos | Supabase Storage | Supabase Storage |
 
-| Parte         | Dirección                  |
-| ------------- | -------------------------- |
-| Página web    | `http://localhost:5173`    |
-| Servidor      | `http://localhost:5195`    |
-| Base de datos | PostgreSQL (local, puerto `5432`, o en Supabase) |
-
-Las fotos que suben las personas se guardan en la carpeta `backend/update.API/uploads`, que no se sube al repositorio.
+Los archivos nunca se guardan en el repositorio. Pasan siempre por el servidor, que los valida, los guarda en Storage y anota sus datos en la base de datos.
 
 ### Lo que viene
 
-La arquitectura ya está lista para crecer. En las próximas entregas llegarán los comentarios y reacciones en las publicaciones, el chat y los eventos. Los videos y documentos seguirán el mismo camino que las fotos: pasarán siempre por el servidor, que guarda el archivo y anota sus datos en la base de datos.
+La arquitectura ya está lista para crecer con el chat, los eventos y las comunidades. La base de datos ya tiene las tablas de conversaciones y mensajes.
 
 ## La base de datos
 
@@ -235,7 +262,16 @@ Con el servidor encendido, desde la carpeta del proyecto:
 node backend/demo/sembrar.mjs
 ```
 
-Crea dos cuentas de prueba (`demo_backend2_1` y `demo_backend2_2`), cada una con una publicación y un emprendimiento. Se puede correr varias veces sin duplicar nada. Más detalles en [`backend/README.md`](backend/README.md#datos-de-demostración).
+Crea dos cuentas de prueba (`demo_backend2_1` y `demo_backend2_2`), cada una con una publicación y un emprendimiento.
+
+Para llenar la red social con 10 cuentas, fotos, comentarios, "me gusta", seguidores y solicitudes (en PowerShell, con una clave de prueba propia):
+
+```powershell
+$env:UPDATE_DEMO_CLAVE = "<clave-de-prueba-con-letras-y-numeros>"
+node backend/demo/red-social.mjs
+```
+
+Los dos scripts se pueden correr varias veces sin duplicar nada. Más detalles en [`backend/README.md`](backend/README.md#datos-de-demostración).
 
 ## Despliegue
 
@@ -269,4 +305,6 @@ En el plan gratuito, Render apaga el servidor tras 15 minutos sin uso y tarda ce
 2. En Vercel: **Add New > Project**, elegir este repositorio y poner **Root Directory** en `frontend`. Vercel detecta Vite solo; no hace falta ninguna variable de entorno.
 3. Copiar la dirección que da Vercel (por ejemplo `https://update.vercel.app`) en la variable `Cors__Origenes__0` de Render.
 
-Después de esto, la página publicada funciona igual que en local: registro, inicio de sesión, feed, perfil y archivos.
+Después de esto, la página publicada funciona igual que en local: registro, inicio de sesión, feed, perfiles, solicitudes y archivos.
+
+Si el proyecto de Vercel no está conectado al repositorio, se publica desde la carpeta `frontend` con `npx vercel deploy --prod`.

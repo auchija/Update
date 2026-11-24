@@ -25,6 +25,10 @@ export class ApiError extends Error {
   }
 }
 
+export function isTemporaryError(error) {
+  return error?.status === NO_CONNECTION_STATUS || error?.status >= 500;
+}
+
 export async function apiRequest(path, { method = "GET", body, retryOnExpiredToken = true } = {}) {
   const accessToken = getAccessToken();
   const response = await sendRequest(path, { method, body, accessToken });
@@ -100,7 +104,8 @@ async function renewAccessToken() {
     });
     setSession(data.accessToken, data.user ?? getCurrentUser());
     return true;
-  } catch {
+  } catch (error) {
+    if (isTemporaryError(error)) throw error;
     expireSession();
     return false;
   }

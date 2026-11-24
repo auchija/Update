@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using update.Application.DTOs;
 using update.Application.Services;
 
@@ -10,6 +11,9 @@ namespace update.API.Controllers;
 public sealed class AuthController(AuthService authService) : ControllerBase
 {
     [HttpPost("register")]
+    [EndpointSummary("Crea la cuenta y su perfil, y abre la sesión.")]
+    [EnableRateLimiting("autenticacion")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UsuarioSesionDto))]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -17,42 +21,28 @@ public sealed class AuthController(AuthService authService) : ControllerBase
         [FromBody] RegistroRequest request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var respuesta = await authService.RegistrarAsync(
-    request, cancellationToken);
+        var respuesta = await authService.RegistrarAsync(request, cancellationToken);
 
-            Response.Cookies.Append("refreshToken", respuesta.RefreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Path = "/api/auth",
-                Expires = respuesta.RefreshTokenExpiresAt
-            });
-
-            return StatusCode(StatusCodes.Status201Created, new
-            {
-                accessToken = respuesta.AccessToken,
-                user = ConAvatarAbsoluto(respuesta.User)
-            });
-        }
-        catch (DatosEnUsoException ex)
+        Response.Cookies.Append("refreshToken", respuesta.RefreshToken, new CookieOptions
         {
-            return Conflict(new ProblemDetails
-            {
-                Status = StatusCodes.Status409Conflict,
-                Title = "No se pudo crear la cuenta.",
-                Extensions =
-                {
-                    ["message"] = ex.Message,
-                    ["errors"] = ex.Errores
-                }
-            });
-        }
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Path = "/api/auth",
+            Expires = respuesta.RefreshTokenExpiresAt
+        });
+
+        return StatusCode(StatusCodes.Status201Created, new
+        {
+            accessToken = respuesta.AccessToken,
+            user = ConAvatarAbsoluto(respuesta.User)
+        });
     }
 
     [HttpPost("login")]
+    [EndpointSummary("Inicia sesión con correo o @usuario; bloquea 15 minutos tras 5 intentos fallidos.")]
+    [EnableRateLimiting("autenticacion")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UsuarioSesionDto))]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -89,6 +79,7 @@ public sealed class AuthController(AuthService authService) : ControllerBase
     }
 
     [HttpPost("refresh")]
+    [EndpointSummary("Renueva el token de acceso con la cookie de sesión.")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UsuarioSesionDto))]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
@@ -118,6 +109,7 @@ public sealed class AuthController(AuthService authService) : ControllerBase
     }
 
     [HttpPost("logout")]
+    [EndpointSummary("Cierra la sesión y anula la cookie.")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -138,6 +130,7 @@ public sealed class AuthController(AuthService authService) : ControllerBase
     }
 
     [HttpGet("me")]
+    [EndpointSummary("Devuelve el usuario con sesión.")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UsuarioSesionDto))]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]

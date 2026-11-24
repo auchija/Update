@@ -19,6 +19,7 @@ public sealed class MisEmprendimientosController(MisEmprendimientos servicio) : 
         => Ok(await servicio.ListarCategorias(pagina, tamanoPagina, ct));
 
     [HttpGet]
+    [EndpointSummary("Lista mis emprendimientos.")]
     [ProducesResponseType<IReadOnlyList<VistaEmprendimiento>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -30,6 +31,7 @@ public sealed class MisEmprendimientosController(MisEmprendimientos servicio) : 
     }
 
     [HttpGet("{id:guid}")]
+    [EndpointSummary("Devuelve uno de mis emprendimientos.")]
     [ProducesResponseType<VistaEmprendimiento>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -41,6 +43,7 @@ public sealed class MisEmprendimientosController(MisEmprendimientos servicio) : 
     }
 
     [HttpPost]
+    [EndpointSummary("Crea un emprendimiento.")]
     [ProducesResponseType<VistaEmprendimiento>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -52,6 +55,7 @@ public sealed class MisEmprendimientosController(MisEmprendimientos servicio) : 
     }
 
     [HttpPut("{id:guid}")]
+    [EndpointSummary("Edita uno de mis emprendimientos.")]
     [ProducesResponseType<VistaEmprendimiento>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -64,6 +68,7 @@ public sealed class MisEmprendimientosController(MisEmprendimientos servicio) : 
     }
 
     [HttpDelete("{id:guid}")]
+    [EndpointSummary("Elimina (borrado lógico) uno de mis emprendimientos.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

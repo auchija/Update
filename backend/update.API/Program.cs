@@ -3,8 +3,11 @@ using update.API.Extensions;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 
 using Microsoft.IdentityModel.Tokens;
@@ -45,6 +48,7 @@ builder.Services.AddScoped<IAlmacenObjetos>(sp =>
 });
 builder.Services.AddScoped(sp => new Lazy<IAlmacenObjetos>(sp.GetRequiredService<IAlmacenObjetos>));
 builder.Services.AddSingleton(new OpcionesSubida(carpetaUploads));
+builder.Services.AddSingleton(new FirmaArchivos(Encoding.UTF8.GetBytes(claveJwt)));
 builder.Services.AddScoped<ServicioSubidaArchivos>();
 builder.Services.AddScoped<ServicioFeed>();
 builder.Services.AddScoped<ServicioComunidad>();
@@ -69,6 +73,7 @@ builder.Services.AddSwaggerGen(opciones =>
         var xml = Path.Combine(AppContext.BaseDirectory, $"{proyecto}.xml");
         if (File.Exists(xml)) opciones.IncludeXmlComments(xml);
     }
+    opciones.OperationFilter<DescripcionesSwagger>();
     opciones.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
@@ -103,6 +108,22 @@ builder.Services.AddAuthorization(opciones => opciones.AddPolicy("Administracion
 var origenes = builder.Configuration.GetSection("Cors:Origenes").Get<string[]>() ?? ["http://localhost:5173"];
 builder.Services.AddCors(opciones => opciones.AddPolicy("Frontend",
     politica => politica.WithOrigins(origenes).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+builder.Services.AddRateLimiter(opciones =>
+{
+    opciones.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    opciones.OnRejected = async (contexto, ct) =>
+    {
+        contexto.HttpContext.Response.Headers.RetryAfter = "60";
+        await contexto.HttpContext.RequestServices.GetRequiredService<IProblemDetailsService>().WriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = contexto.HttpContext,
+            ProblemDetails = new ProblemDetails { Status = StatusCodes.Status429TooManyRequests, Title = "Hiciste demasiados intentos. Espera un minuto." }
+        });
+    };
+    opciones.AddPolicy("autenticacion", contexto => RateLimitPartition.GetFixedWindowLimiter(
+        contexto.Connection.RemoteIpAddress?.ToString() ?? "desconocida",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+});
 builder.Services.Configure<ForwardedHeadersOptions>(opciones =>
 {
     opciones.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
@@ -120,6 +141,7 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger
 }
 if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();
 app.UseCors("Frontend");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

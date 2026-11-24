@@ -74,7 +74,7 @@ public sealed class MisEmprendimientos(IEmprendimientoRepository negocios, IPerf
         await unidad.EjecutarEnTransaccionAsync(async token =>
         {
             if (nuevo) { await perfiles.AgregarAsync(p, token); await negocios.AgregarAsync(e, token); }
-            else { await perfiles.ActualizarAsync(p, token); await negocios.ActualizarAsync(e, token); }
+            else { await perfiles.ActualizarDatosAsync(p, token); await negocios.ActualizarAsync(e, token); }
             return true;
         }, ct);
         return Vista(e, p, portada?.ClaveObjeto);

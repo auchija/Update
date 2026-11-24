@@ -9,12 +9,6 @@ using update.Domain.Exceptions;
 
 namespace update.Application.Services;
 
-public sealed class DatosEnUsoException(IReadOnlyDictionary<string, string> errores)
-    : Exception("Algunos datos ya están en uso.")
-{
-    public IReadOnlyDictionary<string, string> Errores { get; } = errores;
-}
-
 public sealed class AuthService(
     IUsuarioRepository usuarios,
     IRefreshTokenRepository refreshTokens,
@@ -50,7 +44,8 @@ public sealed class AuthService(
             errores["email"] = "Ese correo ya está registrado. ¿Quieres iniciar sesión?";
         if (!await miPerfil.NombreUsuarioDisponibleAsync(request.Handle, Guid.Empty, cancellationToken))
             errores["handle"] = "Ese usuario no está disponible. Prueba con otro.";
-        if (errores.Count > 0) throw new DatosEnUsoException(errores);
+        if (errores.Count > 0)
+            throw new DatosEnConflictoException("No se pudo crear la cuenta.", "Algunos datos ya están en uso.", errores);
 
         var usuario = new Usuario
         {
@@ -135,7 +130,7 @@ public sealed class AuthService(
         if (almacenado is null || !almacenado.EstaActivo(ahora))
             return null;
 
-        almacenado.RevocadoEn = ahora;
+        almacenado.Rotar(ahora, GraciaRotacion);
         await refreshTokens.ActualizarAsync(almacenado, cancellationToken);
 
         var usuario = await usuarios.ObtenerPorIdAsync(
@@ -237,6 +232,9 @@ public sealed class AuthService(
 
     private static readonly TimeSpan DuracionRefreshToken =
         TimeSpan.FromDays(14);
+
+    private static readonly TimeSpan GraciaRotacion =
+        TimeSpan.FromSeconds(60);
 
     private static string CrearRefreshToken() =>
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
